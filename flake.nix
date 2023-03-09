@@ -24,7 +24,7 @@
             inherit pkgs;
             inputs = inputs // { inherit inputs' self'; };
             modules = [
-              self.devenvModules.infra
+              self.devenvModules.metal
               self.devenvModules.cloud
             ];
           };
