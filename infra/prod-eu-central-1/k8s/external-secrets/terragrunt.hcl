@@ -1,0 +1,1 @@
+../../../region-templates/k8s/external-secrets/terragrunt.hcl

@@ -1,0 +1,1 @@
+../../region-templates/encryption-config/terragrunt.hcl

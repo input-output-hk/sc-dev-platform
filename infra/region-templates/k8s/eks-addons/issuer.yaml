@@ -1,0 +1,35 @@
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: smart.contracts@iohk.io
+    privateKeySecretRef:
+      name: letsencrypt
+    solvers:
+      - dns01:
+          route53:
+            region: us-east-1
+            role:
+        selector:
+          dnsZones:
+            - "dapps.iohkdev.io"
+
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: dapps-iohkdev-io
+  namespace: default
+spec:
+  secretName: dapps-iohkdev-io-tls
+  issuerRef:
+    name: letsencrypt
+    kind: ClusterIssuer
+  commonName: "*.dapps.iohkdev.io"
+  dnsNames:
+  - "dapps.iohkdev.io"
+  - "*.dapps.iohkdev.io"

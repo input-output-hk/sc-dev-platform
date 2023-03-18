@@ -1,0 +1,1 @@
+../../region-templates/vpc/terragrunt.hcl

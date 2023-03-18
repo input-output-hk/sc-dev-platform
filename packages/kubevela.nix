@@ -12,6 +12,7 @@ buildGoModule {
   postInstall = ''
     cd $out/bin
     for f in * ; do mv -- "$f" "vela-$f" ; done
+    ln -s $out/bin/vela-cli $out/bin/vela
     cd -
   '';
   doCheck = false;
