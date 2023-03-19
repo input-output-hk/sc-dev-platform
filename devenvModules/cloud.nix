@@ -1,8 +1,10 @@
-# Start devenv Module here
-{ pkgs, self', ... }:
+{ inputs }:
+
+# Start devenv module here
+{ pkgs, ... }:
 {
   packages = with pkgs; [
     kubectl
-    self'.packages.kubevela
+    inputs.self.packages.${pkgs.system}.kubevela
   ];
 }
