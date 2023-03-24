@@ -1,1 +1,0 @@
-../../../region-templates/k8s/eks-addons/terragrunt.hcl

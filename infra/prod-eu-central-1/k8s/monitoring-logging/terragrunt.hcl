@@ -1,1 +1,0 @@
-../../../region-templates/k8s/monitoring-logging/terragrunt.hcl

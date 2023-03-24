@@ -1,1 +1,0 @@
-../../../region-templates/k8s/postgres-operator/terragrunt.hcl

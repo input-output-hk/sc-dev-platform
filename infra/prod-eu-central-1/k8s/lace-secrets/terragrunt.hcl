@@ -1,1 +1,0 @@
-../../../region-templates/k8s/lace-secrets/terragrunt.hcl

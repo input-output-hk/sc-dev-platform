@@ -1,5 +1,5 @@
 variable "namespace" {
-  description = "Set the namespace to deploy the kubevela into"
+  description = "Set the namespace that kubevela is deployed to"
   type        = string
   default     = "vela-system"
 }

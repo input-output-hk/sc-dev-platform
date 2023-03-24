@@ -5,6 +5,7 @@ tmp/
 
 # devshell
 .devenv
+.direnv
 .envrc.local
 
 # hashicorp/terraform
