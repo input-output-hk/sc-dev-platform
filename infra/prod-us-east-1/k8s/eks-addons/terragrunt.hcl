@@ -71,7 +71,7 @@ inputs = {
     external-dns = {
       enabled      = true
       extra_values = <<-EXTRA_VALUES
-        domainFilters: [dapps.iohkdev.io]
+        domainFilters: [scdev.aws.iohkdev.io]
       EXTRA_VALUES
     }
   }
@@ -84,7 +84,7 @@ inputs = {
           enabled: true
       service:
         annotations:
-          "external-dns.alpha.kubernetes.io/hostname": "*.dapps.iohkdev.io."
+          "external-dns.alpha.kubernetes.io/hostname": "*.scdev.aws.iohkdev.io."
     EXTRA_VALUES
 
   }
