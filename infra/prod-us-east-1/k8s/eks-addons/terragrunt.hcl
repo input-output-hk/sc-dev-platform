@@ -3,12 +3,15 @@ include {
 }
 
 terraform {
-  source = "github.com/particuleio/terraform-kubernetes-addons.git//modules/aws?ref=v10.3.0"
+  source = "github.com/particuleio/terraform-kubernetes-addons.git//modules/aws?ref=v12.6.0"
 }
 
 locals {
   # Set kubernetes based providers
-  k8s = read_terragrunt_config(find_in_parent_folders("k8s-addons.hcl"))
+  k8s = read_terragrunt_config("${get_parent_terragrunt_dir()}/provider-configs/k8s.hcl")
+  helm = read_terragrunt_config("${get_parent_terragrunt_dir()}/provider-configs/helm.hcl")
+  kubectl = read_terragrunt_config("${get_parent_terragrunt_dir()}/provider-configs/kubectl.hcl")
+
   # Automatically load environment-level variables
   environment_vars = read_terragrunt_config(find_in_parent_folders("env.hcl"))
   account_vars     = read_terragrunt_config(find_in_parent_folders("account.hcl"))
@@ -17,6 +20,8 @@ locals {
   region  = local.environment_vars.locals.aws_region
   profile = local.account_vars.locals.aws_profile
 }
+
+generate = merge(local.k8s.generate, local.helm.generate, local.kubectl.generate)
 
 dependency "eks" {
   config_path = "../eks"
@@ -38,11 +43,10 @@ dependency "vpc" {
   }
 }
 
-generate = local.k8s.generate
-
 inputs = {
 
   cluster-name = dependency.eks.outputs.cluster_id
+  k8s-cluster-name = dependency.eks.outputs.cluster_id
 
   eks = {
     "cluster_oidc_issuer_url" = dependency.eks.outputs.cluster_oidc_issuer_url
@@ -85,6 +89,7 @@ inputs = {
       service:
         annotations:
           "external-dns.alpha.kubernetes.io/hostname": "*.scdev.aws.iohkdev.io."
+
     EXTRA_VALUES
 
   }

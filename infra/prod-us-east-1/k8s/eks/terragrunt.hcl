@@ -1,6 +1,7 @@
 locals {
-  # Set kubernetes based providers
-  k8s = read_terragrunt_config(find_in_parent_folders("k8s.hcl"))
+  # Set kubernetes provider
+  k8s = read_terragrunt_config("${get_parent_terragrunt_dir()}/provider-configs/k8s.hcl")
+
   # Automatically load environment-level variables
   environment_vars = read_terragrunt_config(find_in_parent_folders("env.hcl"))
   account_vars     = read_terragrunt_config(find_in_parent_folders("account.hcl"))
@@ -34,7 +35,7 @@ locals {
   }
 
   bootstrap_cmd = <<-EOT
-        "max-pods" = ${run_cmd("/bin/sh", "-c", "AWS_REGION=${local.region} AWS_PROFILE=${local.profile} ${get_terragrunt_dir()}/max-pods-calculator.sh --instance-type t3a.large --cni-version 1.11.4")}
+        "max-pods" = ${run_cmd("--terragrunt-quiet", "/bin/sh", "-c", "AWS_REGION=${local.region} AWS_PROFILE=${local.profile} ${get_terragrunt_dir()}/max-pods-calculator.sh --instance-type t3a.large --cni-version 1.11.4")}
         EOT
 
   #  role_arn     = "arn:aws:iam::*******:role/terraform-master-access"
@@ -64,11 +65,14 @@ dependency "encryption_config" {
   config_path = "../../encryption-config"
 }
 
+# Generate k8s provider block
 generate = local.k8s.generate
 
 # These are the variables we have to pass in to use the module specified in the terragrunt configuration above
 inputs = {
   cluster_name    = local.name
+  k8s-cluster-name = local.name # For provider block
+
   cluster_version = "1.23"
 
   cluster_endpoint_private_access = true
