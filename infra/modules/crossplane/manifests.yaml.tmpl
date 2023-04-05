@@ -1,0 +1,89 @@
+apiVersion: aws.crossplane.io/v1beta1
+kind: ProviderConfig
+metadata:
+  name: aws
+spec:
+  credentials:
+    secretRef:
+      key: credentials
+      name: aws-creds
+      namespace: ${namespace}
+    source: Secret
+---
+apiVersion: database.aws.crossplane.io/v1beta1
+kind: DBSubnetGroup
+metadata:
+  name: db-subnet-group
+spec:
+  forProvider:
+    region: us-east-1
+    description: Main DB subnet group for SC Dev
+    subnetIds:
+      ${subnetIds}
+  providerConfigRef:
+    name: aws
+---
+apiVersion: ec2.aws.crossplane.io/v1beta1
+kind: SecurityGroup
+metadata:
+  name: database-sg
+spec:
+  forProvider:
+    region: us-east-1
+    vpcId: ${vpcId}
+    groupName: db-subnet-group
+    description: Cluster communication to rds instances
+    ingress:
+      - fromPort: 3306
+        toPort: 3306
+        ipProtocol: tcp
+        ipRanges:
+          - cidrIp: 10.10.0.0/16
+  providerConfigRef:
+    name: aws
+---
+apiVersion: database.aws.crossplane.io/v1beta1
+kind: RDSInstance
+metadata:
+  name: main-postgres
+spec:
+  forProvider:
+    region: us-east-1
+    allocatedStorage: 20
+    autoMinorVersionUpgrade: true
+    backupRetentionPeriod: 0
+    caCertificateIdentifier: rds-ca-2019
+    copyTagsToSnapshot: false
+    dbInstanceClass: db.t3.small
+    deletionProtection: false
+    enableIAMDatabaseAuthentication: false
+    enablePerformanceInsights: false
+    engine: postgres
+    engineVersion: "14.6"
+    finalDBSnapshotIdentifier: muvaf-test
+    licenseModel: postgresql-license
+    masterUsername: adminuser
+    multiAZ: true
+    port: 3306
+    publiclyAccessible: true
+    storageEncrypted: false
+    storageType: gp2
+    dbSubnetGroupName: db-subnet-group
+    vpcSecurityGroupIDRefs:
+      - name: database-sg
+  providerConfigRef:
+    name: aws
+  writeConnectionSecretToRef:
+    name: postgres-creds
+    namespace: ${namespace}
+---
+apiVersion: postgresql.sql.crossplane.io/v1alpha1
+kind: ProviderConfig
+metadata:
+  name: postgres
+spec:
+  credentials:
+    connectionSecretRef:
+      name: postgres-creds
+      namespace: ${namespace}
+    source: PostgreSQLConnectionSecret
