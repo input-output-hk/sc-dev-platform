@@ -1,9 +1,9 @@
 outputs: {
-	httpRoute: {
+	httpRouteRedundant: {
 		apiVersion: "gateway.networking.k8s.io/v1alpha2"
 		kind:       "HTTPRoute"
 		metadata: {
-			name:      context.name
+			name:      context.name + "-redundant"
 			namespace: context.namespace
 		}
 		spec: {

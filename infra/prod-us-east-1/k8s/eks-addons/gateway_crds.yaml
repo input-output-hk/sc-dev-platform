@@ -1,4 +1,4 @@
-# Copyright 2023 The Kubernetes Authors.
+# Copyright 2022 The Kubernetes Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,8 +23,8 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    api-approved.kubernetes.io: https://github.com/kubernetes-sigs/gateway-api/pull/1538
-    gateway.networking.k8s.io/bundle-version: v0.6.2
+    api-approved.kubernetes.io: https://github.com/kubernetes-sigs/gateway-api/pull/1086
+    gateway.networking.k8s.io/bundle-version: v0.5.1
     gateway.networking.k8s.io/channel: standard
   creationTimestamp: null
   name: gatewayclasses.gateway.networking.k8s.io
@@ -55,9 +55,6 @@ spec:
       name: Description
       priority: 1
       type: string
-    deprecated: true
-    deprecationWarning: The v1alpha2 version of GatewayClass has been deprecated and
-      will be removed in a future release of the API. Please upgrade to v1beta1.
     name: v1alpha2
     schema:
       openAPIV3Schema:
@@ -111,7 +108,7 @@ spec:
                   resource, i.e. ConfigMap, or an implementation-specific custom resource.
                   The resource can be cluster-scoped or namespace-scoped. \n If the
                   referent cannot be found, the GatewayClass's \"InvalidParameters\"
-                  status condition will be true. \n Support: Implementation-specific"
+                  status condition will be true. \n Support: Custom"
                 properties:
                   group:
                     description: Group is the group of the referent.
@@ -159,7 +156,7 @@ spec:
                 default:
                 - lastTransitionTime: "1970-01-01T00:00:00Z"
                   message: Waiting for controller
-                  reason: Pending
+                  reason: Waiting
                   status: Unknown
                   type: Accepted
                 description: "Conditions is the current status from the controller
@@ -169,14 +166,13 @@ spec:
                   description: "Condition contains details for one aspect of the current
                     state of this API Resource. --- This struct is intended for direct
                     use as an array at the field path .status.conditions.  For example,
-                    \n \ttype FooStatus struct{ \t    // Represents the observations
-                    of a foo's current state. \t    // Known .status.conditions.type
-                    are: \"Available\", \"Progressing\", and \"Degraded\" \t    //
-                    +patchMergeKey=type \t    // +patchStrategy=merge \t    // +listType=map
-                    \t    // +listMapKey=type \t    Conditions []metav1.Condition
-                    `json:\"conditions,omitempty\" patchStrategy:\"merge\" patchMergeKey:\"type\"
-                    protobuf:\"bytes,1,rep,name=conditions\"` \n \t    // other fields
-                    \t}"
+                    type FooStatus struct{     // Represents the observations of a
+                    foo's current state.     // Known .status.conditions.type are:
+                    \"Available\", \"Progressing\", and \"Degraded\"     // +patchMergeKey=type
+                    \    // +patchStrategy=merge     // +listType=map     // +listMapKey=type
+                    \    Conditions []metav1.Condition `json:\"conditions,omitempty\"
+                    patchStrategy:\"merge\" patchMergeKey:\"type\" protobuf:\"bytes,1,rep,name=conditions\"`
+                    \n     // other fields }"
                   properties:
                     lastTransitionTime:
                       description: lastTransitionTime is the last time the condition
@@ -243,7 +239,7 @@ spec:
         - spec
         type: object
     served: true
-    storage: false
+    storage: true
     subresources:
       status: {}
   - additionalPrinterColumns:
@@ -313,7 +309,7 @@ spec:
                   resource, i.e. ConfigMap, or an implementation-specific custom resource.
                   The resource can be cluster-scoped or namespace-scoped. \n If the
                   referent cannot be found, the GatewayClass's \"InvalidParameters\"
-                  status condition will be true. \n Support: Implementation-specific"
+                  status condition will be true. \n Support: Custom"
                 properties:
                   group:
                     description: Group is the group of the referent.
@@ -361,7 +357,7 @@ spec:
                 default:
                 - lastTransitionTime: "1970-01-01T00:00:00Z"
                   message: Waiting for controller
-                  reason: Pending
+                  reason: Waiting
                   status: Unknown
                   type: Accepted
                 description: "Conditions is the current status from the controller
@@ -371,14 +367,13 @@ spec:
                   description: "Condition contains details for one aspect of the current
                     state of this API Resource. --- This struct is intended for direct
                     use as an array at the field path .status.conditions.  For example,
-                    \n \ttype FooStatus struct{ \t    // Represents the observations
-                    of a foo's current state. \t    // Known .status.conditions.type
-                    are: \"Available\", \"Progressing\", and \"Degraded\" \t    //
-                    +patchMergeKey=type \t    // +patchStrategy=merge \t    // +listType=map
-                    \t    // +listMapKey=type \t    Conditions []metav1.Condition
-                    `json:\"conditions,omitempty\" patchStrategy:\"merge\" patchMergeKey:\"type\"
-                    protobuf:\"bytes,1,rep,name=conditions\"` \n \t    // other fields
-                    \t}"
+                    type FooStatus struct{     // Represents the observations of a
+                    foo's current state.     // Known .status.conditions.type are:
+                    \"Available\", \"Progressing\", and \"Degraded\"     // +patchMergeKey=type
+                    \    // +patchStrategy=merge     // +listType=map     // +listMapKey=type
+                    \    Conditions []metav1.Condition `json:\"conditions,omitempty\"
+                    patchStrategy:\"merge\" patchMergeKey:\"type\" protobuf:\"bytes,1,rep,name=conditions\"`
+                    \n     // other fields }"
                   properties:
                     lastTransitionTime:
                       description: lastTransitionTime is the last time the condition
@@ -445,7 +440,7 @@ spec:
         - spec
         type: object
     served: true
-    storage: true
+    storage: false
     subresources:
       status: {}
 status:
@@ -462,8 +457,8 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    api-approved.kubernetes.io: https://github.com/kubernetes-sigs/gateway-api/pull/1538
-    gateway.networking.k8s.io/bundle-version: v0.6.2
+    api-approved.kubernetes.io: https://github.com/kubernetes-sigs/gateway-api/pull/1086
+    gateway.networking.k8s.io/bundle-version: v0.5.1
     gateway.networking.k8s.io/channel: standard
   creationTimestamp: null
   name: gateways.gateway.networking.k8s.io
@@ -487,15 +482,12 @@ spec:
     - jsonPath: .status.addresses[*].value
       name: Address
       type: string
-    - jsonPath: .status.conditions[?(@.type=="Programmed")].status
-      name: Programmed
+    - jsonPath: .status.conditions[?(@.type=="Ready")].status
+      name: Ready
       type: string
     - jsonPath: .metadata.creationTimestamp
       name: Age
       type: date
-    deprecated: true
-    deprecationWarning: The v1alpha2 version of Gateway has been deprecated and will
-      be removed in a future release of the API. Please upgrade to v1beta1.
     name: v1alpha2
     schema:
       openAPIV3Schema:
@@ -797,9 +789,9 @@ spec:
                             namespace that allows the certificate to be attached.
                             If a ReferenceGrant does not allow this reference, the
                             \"ResolvedRefs\" condition MUST be set to False for this
-                            listener with the \"RefNotPermitted\" reason. \n This
-                            field is required to have at least one element when the
-                            mode is set to \"Terminate\" (default) and is optional
+                            listener with the \"InvalidCertificateRef\" reason. \n
+                            This field is required to have at least one element when
+                            the mode is set to \"Terminate\" (default) and is optional
                             otherwise. \n CertificateRefs can reference to standard
                             Kubernetes resources, i.e. Secret, or implementation-specific
                             custom resources. \n Support: Core - A single reference
@@ -819,8 +811,8 @@ spec:
                               group:
                                 default: ""
                                 description: Group is the group of the referent. For
-                                  example, "gateway.networking.k8s.io". When unspecified
-                                  or empty string, core API group is inferred.
+                                  example, "networking.k8s.io". When unspecified (empty
+                                  string), core API group is inferred.
                                 maxLength: 253
                                 pattern: ^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
                                 type: string
@@ -840,11 +832,12 @@ spec:
                               namespace:
                                 description: "Namespace is the namespace of the backend.
                                   When unspecified, the local namespace is inferred.
-                                  \n Note that when a namespace is specified, a ReferenceGrant
-                                  object is required in the referent namespace to
-                                  allow that namespace's owner to accept the reference.
-                                  See the ReferenceGrant documentation for details.
-                                  \n Support: Core"
+                                  \n Note that when a different namespace is specified,
+                                  a ReferenceGrant object with ReferenceGrantTo.Kind=Secret
+                                  is required in the referent namespace to allow that
+                                  namespace's owner to accept the reference. See the
+                                  ReferenceGrant documentation for details. \n Support:
+                                  Core"
                                 maxLength: 63
                                 minLength: 1
                                 pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$
@@ -914,7 +907,7 @@ spec:
                 message: Waiting for controller
                 reason: NotReconciled
                 status: Unknown
-                type: Accepted
+                type: Scheduled
             description: Status defines the current state of Gateway.
             properties:
               addresses:
@@ -949,32 +942,26 @@ spec:
                 default:
                 - lastTransitionTime: "1970-01-01T00:00:00Z"
                   message: Waiting for controller
-                  reason: Pending
+                  reason: NotReconciled
                   status: Unknown
-                  type: Accepted
-                - lastTransitionTime: "1970-01-01T00:00:00Z"
-                  message: Waiting for controller
-                  reason: Pending
-                  status: Unknown
-                  type: Programmed
+                  type: Scheduled
                 description: "Conditions describe the current conditions of the Gateway.
                   \n Implementations should prefer to express Gateway conditions using
                   the `GatewayConditionType` and `GatewayConditionReason` constants
                   so that operators and tools can converge on a common vocabulary
-                  to describe Gateway state. \n Known condition types are: \n * \"Accepted\"
+                  to describe Gateway state. \n Known condition types are: \n * \"Scheduled\"
                   * \"Ready\""
                 items:
                   description: "Condition contains details for one aspect of the current
                     state of this API Resource. --- This struct is intended for direct
                     use as an array at the field path .status.conditions.  For example,
-                    \n \ttype FooStatus struct{ \t    // Represents the observations
-                    of a foo's current state. \t    // Known .status.conditions.type
-                    are: \"Available\", \"Progressing\", and \"Degraded\" \t    //
-                    +patchMergeKey=type \t    // +patchStrategy=merge \t    // +listType=map
-                    \t    // +listMapKey=type \t    Conditions []metav1.Condition
-                    `json:\"conditions,omitempty\" patchStrategy:\"merge\" patchMergeKey:\"type\"
-                    protobuf:\"bytes,1,rep,name=conditions\"` \n \t    // other fields
-                    \t}"
+                    type FooStatus struct{     // Represents the observations of a
+                    foo's current state.     // Known .status.conditions.type are:
+                    \"Available\", \"Progressing\", and \"Degraded\"     // +patchMergeKey=type
+                    \    // +patchStrategy=merge     // +listType=map     // +listMapKey=type
+                    \    Conditions []metav1.Condition `json:\"conditions,omitempty\"
+                    patchStrategy:\"merge\" patchMergeKey:\"type\" protobuf:\"bytes,1,rep,name=conditions\"`
+                    \n     // other fields }"
                   properties:
                     lastTransitionTime:
                       description: lastTransitionTime is the last time the condition
@@ -1054,15 +1041,14 @@ spec:
                         description: "Condition contains details for one aspect of
                           the current state of this API Resource. --- This struct
                           is intended for direct use as an array at the field path
-                          .status.conditions.  For example, \n \ttype FooStatus struct{
-                          \t    // Represents the observations of a foo's current
-                          state. \t    // Known .status.conditions.type are: \"Available\",
-                          \"Progressing\", and \"Degraded\" \t    // +patchMergeKey=type
-                          \t    // +patchStrategy=merge \t    // +listType=map \t
-                          \   // +listMapKey=type \t    Conditions []metav1.Condition
-                          `json:\"conditions,omitempty\" patchStrategy:\"merge\" patchMergeKey:\"type\"
-                          protobuf:\"bytes,1,rep,name=conditions\"` \n \t    // other
-                          fields \t}"
+                          .status.conditions.  For example, type FooStatus struct{
+                          \    // Represents the observations of a foo's current state.
+                          \    // Known .status.conditions.type are: \"Available\",
+                          \"Progressing\", and \"Degraded\"     // +patchMergeKey=type
+                          \    // +patchStrategy=merge     // +listType=map     //
+                          +listMapKey=type     Conditions []metav1.Condition `json:\"conditions,omitempty\"
+                          patchStrategy:\"merge\" patchMergeKey:\"type\" protobuf:\"bytes,1,rep,name=conditions\"`
+                          \n     // other fields }"
                         properties:
                           lastTransitionTime:
                             description: lastTransitionTime is the last time the condition
@@ -1181,7 +1167,7 @@ spec:
         - spec
         type: object
     served: true
-    storage: false
+    storage: true
     subresources:
       status: {}
   - additionalPrinterColumns:
@@ -1191,8 +1177,8 @@ spec:
     - jsonPath: .status.addresses[*].value
       name: Address
       type: string
-    - jsonPath: .status.conditions[?(@.type=="Programmed")].status
-      name: Programmed
+    - jsonPath: .status.conditions[?(@.type=="Ready")].status
+      name: Ready
       type: string
     - jsonPath: .metadata.creationTimestamp
       name: Age
@@ -1498,9 +1484,9 @@ spec:
                             namespace that allows the certificate to be attached.
                             If a ReferenceGrant does not allow this reference, the
                             \"ResolvedRefs\" condition MUST be set to False for this
-                            listener with the \"RefNotPermitted\" reason. \n This
-                            field is required to have at least one element when the
-                            mode is set to \"Terminate\" (default) and is optional
+                            listener with the \"InvalidCertificateRef\" reason. \n
+                            This field is required to have at least one element when
+                            the mode is set to \"Terminate\" (default) and is optional
                             otherwise. \n CertificateRefs can reference to standard
                             Kubernetes resources, i.e. Secret, or implementation-specific
                             custom resources. \n Support: Core - A single reference
@@ -1520,8 +1506,8 @@ spec:
                               group:
                                 default: ""
                                 description: Group is the group of the referent. For
-                                  example, "gateway.networking.k8s.io". When unspecified
-                                  or empty string, core API group is inferred.
+                                  example, "networking.k8s.io". When unspecified (empty
+                                  string), core API group is inferred.
                                 maxLength: 253
                                 pattern: ^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
                                 type: string
@@ -1615,7 +1601,7 @@ spec:
                 message: Waiting for controller
                 reason: NotReconciled
                 status: Unknown
-                type: Accepted
+                type: Scheduled
             description: Status defines the current state of Gateway.
             properties:
               addresses:
@@ -1650,32 +1636,26 @@ spec:
                 default:
                 - lastTransitionTime: "1970-01-01T00:00:00Z"
                   message: Waiting for controller
-                  reason: Pending
+                  reason: NotReconciled
                   status: Unknown
-                  type: Accepted
-                - lastTransitionTime: "1970-01-01T00:00:00Z"
-                  message: Waiting for controller
-                  reason: Pending
-                  status: Unknown
-                  type: Programmed
+                  type: Scheduled
                 description: "Conditions describe the current conditions of the Gateway.
                   \n Implementations should prefer to express Gateway conditions using
                   the `GatewayConditionType` and `GatewayConditionReason` constants
                   so that operators and tools can converge on a common vocabulary
-                  to describe Gateway state. \n Known condition types are: \n * \"Accepted\"
+                  to describe Gateway state. \n Known condition types are: \n * \"Scheduled\"
                   * \"Ready\""
                 items:
                   description: "Condition contains details for one aspect of the current
                     state of this API Resource. --- This struct is intended for direct
                     use as an array at the field path .status.conditions.  For example,
-                    \n \ttype FooStatus struct{ \t    // Represents the observations
-                    of a foo's current state. \t    // Known .status.conditions.type
-                    are: \"Available\", \"Progressing\", and \"Degraded\" \t    //
-                    +patchMergeKey=type \t    // +patchStrategy=merge \t    // +listType=map
-                    \t    // +listMapKey=type \t    Conditions []metav1.Condition
-                    `json:\"conditions,omitempty\" patchStrategy:\"merge\" patchMergeKey:\"type\"
-                    protobuf:\"bytes,1,rep,name=conditions\"` \n \t    // other fields
-                    \t}"
+                    type FooStatus struct{     // Represents the observations of a
+                    foo's current state.     // Known .status.conditions.type are:
+                    \"Available\", \"Progressing\", and \"Degraded\"     // +patchMergeKey=type
+                    \    // +patchStrategy=merge     // +listType=map     // +listMapKey=type
+                    \    Conditions []metav1.Condition `json:\"conditions,omitempty\"
+                    patchStrategy:\"merge\" patchMergeKey:\"type\" protobuf:\"bytes,1,rep,name=conditions\"`
+                    \n     // other fields }"
                   properties:
                     lastTransitionTime:
                       description: lastTransitionTime is the last time the condition
@@ -1755,15 +1735,14 @@ spec:
                         description: "Condition contains details for one aspect of
                           the current state of this API Resource. --- This struct
                           is intended for direct use as an array at the field path
-                          .status.conditions.  For example, \n \ttype FooStatus struct{
-                          \t    // Represents the observations of a foo's current
-                          state. \t    // Known .status.conditions.type are: \"Available\",
-                          \"Progressing\", and \"Degraded\" \t    // +patchMergeKey=type
-                          \t    // +patchStrategy=merge \t    // +listType=map \t
-                          \   // +listMapKey=type \t    Conditions []metav1.Condition
-                          `json:\"conditions,omitempty\" patchStrategy:\"merge\" patchMergeKey:\"type\"
-                          protobuf:\"bytes,1,rep,name=conditions\"` \n \t    // other
-                          fields \t}"
+                          .status.conditions.  For example, type FooStatus struct{
+                          \    // Represents the observations of a foo's current state.
+                          \    // Known .status.conditions.type are: \"Available\",
+                          \"Progressing\", and \"Degraded\"     // +patchMergeKey=type
+                          \    // +patchStrategy=merge     // +listType=map     //
+                          +listMapKey=type     Conditions []metav1.Condition `json:\"conditions,omitempty\"
+                          patchStrategy:\"merge\" patchMergeKey:\"type\" protobuf:\"bytes,1,rep,name=conditions\"`
+                          \n     // other fields }"
                         properties:
                           lastTransitionTime:
                             description: lastTransitionTime is the last time the condition
@@ -1882,7 +1861,7 @@ spec:
         - spec
         type: object
     served: true
-    storage: true
+    storage: false
     subresources:
       status: {}
 status:
@@ -1899,8 +1878,8 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    api-approved.kubernetes.io: https://github.com/kubernetes-sigs/gateway-api/pull/1538
-    gateway.networking.k8s.io/bundle-version: v0.6.2
+    api-approved.kubernetes.io: https://github.com/kubernetes-sigs/gateway-api/pull/1086
+    gateway.networking.k8s.io/bundle-version: v0.5.1
     gateway.networking.k8s.io/channel: standard
   creationTimestamp: null
   name: httproutes.gateway.networking.k8s.io
@@ -1922,9 +1901,6 @@ spec:
     - jsonPath: .metadata.creationTimestamp
       name: Age
       type: date
-    deprecated: true
-    deprecationWarning: The v1alpha2 version of HTTPRoute has been deprecated and
-      will be removed in a future release of the API. Please upgrade to v1beta1.
     name: v1alpha2
     schema:
       openAPIV3Schema:
@@ -1977,18 +1953,12 @@ spec:
                   have specified hostnames, and none match with the criteria above,
                   then the HTTPRoute is not accepted. The implementation must raise
                   an 'Accepted' Condition with a status of `False` in the corresponding
-                  RouteParentStatus. \n In the event that multiple HTTPRoutes specify
-                  intersecting hostnames (e.g. overlapping wildcard matching and exact
-                  matching hostnames), precedence must be given to rules from the
-                  HTTPRoute with the largest number of: \n * Characters in a matching
-                  non-wildcard hostname. * Characters in a matching hostname. \n If
-                  ties exist across multiple Routes, the matching precedence rules
-                  for HTTPRouteMatches takes over. \n Support: Core"
+                  RouteParentStatus. \n Support: Core"
                 items:
                   description: "Hostname is the fully qualified domain name of a network
                     host. This matches the RFC 1123 definition of a hostname with
-                    2 notable exceptions: \n  1. IPs are not allowed.  2. A hostname
-                    may be prefixed with a wildcard label (`*.`). The wildcard     label
+                    2 notable exceptions: \n 1. IPs are not allowed. 2. A hostname
+                    may be prefixed with a wildcard label (`*.`). The wildcard    label
                     must appear by itself as the first label. \n Hostname can be \"precise\"
                     which is a domain name without the terminating dot of a network
                     host (e.g. \"foo.example.com\") or \"wildcard\", which is a domain
@@ -2017,12 +1987,7 @@ spec:
                   that may be collapsed by an implementation. For example, some implementations
                   may choose to merge compatible Gateway Listeners together. If that
                   is the case, the list of routes attached to those resources should
-                  also be merged. \n Note that for ParentRefs that cross namespace
-                  boundaries, there are specific rules. Cross-namespace references
-                  are only valid if they are explicitly allowed by something in the
-                  namespace they are referring to. For example, Gateway has the AllowedRoutes
-                  field, and ReferenceGrant provides a generic way to enable any other
-                  kind of cross-namespace reference."
+                  also be merged."
                 items:
                   description: "ParentReference identifies an API object (usually
                     a Gateway) that can be considered a parent of this resource (usually
@@ -2034,10 +1999,7 @@ spec:
                   properties:
                     group:
                       default: gateway.networking.k8s.io
-                      description: "Group is the group of the referent. When unspecified,
-                        \"gateway.networking.k8s.io\" is inferred. To set the core
-                        API group (such as for a \"Service\" kind referent), Group
-                        must be explicitly set to \"\" (empty string). \n Support:
+                      description: "Group is the group of the referent. \n Support:
                         Core"
                       maxLength: 253
                       pattern: ^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
@@ -2045,7 +2007,7 @@ spec:
                     kind:
                       default: Gateway
                       description: "Kind is kind of the referent. \n Support: Core
-                        (Gateway) \n Support: Implementation-specific (Other Resources)"
+                        (Gateway) \n Support: Custom (Other Resources)"
                       maxLength: 63
                       minLength: 1
                       pattern: ^[a-zA-Z]([-a-zA-Z0-9]*[a-zA-Z0-9])?$
@@ -2058,14 +2020,8 @@ spec:
                       type: string
                     namespace:
                       description: "Namespace is the namespace of the referent. When
-                        unspecified, this refers to the local namespace of the Route.
-                        \n Note that there are specific rules for ParentRefs which
-                        cross namespace boundaries. Cross-namespace references are
-                        only valid if they are explicitly allowed by something in
-                        the namespace they are referring to. For example: Gateway
-                        has the AllowedRoutes field, and ReferenceGrant provides a
-                        generic way to enable any other kind of cross-namespace reference.
-                        \n Support: Core"
+                        unspecified (or empty string), this refers to the local namespace
+                        of the Route. \n Support: Core"
                       maxLength: 63
                       minLength: 1
                       pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$
@@ -2127,7 +2083,7 @@ spec:
                         \n For example, if two backends are specified with equal weights,
                         and one is invalid, 50 percent of traffic must receive a 500.
                         Implementations may choose how that 50 percent is determined.
-                        \n Support: Core for Kubernetes Service \n Support: Implementation-specific
+                        \n Support: Core for Kubernetes Service \n Support: Custom
                         for any other resource \n Support for weight: Core"
                       items:
                         description: HTTPBackendRef defines how a HTTPRoute should
@@ -2136,9 +2092,9 @@ spec:
                           filters:
                             description: "Filters defined at this level should be
                               executed if and only if the request is being forwarded
-                              to the backend defined here. \n Support: Implementation-specific
-                              (For broader support of filters, use the Filters field
-                              in HTTPRouteRule.)"
+                              to the backend defined here. \n Support: Custom (For
+                              broader support of filters, use the Filters field in
+                              HTTPRouteRule.)"
                             items:
                               description: HTTPRouteFilter defines processing steps
                                 that must be completed during the request or response
@@ -2159,9 +2115,8 @@ spec:
                                   properties:
                                     group:
                                       description: Group is the group of the referent.
-                                        For example, "gateway.networking.k8s.io".
-                                        When unspecified or empty string, core API
-                                        group is inferred.
+                                        For example, "networking.k8s.io". When unspecified
+                                        (empty string), core API group is inferred.
                                       maxLength: 253
                                       pattern: ^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
                                       type: string
@@ -2193,9 +2148,9 @@ spec:
                                         appends to any existing values associated
                                         with the header name. \n Input:   GET /foo
                                         HTTP/1.1   my-header: foo \n Config:   add:
-                                        \  - name: \"my-header\"     value: \"bar,baz\"
+                                        \  - name: \"my-header\"     value: \"bar\"
                                         \n Output:   GET /foo HTTP/1.1   my-header:
-                                        foo,bar,baz"
+                                        foo   my-header: bar"
                                       items:
                                         description: HTTPHeader represents an HTTP
                                           Header name and value as defined by RFC
@@ -2316,15 +2271,14 @@ spec:
                                         Message of the `ResolvedRefs` Condition should
                                         be used to provide more detail about the problem.
                                         \n Support: Extended for Kubernetes Service
-                                        \n Support: Implementation-specific for any
-                                        other resource"
+                                        \n Support: Custom for any other resource"
                                       properties:
                                         group:
                                           default: ""
                                           description: Group is the group of the referent.
-                                            For example, "gateway.networking.k8s.io".
-                                            When unspecified or empty string, core
-                                            API group is inferred.
+                                            For example, "networking.k8s.io". When
+                                            unspecified (empty string), core API group
+                                            is inferred.
                                           maxLength: 253
                                           pattern: ^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
                                           type: string
@@ -2346,8 +2300,9 @@ spec:
                                           description: "Namespace is the namespace
                                             of the backend. When unspecified, the
                                             local namespace is inferred. \n Note that
-                                            when a namespace is specified, a ReferenceGrant
-                                            object is required in the referent namespace
+                                            when a different namespace is specified,
+                                            a ReferenceGrant object with ReferenceGrantTo.Kind=Service
+                                            is required in the referent namespace
                                             to allow that namespace's owner to accept
                                             the reference. See the ReferenceGrant
                                             documentation for details. \n Support:
@@ -2402,13 +2357,13 @@ spec:
                                       description: "Scheme is the scheme to be used
                                         in the value of the `Location` header in the
                                         response. When empty, the scheme of the request
-                                        is used. \n Note that values may be added
-                                        to this enum, implementations must ensure
-                                        that unknown values will not cause a crash.
-                                        \n Unknown values here must result in the
-                                        implementation setting the Accepted Condition
-                                        for the Route to `status: False`, with a Reason
-                                        of `UnsupportedValue`. \n Support: Extended"
+                                        is used. \n Support: Extended \n Note that
+                                        values may be added to this enum, implementations
+                                        must ensure that unknown values will not cause
+                                        a crash. \n Unknown values here must result
+                                        in the implementation setting the Accepted
+                                        Condition for the Route to `status: False`,
+                                        with a Reason of `UnsupportedValue`."
                                       enum:
                                       - http
                                       - https
@@ -2416,14 +2371,13 @@ spec:
                                     statusCode:
                                       default: 302
                                       description: "StatusCode is the HTTP status
-                                        code to be used in response. \n Note that
-                                        values may be added to this enum, implementations
-                                        must ensure that unknown values will not cause
-                                        a crash. \n Unknown values here must result
-                                        in the implementation setting the Accepted
-                                        Condition for the Route to `status: False`,
-                                        with a Reason of `UnsupportedValue`. \n Support:
-                                        Core"
+                                        code to be used in response. \n Support: Core
+                                        \n Note that values may be added to this enum,
+                                        implementations must ensure that unknown values
+                                        will not cause a crash. \n Unknown values
+                                        here must result in the implementation setting
+                                        the Accepted Condition for the Route to `status:
+                                        False`, with a Reason of `UnsupportedValue`."
                                       enum:
                                       - 301
                                       - 302
@@ -2440,9 +2394,9 @@ spec:
                                     types and their corresponding configuration defined
                                     by   \"Support: Extended\" in this package, e.g.
                                     \"RequestMirror\". Implementers   are encouraged
-                                    to support extended filters. \n - Implementation-specific:
-                                    Filters that are defined and supported by   specific
-                                    vendors.   In the future, filters showing convergence
+                                    to support extended filters. \n - Custom: Filters
+                                    that are defined and supported by specific vendors.
+                                    \  In the future, filters showing convergence
                                     in behavior across multiple   implementations
                                     will be considered for inclusion in extended or
                                     core   conformance levels. Filter-specific configuration
@@ -2475,8 +2429,8 @@ spec:
                           group:
                             default: ""
                             description: Group is the group of the referent. For example,
-                              "gateway.networking.k8s.io". When unspecified or empty
-                              string, core API group is inferred.
+                              "networking.k8s.io". When unspecified (empty string),
+                              core API group is inferred.
                             maxLength: 253
                             pattern: ^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
                             type: string
@@ -2497,11 +2451,11 @@ spec:
                           namespace:
                             description: "Namespace is the namespace of the backend.
                               When unspecified, the local namespace is inferred. \n
-                              Note that when a namespace is specified, a ReferenceGrant
-                              object is required in the referent namespace to allow
-                              that namespace's owner to accept the reference. See
-                              the ReferenceGrant documentation for details. \n Support:
-                              Core"
+                              Note that when a different namespace is specified, a
+                              ReferenceGrant object with ReferenceGrantTo.Kind=Service
+                              is required in the referent namespace to allow that
+                              namespace's owner to accept the reference. See the ReferenceGrant
+                              documentation for details. \n Support: Core"
                             maxLength: 63
                             minLength: 1
                             pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$
@@ -2551,14 +2505,14 @@ spec:
                         all implementations. - Implementers are encouraged to support
                         extended filters. - Implementation-specific custom filters
                         have no API guarantees across   implementations. \n Specifying
-                        a core filter multiple times has unspecified or implementation-specific
-                        conformance. \n All filters are expected to be compatible
-                        with each other except for the URLRewrite and RequestRedirect
-                        filters, which may not be combined. If an implementation can
-                        not support other combinations of filters, they must clearly
-                        document that limitation. In all cases where incompatible
-                        or unsupported filters are specified, implementations MUST
-                        add a warning condition to status. \n Support: Core"
+                        a core filter multiple times has unspecified or custom conformance.
+                        \n All filters are expected to be compatible with each other
+                        except for the URLRewrite and RequestRedirect filters, which
+                        may not be combined. If an implementation can not support
+                        other combinations of filters, they must clearly document
+                        that limitation. In all cases where incompatible or unsupported
+                        filters are specified, implementations MUST add a warning
+                        condition to status. \n Support: Core"
                       items:
                         description: HTTPRouteFilter defines processing steps that
                           must be completed during the request or response lifecycle.
@@ -2578,8 +2532,8 @@ spec:
                             properties:
                               group:
                                 description: Group is the group of the referent. For
-                                  example, "gateway.networking.k8s.io". When unspecified
-                                  or empty string, core API group is inferred.
+                                  example, "networking.k8s.io". When unspecified (empty
+                                  string), core API group is inferred.
                                 maxLength: 253
                                 pattern: ^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
                                 type: string
@@ -2611,8 +2565,8 @@ spec:
                                   to any existing values associated with the header
                                   name. \n Input:   GET /foo HTTP/1.1   my-header:
                                   foo \n Config:   add:   - name: \"my-header\"     value:
-                                  \"bar,baz\" \n Output:   GET /foo HTTP/1.1   my-header:
-                                  foo,bar,baz"
+                                  \"bar\" \n Output:   GET /foo HTTP/1.1   my-header:
+                                  foo   my-header: bar"
                                 items:
                                   description: HTTPHeader represents an HTTP Header
                                     name and value as defined by RFC 7230.
@@ -2724,15 +2678,13 @@ spec:
                                   In either error case, the Message of the `ResolvedRefs`
                                   Condition should be used to provide more detail
                                   about the problem. \n Support: Extended for Kubernetes
-                                  Service \n Support: Implementation-specific for
-                                  any other resource"
+                                  Service \n Support: Custom for any other resource"
                                 properties:
                                   group:
                                     default: ""
                                     description: Group is the group of the referent.
-                                      For example, "gateway.networking.k8s.io". When
-                                      unspecified or empty string, core API group
-                                      is inferred.
+                                      For example, "networking.k8s.io". When unspecified
+                                      (empty string), core API group is inferred.
                                     maxLength: 253
                                     pattern: ^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
                                     type: string
@@ -2753,11 +2705,12 @@ spec:
                                   namespace:
                                     description: "Namespace is the namespace of the
                                       backend. When unspecified, the local namespace
-                                      is inferred. \n Note that when a namespace is
-                                      specified, a ReferenceGrant object is required
-                                      in the referent namespace to allow that namespace's
-                                      owner to accept the reference. See the ReferenceGrant
-                                      documentation for details. \n Support: Core"
+                                      is inferred. \n Note that when a different namespace
+                                      is specified, a ReferenceGrant object with ReferenceGrantTo.Kind=Service
+                                      is required in the referent namespace to allow
+                                      that namespace's owner to accept the reference.
+                                      See the ReferenceGrant documentation for details.
+                                      \n Support: Core"
                                     maxLength: 63
                                     minLength: 1
                                     pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$
@@ -2807,12 +2760,12 @@ spec:
                                 description: "Scheme is the scheme to be used in the
                                   value of the `Location` header in the response.
                                   When empty, the scheme of the request is used. \n
-                                  Note that values may be added to this enum, implementations
-                                  must ensure that unknown values will not cause a
-                                  crash. \n Unknown values here must result in the
-                                  implementation setting the Accepted Condition for
-                                  the Route to `status: False`, with a Reason of `UnsupportedValue`.
-                                  \n Support: Extended"
+                                  Support: Extended \n Note that values may be added
+                                  to this enum, implementations must ensure that unknown
+                                  values will not cause a crash. \n Unknown values
+                                  here must result in the implementation setting the
+                                  Accepted Condition for the Route to `status: False`,
+                                  with a Reason of `UnsupportedValue`."
                                 enum:
                                 - http
                                 - https
@@ -2820,13 +2773,12 @@ spec:
                               statusCode:
                                 default: 302
                                 description: "StatusCode is the HTTP status code to
-                                  be used in response. \n Note that values may be
-                                  added to this enum, implementations must ensure
-                                  that unknown values will not cause a crash. \n Unknown
-                                  values here must result in the implementation setting
-                                  the Accepted Condition for the Route to `status:
-                                  False`, with a Reason of `UnsupportedValue`. \n
-                                  Support: Core"
+                                  be used in response. \n Support: Core \n Note that
+                                  values may be added to this enum, implementations
+                                  must ensure that unknown values will not cause a
+                                  crash. \n Unknown values here must result in the
+                                  implementation setting the Accepted Condition for
+                                  the Route to `status: False`, with a Reason of `UnsupportedValue`."
                                 enum:
                                 - 301
                                 - 302
@@ -2842,15 +2794,15 @@ spec:
                               - Extended: Filter types and their corresponding configuration
                               defined by   \"Support: Extended\" in this package,
                               e.g. \"RequestMirror\". Implementers   are encouraged
-                              to support extended filters. \n - Implementation-specific:
-                              Filters that are defined and supported by   specific
-                              vendors.   In the future, filters showing convergence
-                              in behavior across multiple   implementations will be
-                              considered for inclusion in extended or core   conformance
-                              levels. Filter-specific configuration for such filters
-                              \  is specified using the ExtensionRef field. `Type`
-                              should be set to   \"ExtensionRef\" for custom filters.
-                              \n Implementers are encouraged to define custom implementation
+                              to support extended filters. \n - Custom: Filters that
+                              are defined and supported by specific vendors.   In
+                              the future, filters showing convergence in behavior
+                              across multiple   implementations will be considered
+                              for inclusion in extended or core   conformance levels.
+                              Filter-specific configuration for such filters   is
+                              specified using the ExtensionRef field. `Type` should
+                              be set to   \"ExtensionRef\" for custom filters. \n
+                              Implementers are encouraged to define custom implementation
                               types to extend the core API with implementation-specific
                               behavior. \n If a reference to a custom filter type
                               cannot be resolved, the filter MUST NOT be skipped.
@@ -2891,21 +2843,21 @@ spec:
                         together. \n If no matches are specified, the default is a
                         prefix path match on \"/\", which has the effect of matching
                         every HTTP request. \n Proxy or Load Balancer routing configuration
-                        generated from HTTPRoutes MUST prioritize matches based on
-                        the following criteria, continuing on ties. Across all rules
-                        specified on applicable Routes, precedence must be given to
-                        the match with the largest number of: \n * Characters in a
-                        matching path. * Header matches. * Query param matches. \n
-                        If ties still exist across multiple Routes, matching precedence
-                        MUST be determined in order of the following criteria, continuing
-                        on ties: \n * The oldest Route based on creation timestamp.
-                        * The Route appearing first in alphabetical order by   \"{namespace}/{name}\".
-                        \n If ties still exist within an HTTPRoute, matching precedence
-                        MUST be granted to the FIRST matching rule (in list order)
-                        with a match meeting the above criteria. \n When no rules
-                        matching a request have been successfully attached to the
-                        parent a request is coming from, a HTTP 404 status code MUST
-                        be returned."
+                        generated from HTTPRoutes MUST prioritize rules based on the
+                        following criteria, continuing on ties. Precedence must be
+                        given to the Rule with the largest number of: \n * Characters
+                        in a matching non-wildcard hostname. * Characters in a matching
+                        hostname. * Characters in a matching path. * Header matches.
+                        * Query param matches. \n If ties still exist across multiple
+                        Routes, matching precedence MUST be determined in order of
+                        the following criteria, continuing on ties: \n * The oldest
+                        Route based on creation timestamp. * The Route appearing first
+                        in alphabetical order by   \"{namespace}/{name}\". \n If ties
+                        still exist within the Route that has been given precedence,
+                        matching precedence MUST be granted to the first matching
+                        rule meeting the above criteria. \n When no rules matching
+                        a request have been successfully attached to the parent a
+                        request is coming from, a HTTP 404 status code MUST be returned."
                       items:
                         description: "HTTPRouteMatch defines the predicate used to
                           match requests to a given action. Multiple match types are
@@ -2913,8 +2865,8 @@ spec:
                           if all conditions are satisfied. \n For example, the match
                           below will match a HTTP request only if its path starts
                           with `/foo` AND it contains the `version: v1` header: \n
-                          ``` match: \n \tpath: \t  value: \"/foo\" \theaders: \t-
-                          name: \"version\" \t  value \"v1\" \n ```"
+                          ``` match:   path:     value: \"/foo\"   headers:   - name:
+                          \"version\"     value \"v1\" ```"
                         properties:
                           headers:
                             description: Headers specifies HTTP request header matchers.
@@ -2949,12 +2901,12 @@ spec:
                                   default: Exact
                                   description: "Type specifies how to match against
                                     the value of the header. \n Support: Core (Exact)
-                                    \n Support: Implementation-specific (RegularExpression)
-                                    \n Since RegularExpression HeaderMatchType has
-                                    implementation-specific conformance, implementations
-                                    can support POSIX, PCRE or any other dialects
-                                    of regular expressions. Please read the implementation's
-                                    documentation to determine the supported dialect."
+                                    \n Support: Custom (RegularExpression) \n Since
+                                    RegularExpression HeaderMatchType has custom conformance,
+                                    implementations can support POSIX, PCRE or any
+                                    other dialects of regular expressions. Please
+                                    read the implementation's documentation to determine
+                                    the supported dialect."
                                   enum:
                                   - Exact
                                   - RegularExpression
@@ -3001,7 +2953,7 @@ spec:
                                 default: PathPrefix
                                 description: "Type specifies how to match against
                                   the path Value. \n Support: Core (Exact, PathPrefix)
-                                  \n Support: Implementation-specific (RegularExpression)"
+                                  \n Support: Custom (RegularExpression)"
                                 enum:
                                 - Exact
                                 - PathPrefix
@@ -3014,10 +2966,10 @@ spec:
                                 type: string
                             type: object
                           queryParams:
-                            description: "QueryParams specifies HTTP query parameter
+                            description: QueryParams specifies HTTP query parameter
                               matchers. Multiple match values are ANDed together,
                               meaning, a request must match all the specified query
-                              parameters to select the route. \n Support: Extended"
+                              parameters to select the route.
                             items:
                               description: HTTPQueryParamMatch describes how to select
                                 a HTTP route by matching HTTP query parameters.
@@ -3030,17 +2982,7 @@ spec:
                                     param names, only the first entry with an equivalent
                                     name MUST be considered for a match. Subsequent
                                     entries with an equivalent query param name MUST
-                                    be ignored. \n If a query param is repeated in
-                                    an HTTP request, the behavior is purposely left
-                                    undefined, since different data planes have different
-                                    capabilities. However, it is *recommended* that
-                                    implementations should match against the first
-                                    value of the param if the data plane supports
-                                    it, as this behavior is expected in other load
-                                    balancing contexts outside of the Gateway API.
-                                    \n Users SHOULD NOT route traffic based on repeated
-                                    query params to guard themselves against potential
-                                    differences in the implementations."
+                                    be ignored."
                                   maxLength: 256
                                   minLength: 1
                                   type: string
@@ -3048,11 +2990,10 @@ spec:
                                   default: Exact
                                   description: "Type specifies how to match against
                                     the value of the query parameter. \n Support:
-                                    Extended (Exact) \n Support: Implementation-specific
-                                    (RegularExpression) \n Since RegularExpression
-                                    QueryParamMatchType has Implementation-specific
-                                    conformance, implementations can support POSIX,
-                                    PCRE or any other dialects of regular expressions.
+                                    Extended (Exact) \n Support: Custom (RegularExpression)
+                                    \n Since RegularExpression QueryParamMatchType
+                                    has custom conformance, implementations can support
+                                    POSIX, PCRE or any other dialects of regular expressions.
                                     Please read the implementation's documentation
                                     to determine the supported dialect."
                                   enum:
@@ -3122,15 +3063,14 @@ spec:
                         description: "Condition contains details for one aspect of
                           the current state of this API Resource. --- This struct
                           is intended for direct use as an array at the field path
-                          .status.conditions.  For example, \n \ttype FooStatus struct{
-                          \t    // Represents the observations of a foo's current
-                          state. \t    // Known .status.conditions.type are: \"Available\",
-                          \"Progressing\", and \"Degraded\" \t    // +patchMergeKey=type
-                          \t    // +patchStrategy=merge \t    // +listType=map \t
-                          \   // +listMapKey=type \t    Conditions []metav1.Condition
-                          `json:\"conditions,omitempty\" patchStrategy:\"merge\" patchMergeKey:\"type\"
-                          protobuf:\"bytes,1,rep,name=conditions\"` \n \t    // other
-                          fields \t}"
+                          .status.conditions.  For example, type FooStatus struct{
+                          \    // Represents the observations of a foo's current state.
+                          \    // Known .status.conditions.type are: \"Available\",
+                          \"Progressing\", and \"Degraded\"     // +patchMergeKey=type
+                          \    // +patchStrategy=merge     // +listType=map     //
+                          +listMapKey=type     Conditions []metav1.Condition `json:\"conditions,omitempty\"
+                          patchStrategy:\"merge\" patchMergeKey:\"type\" protobuf:\"bytes,1,rep,name=conditions\"`
+                          \n     // other fields }"
                         properties:
                           lastTransitionTime:
                             description: lastTransitionTime is the last time the condition
@@ -3217,19 +3157,15 @@ spec:
                       properties:
                         group:
                           default: gateway.networking.k8s.io
-                          description: "Group is the group of the referent. When unspecified,
-                            \"gateway.networking.k8s.io\" is inferred. To set the
-                            core API group (such as for a \"Service\" kind referent),
-                            Group must be explicitly set to \"\" (empty string). \n
-                            Support: Core"
+                          description: "Group is the group of the referent. \n Support:
+                            Core"
                           maxLength: 253
                           pattern: ^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
                           type: string
                         kind:
                           default: Gateway
                           description: "Kind is kind of the referent. \n Support:
-                            Core (Gateway) \n Support: Implementation-specific (Other
-                            Resources)"
+                            Core (Gateway) \n Support: Custom (Other Resources)"
                           maxLength: 63
                           minLength: 1
                           pattern: ^[a-zA-Z]([-a-zA-Z0-9]*[a-zA-Z0-9])?$
@@ -3242,14 +3178,8 @@ spec:
                           type: string
                         namespace:
                           description: "Namespace is the namespace of the referent.
-                            When unspecified, this refers to the local namespace of
-                            the Route. \n Note that there are specific rules for ParentRefs
-                            which cross namespace boundaries. Cross-namespace references
-                            are only valid if they are explicitly allowed by something
-                            in the namespace they are referring to. For example: Gateway
-                            has the AllowedRoutes field, and ReferenceGrant provides
-                            a generic way to enable any other kind of cross-namespace
-                            reference. \n Support: Core"
+                            When unspecified (or empty string), this refers to the
+                            local namespace of the Route. \n Support: Core"
                           maxLength: 63
                           minLength: 1
                           pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$
@@ -3294,7 +3224,7 @@ spec:
         - spec
         type: object
     served: true
-    storage: false
+    storage: true
     subresources:
       status: {}
   - additionalPrinterColumns:
@@ -3356,18 +3286,12 @@ spec:
                   have specified hostnames, and none match with the criteria above,
                   then the HTTPRoute is not accepted. The implementation must raise
                   an 'Accepted' Condition with a status of `False` in the corresponding
-                  RouteParentStatus. \n In the event that multiple HTTPRoutes specify
-                  intersecting hostnames (e.g. overlapping wildcard matching and exact
-                  matching hostnames), precedence must be given to rules from the
-                  HTTPRoute with the largest number of: \n * Characters in a matching
-                  non-wildcard hostname. * Characters in a matching hostname. \n If
-                  ties exist across multiple Routes, the matching precedence rules
-                  for HTTPRouteMatches takes over. \n Support: Core"
+                  RouteParentStatus. \n Support: Core"
                 items:
                   description: "Hostname is the fully qualified domain name of a network
                     host. This matches the RFC 1123 definition of a hostname with
-                    2 notable exceptions: \n  1. IPs are not allowed.  2. A hostname
-                    may be prefixed with a wildcard label (`*.`). The wildcard     label
+                    2 notable exceptions: \n 1. IPs are not allowed. 2. A hostname
+                    may be prefixed with a wildcard label (`*.`). The wildcard    label
                     must appear by itself as the first label. \n Hostname can be \"precise\"
                     which is a domain name without the terminating dot of a network
                     host (e.g. \"foo.example.com\") or \"wildcard\", which is a domain
@@ -3396,12 +3320,7 @@ spec:
                   that may be collapsed by an implementation. For example, some implementations
                   may choose to merge compatible Gateway Listeners together. If that
                   is the case, the list of routes attached to those resources should
-                  also be merged. \n Note that for ParentRefs that cross namespace
-                  boundaries, there are specific rules. Cross-namespace references
-                  are only valid if they are explicitly allowed by something in the
-                  namespace they are referring to. For example, Gateway has the AllowedRoutes
-                  field, and ReferenceGrant provides a generic way to enable any other
-                  kind of cross-namespace reference."
+                  also be merged."
                 items:
                   description: "ParentReference identifies an API object (usually
                     a Gateway) that can be considered a parent of this resource (usually
@@ -3413,10 +3332,7 @@ spec:
                   properties:
                     group:
                       default: gateway.networking.k8s.io
-                      description: "Group is the group of the referent. When unspecified,
-                        \"gateway.networking.k8s.io\" is inferred. To set the core
-                        API group (such as for a \"Service\" kind referent), Group
-                        must be explicitly set to \"\" (empty string). \n Support:
+                      description: "Group is the group of the referent. \n Support:
                         Core"
                       maxLength: 253
                       pattern: ^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
@@ -3424,7 +3340,7 @@ spec:
                     kind:
                       default: Gateway
                       description: "Kind is kind of the referent. \n Support: Core
-                        (Gateway) \n Support: Implementation-specific (Other Resources)"
+                        (Gateway) \n Support: Custom (Other Resources)"
                       maxLength: 63
                       minLength: 1
                       pattern: ^[a-zA-Z]([-a-zA-Z0-9]*[a-zA-Z0-9])?$
@@ -3437,14 +3353,8 @@ spec:
                       type: string
                     namespace:
                       description: "Namespace is the namespace of the referent. When
-                        unspecified, this refers to the local namespace of the Route.
-                        \n Note that there are specific rules for ParentRefs which
-                        cross namespace boundaries. Cross-namespace references are
-                        only valid if they are explicitly allowed by something in
-                        the namespace they are referring to. For example: Gateway
-                        has the AllowedRoutes field, and ReferenceGrant provides a
-                        generic way to enable any other kind of cross-namespace reference.
-                        \n Support: Core"
+                        unspecified (or empty string), this refers to the local namespace
+                        of the Route. \n Support: Core"
                       maxLength: 63
                       minLength: 1
                       pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$
@@ -3506,7 +3416,7 @@ spec:
                         \n For example, if two backends are specified with equal weights,
                         and one is invalid, 50 percent of traffic must receive a 500.
                         Implementations may choose how that 50 percent is determined.
-                        \n Support: Core for Kubernetes Service \n Support: Implementation-specific
+                        \n Support: Core for Kubernetes Service \n Support: Custom
                         for any other resource \n Support for weight: Core"
                       items:
                         description: HTTPBackendRef defines how a HTTPRoute should
@@ -3515,9 +3425,9 @@ spec:
                           filters:
                             description: "Filters defined at this level should be
                               executed if and only if the request is being forwarded
-                              to the backend defined here. \n Support: Implementation-specific
-                              (For broader support of filters, use the Filters field
-                              in HTTPRouteRule.)"
+                              to the backend defined here. \n Support: Custom (For
+                              broader support of filters, use the Filters field in
+                              HTTPRouteRule.)"
                             items:
                               description: HTTPRouteFilter defines processing steps
                                 that must be completed during the request or response
@@ -3538,9 +3448,8 @@ spec:
                                   properties:
                                     group:
                                       description: Group is the group of the referent.
-                                        For example, "gateway.networking.k8s.io".
-                                        When unspecified or empty string, core API
-                                        group is inferred.
+                                        For example, "networking.k8s.io". When unspecified
+                                        (empty string), core API group is inferred.
                                       maxLength: 253
                                       pattern: ^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
                                       type: string
@@ -3572,9 +3481,9 @@ spec:
                                         appends to any existing values associated
                                         with the header name. \n Input:   GET /foo
                                         HTTP/1.1   my-header: foo \n Config:   add:
-                                        \  - name: \"my-header\"     value: \"bar,baz\"
+                                        \  - name: \"my-header\"     value: \"bar\"
                                         \n Output:   GET /foo HTTP/1.1   my-header:
-                                        foo,bar,baz"
+                                        foo   my-header: bar"
                                       items:
                                         description: HTTPHeader represents an HTTP
                                           Header name and value as defined by RFC
@@ -3695,15 +3604,14 @@ spec:
                                         Message of the `ResolvedRefs` Condition should
                                         be used to provide more detail about the problem.
                                         \n Support: Extended for Kubernetes Service
-                                        \n Support: Implementation-specific for any
-                                        other resource"
+                                        \n Support: Custom for any other resource"
                                       properties:
                                         group:
                                           default: ""
                                           description: Group is the group of the referent.
-                                            For example, "gateway.networking.k8s.io".
-                                            When unspecified or empty string, core
-                                            API group is inferred.
+                                            For example, "networking.k8s.io". When
+                                            unspecified (empty string), core API group
+                                            is inferred.
                                           maxLength: 253
                                           pattern: ^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
                                           type: string
@@ -3781,13 +3689,13 @@ spec:
                                       description: "Scheme is the scheme to be used
                                         in the value of the `Location` header in the
                                         response. When empty, the scheme of the request
-                                        is used. \n Note that values may be added
-                                        to this enum, implementations must ensure
-                                        that unknown values will not cause a crash.
-                                        \n Unknown values here must result in the
-                                        implementation setting the Accepted Condition
-                                        for the Route to `status: False`, with a Reason
-                                        of `UnsupportedValue`. \n Support: Extended"
+                                        is used. \n Support: Extended \n Note that
+                                        values may be added to this enum, implementations
+                                        must ensure that unknown values will not cause
+                                        a crash. \n Unknown values here must result
+                                        in the implementation setting the Accepted
+                                        Condition for the Route to `status: False`,
+                                        with a Reason of `UnsupportedValue`."
                                       enum:
                                       - http
                                       - https
@@ -3795,14 +3703,13 @@ spec:
                                     statusCode:
                                       default: 302
                                       description: "StatusCode is the HTTP status
-                                        code to be used in response. \n Note that
-                                        values may be added to this enum, implementations
-                                        must ensure that unknown values will not cause
-                                        a crash. \n Unknown values here must result
-                                        in the implementation setting the Accepted
-                                        Condition for the Route to `status: False`,
-                                        with a Reason of `UnsupportedValue`. \n Support:
-                                        Core"
+                                        code to be used in response. \n Support: Core
+                                        \n Note that values may be added to this enum,
+                                        implementations must ensure that unknown values
+                                        will not cause a crash. \n Unknown values
+                                        here must result in the implementation setting
+                                        the Accepted Condition for the Route to `status:
+                                        False`, with a Reason of `UnsupportedValue`."
                                       enum:
                                       - 301
                                       - 302
@@ -3819,9 +3726,9 @@ spec:
                                     types and their corresponding configuration defined
                                     by   \"Support: Extended\" in this package, e.g.
                                     \"RequestMirror\". Implementers   are encouraged
-                                    to support extended filters. \n - Implementation-specific:
-                                    Filters that are defined and supported by   specific
-                                    vendors.   In the future, filters showing convergence
+                                    to support extended filters. \n - Custom: Filters
+                                    that are defined and supported by specific vendors.
+                                    \  In the future, filters showing convergence
                                     in behavior across multiple   implementations
                                     will be considered for inclusion in extended or
                                     core   conformance levels. Filter-specific configuration
@@ -3854,8 +3761,8 @@ spec:
                           group:
                             default: ""
                             description: Group is the group of the referent. For example,
-                              "gateway.networking.k8s.io". When unspecified or empty
-                              string, core API group is inferred.
+                              "networking.k8s.io". When unspecified (empty string),
+                              core API group is inferred.
                             maxLength: 253
                             pattern: ^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
                             type: string
@@ -3930,14 +3837,14 @@ spec:
                         all implementations. - Implementers are encouraged to support
                         extended filters. - Implementation-specific custom filters
                         have no API guarantees across   implementations. \n Specifying
-                        a core filter multiple times has unspecified or implementation-specific
-                        conformance. \n All filters are expected to be compatible
-                        with each other except for the URLRewrite and RequestRedirect
-                        filters, which may not be combined. If an implementation can
-                        not support other combinations of filters, they must clearly
-                        document that limitation. In all cases where incompatible
-                        or unsupported filters are specified, implementations MUST
-                        add a warning condition to status. \n Support: Core"
+                        a core filter multiple times has unspecified or custom conformance.
+                        \n All filters are expected to be compatible with each other
+                        except for the URLRewrite and RequestRedirect filters, which
+                        may not be combined. If an implementation can not support
+                        other combinations of filters, they must clearly document
+                        that limitation. In all cases where incompatible or unsupported
+                        filters are specified, implementations MUST add a warning
+                        condition to status. \n Support: Core"
                       items:
                         description: HTTPRouteFilter defines processing steps that
                           must be completed during the request or response lifecycle.
@@ -3957,8 +3864,8 @@ spec:
                             properties:
                               group:
                                 description: Group is the group of the referent. For
-                                  example, "gateway.networking.k8s.io". When unspecified
-                                  or empty string, core API group is inferred.
+                                  example, "networking.k8s.io". When unspecified (empty
+                                  string), core API group is inferred.
                                 maxLength: 253
                                 pattern: ^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
                                 type: string
@@ -3990,8 +3897,8 @@ spec:
                                   to any existing values associated with the header
                                   name. \n Input:   GET /foo HTTP/1.1   my-header:
                                   foo \n Config:   add:   - name: \"my-header\"     value:
-                                  \"bar,baz\" \n Output:   GET /foo HTTP/1.1   my-header:
-                                  foo,bar,baz"
+                                  \"bar\" \n Output:   GET /foo HTTP/1.1   my-header:
+                                  foo   my-header: bar"
                                 items:
                                   description: HTTPHeader represents an HTTP Header
                                     name and value as defined by RFC 7230.
@@ -4103,15 +4010,13 @@ spec:
                                   In either error case, the Message of the `ResolvedRefs`
                                   Condition should be used to provide more detail
                                   about the problem. \n Support: Extended for Kubernetes
-                                  Service \n Support: Implementation-specific for
-                                  any other resource"
+                                  Service \n Support: Custom for any other resource"
                                 properties:
                                   group:
                                     default: ""
                                     description: Group is the group of the referent.
-                                      For example, "gateway.networking.k8s.io". When
-                                      unspecified or empty string, core API group
-                                      is inferred.
+                                      For example, "networking.k8s.io". When unspecified
+                                      (empty string), core API group is inferred.
                                     maxLength: 253
                                     pattern: ^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
                                     type: string
@@ -4186,12 +4091,12 @@ spec:
                                 description: "Scheme is the scheme to be used in the
                                   value of the `Location` header in the response.
                                   When empty, the scheme of the request is used. \n
-                                  Note that values may be added to this enum, implementations
-                                  must ensure that unknown values will not cause a
-                                  crash. \n Unknown values here must result in the
-                                  implementation setting the Accepted Condition for
-                                  the Route to `status: False`, with a Reason of `UnsupportedValue`.
-                                  \n Support: Extended"
+                                  Support: Extended \n Note that values may be added
+                                  to this enum, implementations must ensure that unknown
+                                  values will not cause a crash. \n Unknown values
+                                  here must result in the implementation setting the
+                                  Accepted Condition for the Route to `status: False`,
+                                  with a Reason of `UnsupportedValue`."
                                 enum:
                                 - http
                                 - https
@@ -4199,13 +4104,12 @@ spec:
                               statusCode:
                                 default: 302
                                 description: "StatusCode is the HTTP status code to
-                                  be used in response. \n Note that values may be
-                                  added to this enum, implementations must ensure
-                                  that unknown values will not cause a crash. \n Unknown
-                                  values here must result in the implementation setting
-                                  the Accepted Condition for the Route to `status:
-                                  False`, with a Reason of `UnsupportedValue`. \n
-                                  Support: Core"
+                                  be used in response. \n Support: Core \n Note that
+                                  values may be added to this enum, implementations
+                                  must ensure that unknown values will not cause a
+                                  crash. \n Unknown values here must result in the
+                                  implementation setting the Accepted Condition for
+                                  the Route to `status: False`, with a Reason of `UnsupportedValue`."
                                 enum:
                                 - 301
                                 - 302
@@ -4221,15 +4125,15 @@ spec:
                               - Extended: Filter types and their corresponding configuration
                               defined by   \"Support: Extended\" in this package,
                               e.g. \"RequestMirror\". Implementers   are encouraged
-                              to support extended filters. \n - Implementation-specific:
-                              Filters that are defined and supported by   specific
-                              vendors.   In the future, filters showing convergence
-                              in behavior across multiple   implementations will be
-                              considered for inclusion in extended or core   conformance
-                              levels. Filter-specific configuration for such filters
-                              \  is specified using the ExtensionRef field. `Type`
-                              should be set to   \"ExtensionRef\" for custom filters.
-                              \n Implementers are encouraged to define custom implementation
+                              to support extended filters. \n - Custom: Filters that
+                              are defined and supported by specific vendors.   In
+                              the future, filters showing convergence in behavior
+                              across multiple   implementations will be considered
+                              for inclusion in extended or core   conformance levels.
+                              Filter-specific configuration for such filters   is
+                              specified using the ExtensionRef field. `Type` should
+                              be set to   \"ExtensionRef\" for custom filters. \n
+                              Implementers are encouraged to define custom implementation
                               types to extend the core API with implementation-specific
                               behavior. \n If a reference to a custom filter type
                               cannot be resolved, the filter MUST NOT be skipped.
@@ -4270,21 +4174,21 @@ spec:
                         together. \n If no matches are specified, the default is a
                         prefix path match on \"/\", which has the effect of matching
                         every HTTP request. \n Proxy or Load Balancer routing configuration
-                        generated from HTTPRoutes MUST prioritize matches based on
-                        the following criteria, continuing on ties. Across all rules
-                        specified on applicable Routes, precedence must be given to
-                        the match with the largest number of: \n * Characters in a
-                        matching path. * Header matches. * Query param matches. \n
-                        If ties still exist across multiple Routes, matching precedence
-                        MUST be determined in order of the following criteria, continuing
-                        on ties: \n * The oldest Route based on creation timestamp.
-                        * The Route appearing first in alphabetical order by   \"{namespace}/{name}\".
-                        \n If ties still exist within an HTTPRoute, matching precedence
-                        MUST be granted to the FIRST matching rule (in list order)
-                        with a match meeting the above criteria. \n When no rules
-                        matching a request have been successfully attached to the
-                        parent a request is coming from, a HTTP 404 status code MUST
-                        be returned."
+                        generated from HTTPRoutes MUST prioritize rules based on the
+                        following criteria, continuing on ties. Precedence must be
+                        given to the Rule with the largest number of: \n * Characters
+                        in a matching non-wildcard hostname. * Characters in a matching
+                        hostname. * Characters in a matching path. * Header matches.
+                        * Query param matches. \n If ties still exist across multiple
+                        Routes, matching precedence MUST be determined in order of
+                        the following criteria, continuing on ties: \n * The oldest
+                        Route based on creation timestamp. * The Route appearing first
+                        in alphabetical order by   \"{namespace}/{name}\". \n If ties
+                        still exist within the Route that has been given precedence,
+                        matching precedence MUST be granted to the first matching
+                        rule meeting the above criteria. \n When no rules matching
+                        a request have been successfully attached to the parent a
+                        request is coming from, a HTTP 404 status code MUST be returned."
                       items:
                         description: "HTTPRouteMatch defines the predicate used to
                           match requests to a given action. Multiple match types are
@@ -4292,8 +4196,8 @@ spec:
                           if all conditions are satisfied. \n For example, the match
                           below will match a HTTP request only if its path starts
                           with `/foo` AND it contains the `version: v1` header: \n
-                          ``` match: \n \tpath: \t  value: \"/foo\" \theaders: \t-
-                          name: \"version\" \t  value \"v1\" \n ```"
+                          ``` match:   path:     value: \"/foo\"   headers:   - name:
+                          \"version\"     value \"v1\" ```"
                         properties:
                           headers:
                             description: Headers specifies HTTP request header matchers.
@@ -4328,12 +4232,12 @@ spec:
                                   default: Exact
                                   description: "Type specifies how to match against
                                     the value of the header. \n Support: Core (Exact)
-                                    \n Support: Implementation-specific (RegularExpression)
-                                    \n Since RegularExpression HeaderMatchType has
-                                    implementation-specific conformance, implementations
-                                    can support POSIX, PCRE or any other dialects
-                                    of regular expressions. Please read the implementation's
-                                    documentation to determine the supported dialect."
+                                    \n Support: Custom (RegularExpression) \n Since
+                                    RegularExpression HeaderMatchType has custom conformance,
+                                    implementations can support POSIX, PCRE or any
+                                    other dialects of regular expressions. Please
+                                    read the implementation's documentation to determine
+                                    the supported dialect."
                                   enum:
                                   - Exact
                                   - RegularExpression
@@ -4380,7 +4284,7 @@ spec:
                                 default: PathPrefix
                                 description: "Type specifies how to match against
                                   the path Value. \n Support: Core (Exact, PathPrefix)
-                                  \n Support: Implementation-specific (RegularExpression)"
+                                  \n Support: Custom (RegularExpression)"
                                 enum:
                                 - Exact
                                 - PathPrefix
@@ -4393,10 +4297,10 @@ spec:
                                 type: string
                             type: object
                           queryParams:
-                            description: "QueryParams specifies HTTP query parameter
+                            description: QueryParams specifies HTTP query parameter
                               matchers. Multiple match values are ANDed together,
                               meaning, a request must match all the specified query
-                              parameters to select the route. \n Support: Extended"
+                              parameters to select the route.
                             items:
                               description: HTTPQueryParamMatch describes how to select
                                 a HTTP route by matching HTTP query parameters.
@@ -4409,17 +4313,7 @@ spec:
                                     param names, only the first entry with an equivalent
                                     name MUST be considered for a match. Subsequent
                                     entries with an equivalent query param name MUST
-                                    be ignored. \n If a query param is repeated in
-                                    an HTTP request, the behavior is purposely left
-                                    undefined, since different data planes have different
-                                    capabilities. However, it is *recommended* that
-                                    implementations should match against the first
-                                    value of the param if the data plane supports
-                                    it, as this behavior is expected in other load
-                                    balancing contexts outside of the Gateway API.
-                                    \n Users SHOULD NOT route traffic based on repeated
-                                    query params to guard themselves against potential
-                                    differences in the implementations."
+                                    be ignored."
                                   maxLength: 256
                                   minLength: 1
                                   type: string
@@ -4427,11 +4321,10 @@ spec:
                                   default: Exact
                                   description: "Type specifies how to match against
                                     the value of the query parameter. \n Support:
-                                    Extended (Exact) \n Support: Implementation-specific
-                                    (RegularExpression) \n Since RegularExpression
-                                    QueryParamMatchType has Implementation-specific
-                                    conformance, implementations can support POSIX,
-                                    PCRE or any other dialects of regular expressions.
+                                    Extended (Exact) \n Support: Custom (RegularExpression)
+                                    \n Since RegularExpression QueryParamMatchType
+                                    has custom conformance, implementations can support
+                                    POSIX, PCRE or any other dialects of regular expressions.
                                     Please read the implementation's documentation
                                     to determine the supported dialect."
                                   enum:
@@ -4501,15 +4394,14 @@ spec:
                         description: "Condition contains details for one aspect of
                           the current state of this API Resource. --- This struct
                           is intended for direct use as an array at the field path
-                          .status.conditions.  For example, \n \ttype FooStatus struct{
-                          \t    // Represents the observations of a foo's current
-                          state. \t    // Known .status.conditions.type are: \"Available\",
-                          \"Progressing\", and \"Degraded\" \t    // +patchMergeKey=type
-                          \t    // +patchStrategy=merge \t    // +listType=map \t
-                          \   // +listMapKey=type \t    Conditions []metav1.Condition
-                          `json:\"conditions,omitempty\" patchStrategy:\"merge\" patchMergeKey:\"type\"
-                          protobuf:\"bytes,1,rep,name=conditions\"` \n \t    // other
-                          fields \t}"
+                          .status.conditions.  For example, type FooStatus struct{
+                          \    // Represents the observations of a foo's current state.
+                          \    // Known .status.conditions.type are: \"Available\",
+                          \"Progressing\", and \"Degraded\"     // +patchMergeKey=type
+                          \    // +patchStrategy=merge     // +listType=map     //
+                          +listMapKey=type     Conditions []metav1.Condition `json:\"conditions,omitempty\"
+                          patchStrategy:\"merge\" patchMergeKey:\"type\" protobuf:\"bytes,1,rep,name=conditions\"`
+                          \n     // other fields }"
                         properties:
                           lastTransitionTime:
                             description: lastTransitionTime is the last time the condition
@@ -4596,19 +4488,15 @@ spec:
                       properties:
                         group:
                           default: gateway.networking.k8s.io
-                          description: "Group is the group of the referent. When unspecified,
-                            \"gateway.networking.k8s.io\" is inferred. To set the
-                            core API group (such as for a \"Service\" kind referent),
-                            Group must be explicitly set to \"\" (empty string). \n
-                            Support: Core"
+                          description: "Group is the group of the referent. \n Support:
+                            Core"
                           maxLength: 253
                           pattern: ^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
                           type: string
                         kind:
                           default: Gateway
                           description: "Kind is kind of the referent. \n Support:
-                            Core (Gateway) \n Support: Implementation-specific (Other
-                            Resources)"
+                            Core (Gateway) \n Support: Custom (Other Resources)"
                           maxLength: 63
                           minLength: 1
                           pattern: ^[a-zA-Z]([-a-zA-Z0-9]*[a-zA-Z0-9])?$
@@ -4621,14 +4509,8 @@ spec:
                           type: string
                         namespace:
                           description: "Namespace is the namespace of the referent.
-                            When unspecified, this refers to the local namespace of
-                            the Route. \n Note that there are specific rules for ParentRefs
-                            which cross namespace boundaries. Cross-namespace references
-                            are only valid if they are explicitly allowed by something
-                            in the namespace they are referring to. For example: Gateway
-                            has the AllowedRoutes field, and ReferenceGrant provides
-                            a generic way to enable any other kind of cross-namespace
-                            reference. \n Support: Core"
+                            When unspecified (or empty string), this refers to the
+                            local namespace of the Route. \n Support: Core"
                           maxLength: 63
                           minLength: 1
                           pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$
@@ -4673,291 +4555,9 @@ spec:
         - spec
         type: object
     served: true
-    storage: true
+    storage: false
     subresources:
       status: {}
-status:
-  acceptedNames:
-    kind: ""
-    plural: ""
-  conditions: []
-  storedVersions: []
----
-#
-# config/crd/standard/gateway.networking.k8s.io_referencegrants.yaml
-#
-apiVersion: apiextensions.k8s.io/v1
-kind: CustomResourceDefinition
-metadata:
-  annotations:
-    api-approved.kubernetes.io: https://github.com/kubernetes-sigs/gateway-api/pull/1538
-    gateway.networking.k8s.io/bundle-version: v0.6.2
-    gateway.networking.k8s.io/channel: standard
-  creationTimestamp: null
-  name: referencegrants.gateway.networking.k8s.io
-spec:
-  group: gateway.networking.k8s.io
-  names:
-    categories:
-    - gateway-api
-    kind: ReferenceGrant
-    listKind: ReferenceGrantList
-    plural: referencegrants
-    shortNames:
-    - refgrant
-    singular: referencegrant
-  scope: Namespaced
-  versions:
-  - additionalPrinterColumns:
-    - jsonPath: .metadata.creationTimestamp
-      name: Age
-      type: date
-    name: v1alpha2
-    schema:
-      openAPIV3Schema:
-        description: "ReferenceGrant identifies kinds of resources in other namespaces
-          that are trusted to reference the specified kinds of resources in the same
-          namespace as the policy. \n Each ReferenceGrant can be used to represent
-          a unique trust relationship. Additional Reference Grants can be used to
-          add to the set of trusted sources of inbound references for the namespace
-          they are defined within. \n All cross-namespace references in Gateway API
-          (with the exception of cross-namespace Gateway-route attachment) require
-          a ReferenceGrant. \n ReferenceGrant is a form of runtime verification allowing
-          users to assert which cross-namespace object references are permitted. Implementations
-          that support ReferenceGrant MUST NOT permit cross-namespace references which
-          have no grant, and MUST respond to the removal of a grant by revoking the
-          access that the grant allowed. \n Support: Core"
-        properties:
-          apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation
-              of an object. Servers should convert recognized schemas to the latest
-              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
-            type: string
-          kind:
-            description: 'Kind is a string value representing the REST resource this
-              object represents. Servers may infer this from the endpoint the client
-              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
-            type: string
-          metadata:
-            type: object
-          spec:
-            description: Spec defines the desired state of ReferenceGrant.
-            properties:
-              from:
-                description: "From describes the trusted namespaces and kinds that
-                  can reference the resources described in \"To\". Each entry in this
-                  list MUST be considered to be an additional place that references
-                  can be valid from, or to put this another way, entries MUST be combined
-                  using OR. \n Support: Core"
-                items:
-                  description: ReferenceGrantFrom describes trusted namespaces and
-                    kinds.
-                  properties:
-                    group:
-                      description: "Group is the group of the referent. When empty,
-                        the Kubernetes core API group is inferred. \n Support: Core"
-                      maxLength: 253
-                      pattern: ^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
-                      type: string
-                    kind:
-                      description: "Kind is the kind of the referent. Although implementations
-                        may support additional resources, the following types are
-                        part of the \"Core\" support level for this field. \n When
-                        used to permit a SecretObjectReference: \n * Gateway \n When
-                        used to permit a BackendObjectReference: \n * GRPCRoute *
-                        HTTPRoute * TCPRoute * TLSRoute * UDPRoute"
-                      maxLength: 63
-                      minLength: 1
-                      pattern: ^[a-zA-Z]([-a-zA-Z0-9]*[a-zA-Z0-9])?$
-                      type: string
-                    namespace:
-                      description: "Namespace is the namespace of the referent. \n
-                        Support: Core"
-                      maxLength: 63
-                      minLength: 1
-                      pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$
-                      type: string
-                  required:
-                  - group
-                  - kind
-                  - namespace
-                  type: object
-                maxItems: 16
-                minItems: 1
-                type: array
-              to:
-                description: "To describes the resources that may be referenced by
-                  the resources described in \"From\". Each entry in this list MUST
-                  be considered to be an additional place that references can be valid
-                  to, or to put this another way, entries MUST be combined using OR.
-                  \n Support: Core"
-                items:
-                  description: ReferenceGrantTo describes what Kinds are allowed as
-                    targets of the references.
-                  properties:
-                    group:
-                      description: "Group is the group of the referent. When empty,
-                        the Kubernetes core API group is inferred. \n Support: Core"
-                      maxLength: 253
-                      pattern: ^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
-                      type: string
-                    kind:
-                      description: "Kind is the kind of the referent. Although implementations
-                        may support additional resources, the following types are
-                        part of the \"Core\" support level for this field: \n * Secret
-                        when used to permit a SecretObjectReference * Service when
-                        used to permit a BackendObjectReference"
-                      maxLength: 63
-                      minLength: 1
-                      pattern: ^[a-zA-Z]([-a-zA-Z0-9]*[a-zA-Z0-9])?$
-                      type: string
-                    name:
-                      description: Name is the name of the referent. When unspecified,
-                        this policy refers to all resources of the specified Group
-                        and Kind in the local namespace.
-                      maxLength: 253
-                      minLength: 1
-                      type: string
-                  required:
-                  - group
-                  - kind
-                  type: object
-                maxItems: 16
-                minItems: 1
-                type: array
-            required:
-            - from
-            - to
-            type: object
-        type: object
-    served: true
-    storage: true
-    subresources: {}
-  - additionalPrinterColumns:
-    - jsonPath: .metadata.creationTimestamp
-      name: Age
-      type: date
-    name: v1beta1
-    schema:
-      openAPIV3Schema:
-        description: "ReferenceGrant identifies kinds of resources in other namespaces
-          that are trusted to reference the specified kinds of resources in the same
-          namespace as the policy. \n Each ReferenceGrant can be used to represent
-          a unique trust relationship. Additional Reference Grants can be used to
-          add to the set of trusted sources of inbound references for the namespace
-          they are defined within. \n All cross-namespace references in Gateway API
-          (with the exception of cross-namespace Gateway-route attachment) require
-          a ReferenceGrant. \n ReferenceGrant is a form of runtime verification allowing
-          users to assert which cross-namespace object references are permitted. Implementations
-          that support ReferenceGrant MUST NOT permit cross-namespace references which
-          have no grant, and MUST respond to the removal of a grant by revoking the
-          access that the grant allowed. \n Support: Core"
-        properties:
-          apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation
-              of an object. Servers should convert recognized schemas to the latest
-              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
-            type: string
-          kind:
-            description: 'Kind is a string value representing the REST resource this
-              object represents. Servers may infer this from the endpoint the client
-              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
-            type: string
-          metadata:
-            type: object
-          spec:
-            description: Spec defines the desired state of ReferenceGrant.
-            properties:
-              from:
-                description: "From describes the trusted namespaces and kinds that
-                  can reference the resources described in \"To\". Each entry in this
-                  list MUST be considered to be an additional place that references
-                  can be valid from, or to put this another way, entries MUST be combined
-                  using OR. \n Support: Core"
-                items:
-                  description: ReferenceGrantFrom describes trusted namespaces and
-                    kinds.
-                  properties:
-                    group:
-                      description: "Group is the group of the referent. When empty,
-                        the Kubernetes core API group is inferred. \n Support: Core"
-                      maxLength: 253
-                      pattern: ^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
-                      type: string
-                    kind:
-                      description: "Kind is the kind of the referent. Although implementations
-                        may support additional resources, the following types are
-                        part of the \"Core\" support level for this field. \n When
-                        used to permit a SecretObjectReference: \n * Gateway \n When
-                        used to permit a BackendObjectReference: \n * GRPCRoute *
-                        HTTPRoute * TCPRoute * TLSRoute * UDPRoute"
-                      maxLength: 63
-                      minLength: 1
-                      pattern: ^[a-zA-Z]([-a-zA-Z0-9]*[a-zA-Z0-9])?$
-                      type: string
-                    namespace:
-                      description: "Namespace is the namespace of the referent. \n
-                        Support: Core"
-                      maxLength: 63
-                      minLength: 1
-                      pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$
-                      type: string
-                  required:
-                  - group
-                  - kind
-                  - namespace
-                  type: object
-                maxItems: 16
-                minItems: 1
-                type: array
-              to:
-                description: "To describes the resources that may be referenced by
-                  the resources described in \"From\". Each entry in this list MUST
-                  be considered to be an additional place that references can be valid
-                  to, or to put this another way, entries MUST be combined using OR.
-                  \n Support: Core"
-                items:
-                  description: ReferenceGrantTo describes what Kinds are allowed as
-                    targets of the references.
-                  properties:
-                    group:
-                      description: "Group is the group of the referent. When empty,
-                        the Kubernetes core API group is inferred. \n Support: Core"
-                      maxLength: 253
-                      pattern: ^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
-                      type: string
-                    kind:
-                      description: "Kind is the kind of the referent. Although implementations
-                        may support additional resources, the following types are
-                        part of the \"Core\" support level for this field: \n * Secret
-                        when used to permit a SecretObjectReference * Service when
-                        used to permit a BackendObjectReference"
-                      maxLength: 63
-                      minLength: 1
-                      pattern: ^[a-zA-Z]([-a-zA-Z0-9]*[a-zA-Z0-9])?$
-                      type: string
-                    name:
-                      description: Name is the name of the referent. When unspecified,
-                        this policy refers to all resources of the specified Group
-                        and Kind in the local namespace.
-                      maxLength: 253
-                      minLength: 1
-                      type: string
-                  required:
-                  - group
-                  - kind
-                  type: object
-                maxItems: 16
-                minItems: 1
-                type: array
-            required:
-            - from
-            - to
-            type: object
-        type: object
-    served: true
-    storage: false
-    subresources: {}
 status:
   acceptedNames:
     kind: ""
@@ -5034,7 +4634,7 @@ spec:
     spec:
       containers:
         - name: webhook
-          image: gcr.io/k8s-staging-gateway-api/admission-server:v0.6.2
+          image: gcr.io/k8s-staging-gateway-api/admission-server:v0.5.1
           imagePullPolicy: Always
           args:
             - -logtostderr
@@ -5096,6 +4696,7 @@ metadata:
   annotations:
   labels:
     name: gateway-api-webhook
+  namespace: gateway-system
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -5156,7 +4757,7 @@ spec:
     spec:
       containers:
         - name: create
-          image: registry.k8s.io/ingress-nginx/kube-webhook-certgen:v1.1.1
+          image: k8s.gcr.io/ingress-nginx/kube-webhook-certgen:v1.1.1
           imagePullPolicy: IfNotPresent
           args:
             - create
@@ -5190,7 +4791,7 @@ spec:
     spec:
       containers:
         - name: patch
-          image: registry.k8s.io/ingress-nginx/kube-webhook-certgen:v1.1.1
+          image: k8s.gcr.io/ingress-nginx/kube-webhook-certgen:v1.1.1
           imagePullPolicy: IfNotPresent
           args:
             - patch

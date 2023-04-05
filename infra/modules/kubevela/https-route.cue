@@ -4,8 +4,6 @@ parameter: {
 	// +usage=Specify some domains, the domain may be prefixed with a wildcard label (*.)
 	domains: [...string]
 
-	TLSPort: *8443 | int
-
 	// +usage=Specify the TLS secrets
 	secrets: [...{
 		name:       string
@@ -32,7 +30,7 @@ parameter: {
 	}]
 }
 outputs: {
-	_gatewayName: context.name + "-gateway-tls"
+	_gatewayName: context.name + "-gateway"
 	gateway: {
 		apiVersion: "gateway.networking.k8s.io/v1alpha2"
 		kind:       "Gateway"
@@ -47,24 +45,59 @@ outputs: {
 			gatewayClassName: "traefik"
 			listeners: [
 				for domain in parameter.domains {
-					{
-						_name: strings.Replace(domain, ".", "-", -1) + "-tls" // -1 means to replace all instances
-						name: _name
-						protocol: "HTTPS"
-						port:     parameter.TLSPort
-						hostname: domain
-						tls: {
-							mode: "Terminate"
-							certificateRefs: [
-								{
-									kind: "Secret"
-									name: _name
-									namespace: context.namespace
-								},
-							]
-						}
+					_name: strings.Replace(domain, ".", "-", -1) + "-https" // -1 means to replace all instances
+					name: _name
+					protocol: "HTTPS"
+					port:     8443
+					hostname: domain
+					tls: {
+						mode: "Terminate"
+						certificateRefs: [
+							{
+								kind: "Secret"
+								name: _name
+								namespace: context.namespace
+							},
+						]
 					}
 				}
+				for domain in parameter.domains {
+					_name: strings.Replace(domain, ".", "-", -1) // -1 means to replace all instances
+					name: _name
+					protocol: "HTTP"
+					port:     8000
+					hostname: domain
+				}
+			]
+		}
+	}
+
+	httpRoute: {
+		apiVersion: "gateway.networking.k8s.io/v1alpha2"
+		kind:       "HTTPRoute"
+		metadata: {
+			name:      context.name + "-http-redirect"
+			namespace: context.namespace
+		}
+		spec: {
+			parentRefs: [{
+				name:      _gatewayName
+				namespace: context.namespace
+				port:      8000
+			}]
+			hostnames: parameter.domains
+			rules: [
+				{
+					filters: [
+						{
+							type: "RequestRedirect"
+							requestRedirect: {
+								scheme: "https"
+								statusCode: 301
+							}
+						},
+					]
+				},
 			]
 		}
 	}
@@ -73,14 +106,14 @@ outputs: {
 		apiVersion: "gateway.networking.k8s.io/v1alpha2"
 		kind:       "HTTPRoute"
 		metadata: {
-			name:      context.name + "-ssl"
+			name:      context.name + "-https"
 			namespace: context.namespace
 		}
 		spec: {
 			parentRefs: [{
 				name:      _gatewayName
 				namespace: context.namespace
-				port:      parameter.TLSPort
+				port:      8443
 			}]
 			hostnames: parameter.domains
 			rules: [

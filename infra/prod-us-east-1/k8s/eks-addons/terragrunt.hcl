@@ -108,6 +108,7 @@ inputs = {
 
   cert-manager = {
     enabled             = true
+    chart_version       = "v1.9.1"
     acme_http01_enabled = true
     acme_dns01_enabled  = false
     acme_http01_ingress_class = "traefik"
@@ -121,6 +122,9 @@ inputs = {
         - --feature-gates=ExperimentalGatewayAPISupport=true
     EXTRA_VALUES
     csi_driver          = true
+  }
+  cert-manager-csi-driver = {
+    chart_version       = "v0.4.2"
   }
 
 }
