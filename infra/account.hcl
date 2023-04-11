@@ -11,6 +11,7 @@ locals {
   users = [
     # SRE
     "parthiv.seetharaman",
+    "olaniyi.oshunbote",
     # TODO: Would be nice to autogenerate these
     "vault-github-employees-Pacman99-admin-1675712570-y1IsbWJvNsTo2S1",
     "vault-github-employees-shlevy-admin-1675276763-1Llx839PFwXnsKIBx",
