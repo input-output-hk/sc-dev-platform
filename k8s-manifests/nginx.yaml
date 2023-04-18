@@ -4,7 +4,7 @@ metadata:
   name: nginx-deploy
   labels:
     app: nginx
-  namespace: default
+  namespace: flux-system
 spec:
   replicas: 3
   selector:
