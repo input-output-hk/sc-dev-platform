@@ -4,6 +4,7 @@ metadata:
   name: nginx-deployment
   labels:
     app: nginx
+  namespace: default
 spec:
   replicas: 3
   selector:
@@ -19,4 +20,3 @@ spec:
         image: nginx:1.14.2
         ports:
         - containerPort: 80
-
