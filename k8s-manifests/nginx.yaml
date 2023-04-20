@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nginx-deploy
+  name: nginx-deploy-test
   labels:
     app: nginx
   namespace: flux-system
