@@ -4,9 +4,9 @@ metadata:
   name: nginx-deploy-test
   labels:
     app: nginx
-  namespace: flux-system
+  namespace: default
 spec:
-  replicas: 4
+  replicas: 5
   selector:
     matchLabels:
       app: nginx
