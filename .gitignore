@@ -14,6 +14,7 @@ config.tf.json
 *.plan
 *.tfstate
 *.tfstate.backup
+*.tfvars
 
 # Terragrunt
 .terragrunt-cache
