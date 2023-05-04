@@ -12,5 +12,6 @@ resource "helm_release" "kubevela" {
 
   repository = "https://charts.kubevela.net/core"
   chart      = "vela-core"
+  version    = "1.8.0"
   namespace = kubernetes_namespace.vela-system.metadata[0].name
 }
