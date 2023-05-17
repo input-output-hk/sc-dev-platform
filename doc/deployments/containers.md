@@ -1,9 +1,11 @@
 # Containers
 
 ## Summary
-Every deployment will need containers for each component. The current way to setup containers is with nix and the [standard][std] library's `mkOperable` and `mkStandardOCI`. An operable is the entrypoint for the container or the script that will be run on container startup along with all the needed dependencies. `mkStandardOCI` will take an operable and build an OCI image with it.
-
 *Note:* This process of making containers is planned to change in order to be more friendly and require less boilerplate.
+
+Every deployment will need containers for each component. You can use any existing published containers, such as `nixos/nix` or `inputoutput/cardano-node` or you can build your own. We can help you with setting up a new container if that is needed.
+
+The current way to setup containers is with nix and the [standard][std] library's `mkOperable` and `mkStandardOCI`. An operable is the entrypoint for the container or the script that will be run on container startup along with all the needed dependencies. `mkStandardOCI` will take an operable and build an OCI image with it.
 
 ## Setup
 If you are working in a standardized repository, then you can follow the setups described in this [video][std-oci-video] . Otherwise you will need to manually setup the scaffolding with the following steps.
@@ -94,6 +96,6 @@ oci-images = import ./deploy/oci-images.nix {
 For all this to work, you will need to add [nosys][nosys] and [std][std] as flake inputs.
 
 
-[standard]: https://github.com/divnix/std
+[std]: https://github.com/divnix/std
 [nosys]: https://github.com/divnix/nosys
 [std-oci-video]: https://www.loom.com/share/27d91aa1eac24bcaaaed18ea6d6d03ca
