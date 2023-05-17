@@ -30,6 +30,8 @@ Some generally useful traits are:
 
 In the [web platform][scdev-vela] traits can only be added once an application is created. There will be a plus button in the components section for an application under each component.
 
+### Example
+
 Here is an example application manifest:
 ```yaml
 apiVersion: core.oam.dev/v1beta1
