@@ -13,7 +13,7 @@ Once an application is made through the [web ui][scdev-vela], the yaml data for 
 ## Application Parameters
 
 ### Compnonents
-Each application has a main component and optionally other side components. A component is where the main deployment information goes. There are various component types to choose from, you will likely want to use either the `webservice` or `daemon` type. `Webservice` for any service that will need an exposed port, and `daemon` for other long running services.
+Each application has a main component and optionally other side components. A component is where the main deployment information goes. There are various component types to choose from, you will likely want to use either the `webservice` or `daemon` type. `Webservice` for any service that will need an externally exposed port, and `daemon` for other long running services.
 
 *Note:* Component types for cardano-node based services may be added in the future.
 
