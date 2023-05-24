@@ -61,43 +61,6 @@ outputs: {
 						]
 					}
 				}
-				for domain in parameter.domains {
-					_name: strings.Replace(domain, ".", "-", -1) // -1 means to replace all instances
-					name: _name
-					protocol: "HTTP"
-					port:     8000
-					hostname: domain
-				}
-			]
-		}
-	}
-
-	httpRoute: {
-		apiVersion: "gateway.networking.k8s.io/v1alpha2"
-		kind:       "HTTPRoute"
-		metadata: {
-			name:      context.name + "-http-redirect"
-			namespace: context.namespace
-		}
-		spec: {
-			parentRefs: [{
-				name:      _gatewayName
-				namespace: context.namespace
-				port:      8000
-			}]
-			hostnames: parameter.domains
-			rules: [
-				{
-					filters: [
-						{
-							type: "RequestRedirect"
-							requestRedirect: {
-								scheme: "https"
-								statusCode: 301
-							}
-						},
-					]
-				},
 			]
 		}
 	}
@@ -137,6 +100,13 @@ outputs: {
 								name: context.name
 							}
 							port: rule.port
+						}]
+						filters: [{
+							type: "RequestRedirect"
+							requestRedirect: {
+								scheme: "https"
+								statusCode: 301
+							}
 						}]
 					}
 				},

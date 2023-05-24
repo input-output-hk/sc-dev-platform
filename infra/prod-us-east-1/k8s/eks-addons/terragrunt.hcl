@@ -85,6 +85,8 @@ inputs = {
   traefik = {
     enabled = true
     extra_values        = <<-EXTRA_VALUES
+      image:
+        tag: "3.0"
       experimental:
         kubernetesGateway:
           enabled: true
