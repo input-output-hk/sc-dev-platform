@@ -93,6 +93,9 @@ inputs = {
       service:
         annotations:
           "external-dns.alpha.kubernetes.io/hostname": "*.scdev.aws.iohkdev.io,play.marlowe.iohk.io"
+      ports:
+        web:
+          redirectTo: websecure
 
     EXTRA_VALUES
 
@@ -113,10 +116,9 @@ inputs = {
   cert-manager = {
     enabled             = true
     chart_version       = "v1.9.1"
-    acme_http01_enabled = true
     acme_dns01_enabled  = false
-    acme_http01_ingress_class = "traefik"
-    acme_email          = "smart.contracts@iohk.io"
+    # create cluster issuer below so that it is exposed with https
+    acme_http01_enabled = false
     extra_values        = <<-EXTRA_VALUES
       ingressShim:
         defaultIssuerName: letsencrypt
@@ -131,6 +133,16 @@ inputs = {
     chart_version       = "v0.4.2"
   }
 
+}
+
+generate "letsencrypt_issuer" {
+  path = "letsencrypt_issuer.tf"
+  if_exists = "overwrite"
+  contents = <<EOF
+    resource "kubectl_manifest" "letsencrypt_issuer" {
+      yaml_body = file("${get_terragrunt_dir()}/letsencrypt_issuer.yaml")
+    }
+  EOF
 }
 
 generate "gateway_crds" {
