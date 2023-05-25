@@ -180,7 +180,7 @@ inputs = {
   #EKS managed node groups
   eks_managed_node_group_defaults = {
     tags                         = merge(local.tags, local.asg_tags)
-    desired_size                 = 1
+    desired_size                 = 4
     min_size                     = 1
     max_size                     = 10
     capacity_type                = "ON_DEMAND"
@@ -229,7 +229,7 @@ inputs = {
 
     "d-b" = {
       ami_type                   = "BOTTLEROCKET_x86_64"
-      instance_types             = ["t3a.large"]
+      instance_types             = ["t3a.xlarge"]
       subnet_ids                 = [dependency.vpc.outputs.private_subnets[1]]
       enable_bootstrap_user_data = true
       bootstrap_extra_args       = local.bootstrap_cmd
