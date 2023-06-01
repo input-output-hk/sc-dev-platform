@@ -1,0 +1,46 @@
+apiVersion: core.oam.dev/v1beta1
+kind: Application
+metadata:
+  name: spack
+  namespace: default
+spec:
+  components:
+  - name: spack
+    properties:
+      cpu: "0.5"
+      exposeType: ClusterIP
+      image: spack/spack.io
+      memory: 1024Mi
+      ports:
+      - expose: true
+        port: 80
+        protocol: TCP
+    traits:
+    - properties:
+        replicas: 1
+      type: scaler
+    - properties:
+        domains:
+        - spacks.scdev.aws.iohkdev.io
+        rules:
+        - port: 80
+      type: https-route
+    type: webservice
+  policies:
+  - name: default
+    properties:
+      clusters:
+      - local
+      namespace: default
+    type: topology
+  workflow:
+    mode: {}
+    steps:
+    - meta:
+        alias: Deploy To default
+      name: default
+      properties:
+        policies:
+        - default
+      type: deploy
+status: {}
