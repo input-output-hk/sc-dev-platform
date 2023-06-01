@@ -21,7 +21,7 @@ spec:
       type: scaler
     - properties:
         domains:
-        - spacks.scdev.aws.iohkdev.io
+        - spack.scdev.aws.iohkdev.io
         rules:
         - port: 80
       type: https-route
