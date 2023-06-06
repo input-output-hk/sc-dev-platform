@@ -10,7 +10,7 @@ spec:
       cpu: "0.5"
       exposeType: ClusterIP
       image: spack/spack.io
-      memory: 8Gi
+      memory: 1024Mi
       ports:
       - expose: true
         port: 80
