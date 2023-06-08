@@ -4,11 +4,11 @@
 We are making use of the [Open Application Model][oam] to provide a simple way to describe deployments as [Application][app] manifests. We will provide custom traits and component types that make it easy to work with the Smart Contracts cluster.
 
 ## Initial Setup
-You can either setup applications through [web ui][scdev-vela] or as a yaml manifest file in a repository. To ensure applications are declaratively setup it is recommended to have a yaml manifest commited to the application repository, but to get an initial one created and tested you should use the [web ui][scdev-vela].
+You can either setup applications through [web ui][scdev-vela] or as a yaml manifest file in a repository. To ensure applications are declaratively setup it is recommended to have a yaml manifest commited to the application repository. You must use the Web UI to register your repository with the cluster and view the status of your deployments.
 
 You can login to the [web platform][scdev-vela] with an iohk gmail account then you will need to request for access to your team's project or for a new project to be made. In the main `Applications` page, you can click `New Application` and start entering details following the [Application Parameters](#application-parameters) section.
 
-Once an application is made through the [web ui][scdev-vela], the yaml data for it can be found in the `Revisions` page with the `Detail` action (in the far right column).
+Your team's project will have one or more environments/namespaces associated with it. For teams with production applications, a production environment can be made. All applications should be created in the staging or default namespace for your project and you can utilize policies and workflow steps to deploy your application to another namespace (details below).
 
 ## Application Parameters
 
@@ -28,7 +28,15 @@ Some generally useful traits are:
  - `storage`: Add persistent storage to a component.
  - `https-route`: Make component service publicly accessible. The `secret` parameter can be left empty, because that will be automatically removed. The domain argument must be a sub-domain of `scdev.aws.iohkdev.io`, as that is the domain the cluster is configured for. To use another domain (for production instances), a request will need to be made.
 
-In the [web platform][scdev-vela] traits can only be added once an application is created. There will be a plus button in the components section for an application under each component.
+### Workflow
+Each application has a workflow configuration that determines how it should be deployed. A workflow has one or more steps that will either be run in parallel with the `DAG` mode or one at a time with the `StepByStep` mode. Workflow steps have a type that determine what they will do and likely the only workflow type you will need is the `deploy` type. You should attach a `topology` policy to a `deploy` workflow to make sure the application gets deployed in your team's namespace.
+
+You can have multiple deploy steps, usually one for each namespace/environment.
+
+### Policies
+A policy determines how applications should be deployed. The most useful policy types are `topology` and `override`.
+ - `topology` specifies which cluster and namespace a workflow deploy step should send resources to.
+ - `override` allows changing components (and connected traits) configuration based on the environment being deployed to.
 
 ### Example
 
@@ -38,7 +46,7 @@ apiVersion: core.oam.dev/v1beta1
 kind: Application
 metadata:
   name: cardano
-  namespace: default # determined by the relevant project
+  namespace: cardano-staging # determined by the relevant project
 spec:
   components:
   - name: cardano-node
@@ -67,23 +75,57 @@ spec:
     #     port: 8080
 
   workflow:
-    mode: {}
+    mode:
+      steps: DAG # Use DAG execution mode (run steps in parallel)
     steps:
-    - meta:
-        alias: Deploy To default
-      name: default
+    - name: local-cardano-staging
+      type: deploy
+      meta:
+        alias: Deploy To staging
       properties:
         policies:
-        - default
+        - local-cardano-staging
+    # Following step is only needed for a separate production instance
+    - name: local-cardano-production
       type: deploy
+      meta:
+        alias: Deploy To production
+      properties:
+        policies:
+        - local-cardano-production
+        - override-cardano-production
 
   policies:
-  - name: default
+  - name: local-cardano-staging
+    type: topology
     properties:
       clusters:
       - local
-      namespace: default
+      namespace: cardano-staging
+  # Policies for production deploy workflow step
+  - name: local-cardano-production
     type: topology
+    properties:
+      clusters:
+      - local
+      namespace: cardano-production
+  - type: override
+    name: override-cardano-production
+    properties:
+      components:
+        - name: cardano-node # select what component will be overriden
+          # type: daemon # to only select cardano-node components of this type (types cannot be overriden)
+          properties: # properties to override
+            env: # this list WILL NOT append to current env setting, so all original env entries should be included again
+              - name: NETWORK
+                value: mainnet
+      traits: # only specified traits will be patched, so original traits don't need to be repeated
+        - type: scaler # the service can be replicated any number of times here
+          properties: # this WILL NOT be merged with existing trait configuration
+            replicas: 1
+   
+      
+
   ```
 
 [oam]: https://oam.dev/ 
