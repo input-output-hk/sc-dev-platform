@@ -49,3 +49,30 @@ resource "kubernetes_manifest" "traitdefinition_http_route" {
     }
   }
 }
+
+resource "kubectl_manifest" "traitdefinition_resource" {
+  force_new = true
+  yaml_body = yamlencode({
+    "apiVersion" = "core.oam.dev/v1beta1"
+    "kind" = "TraitDefinition"
+    "metadata" = {
+      "annotations" = {
+        "definition.oam.dev/description" = "Add resource requests and limits on K8s pod for your workload which follows the pod spec in path 'spec.template."
+      }
+      "name" = "resource"
+      "namespace" = var.namespace
+    }
+    "spec" = {
+      "appliesToWorkloads" = [
+        "deployments.apps", "statefulsets.apps", "daemonsets.apps", "jobs.batch"
+      ]
+      "conflictsWith" = []
+      "podDisruptive" = true
+      "schematic" = {
+        "cue" = {
+          "template" = file("${path.module}/resource.cue")
+        }
+      }
+    }
+  })
+}
