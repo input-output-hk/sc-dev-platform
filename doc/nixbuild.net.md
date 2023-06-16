@@ -49,6 +49,8 @@ Host eu.nixbuild.net
 
 and then you should ensure that the environment of your Nix daemon (or, if you're running in single-user mode, your Nix build command) has the `token` variable set to the contents of your token.
 
+On NixOS, you can configure the Nix daemon environment by creating a root-readable file `/etc/nix/daemon-environment` with the single line `token=<token>`, and then in your configuration.nix addding `systemd.services.nix-daemon.serviceConfig.EnvironmentFile = "/etc/nix/daemon-environment";`.
+
 Managing access tokens
 ----------------------
 We are using [Biscuit](biscuitsec.org/) tokens to access nixbuild.net. Among other things, these tokens allow for *offline attenuation*: If you have a token with a certain access, you can freely generate a new token with more restricted access without going through any central service. In this way, you can securely delegate capabilities; for example, given a token obtained as above, you could generate a new token that expires sooner (or, after future upgrades to nixbuild.net, can only spend a certain number of build hours per week) for use in CI.
