@@ -2,7 +2,7 @@ patch: spec: template: spec: {
 	// +patchKey=name
 	containers: [{
 		resources: {
-			if parameter.cpu != _|_ if parameter.memory != _|_ if parameter.requests == _|_ if parameter.limits == _|_ {
+			if parameter.cpu != _|_ if parameter.memory != _|_ if parameter."ephemeral-storage" != _|_ if parameter.requests == _|_ if parameter.limits == _|_ {
 				// +patchStrategy=retainKeys
 				requests: {
 					cpu:    parameter.cpu
