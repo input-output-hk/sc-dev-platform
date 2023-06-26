@@ -1,0 +1,186 @@
+apiVersion: core.oam.dev/v1beta1
+kind: Application
+metadata:
+  annotations:
+    addon.oam.dev/traitDefinitions: opentelemetry-instrumentation,opentelemetry-collector
+  creationTimestamp: null
+  labels:
+    addons.oam.dev/name: opentelemetry-operator
+    addons.oam.dev/registry: experimental
+    addons.oam.dev/version: 1.0.0
+  name: addon-opentelemetry-operator
+  namespace: vela-system
+spec:
+  components:
+  - name: ns-opentelemetry-operator
+    properties:
+      objects:
+      - apiVersion: v1
+        kind: Namespace
+        metadata:
+          name: opentelemetry-operator
+    type: k8s-objects
+  - name: opentelemetry-operator
+    properties:
+      chart: opentelemetry-operator
+      repoType: helm
+      targetNamespace: opentelemetry-operator
+      url: https://open-telemetry.github.io/opentelemetry-helm-charts
+      version: 0.26.0
+    type: helm
+  policies:
+  - name: opentelemetry-operator-ns
+    properties:
+      rules:
+      - selector:
+          resourceTypes:
+          - Namespace
+    type: shared-resource
+  - name: deploy-opentelemetry-operator
+    properties:
+      clusterLabelSelector: {}
+      namespace: opentelemetry-operator
+    type: topology
+  workflow:
+    steps:
+    - name: ns-opentelemetry-operator-step
+      properties:
+        component: ns-opentelemetry-operator
+      type: apply-component
+    - dependsOn:
+      - ns-opentelemetry-operator-step
+      name: opentelemetry-operator-step
+      properties:
+        component: opentelemetry-operator
+      type: apply-component
+status: {}
+
+---
+apiVersion: core.oam.dev/v1beta1
+kind: TraitDefinition
+metadata:
+  annotations:
+    definition.oam.dev/alias: ""
+    definition.oam.dev/description: opentelemetry instrumentation trait
+  labels: {}
+  name: opentelemetry-instrumentation
+  namespace: vela-system
+spec:
+  schematic:
+    cue:
+      template: "outputs: instrumentation: {\n\tkind:       \"Instrumentation\"\n\tapiVersion:
+        \"opentelemetry.io/v1alpha1\"\n\tmetadata: name: context.name\n\tspec: {\n\t\tapacheHttpd:
+        parameter.apacheHttpd\n\t\tdotnet:      parameter.dotnet\n\t\tenv:         parameter.env\n\t\texporter:
+        \   parameter.exporter\n\t\tjava:        parameter.java\n\t\tnodejs:      parameter.nodejs\n\t\tpropagators:
+        parameter.propagators\n\t\tpython:      parameter.python\n\t\tresource:    parameter.resource\n\t\tsampler:
+        \    parameter.sampler\n\t}\n}\nparameter: {\n\t//+usage=Apache defines configuration
+        for Apache HTTPD auto-instrumentation.\n\tapacheHttpd: *null | {...}\n\t//+usage=DotNet
+        defines configuration for DotNet auto-instrumentation.\n\tdotnet: *null |
+        {...}\n\t//+usage=Env defines common env vars. There are four layers for env
+        vars' definitions and the precedence order is: `original container env vars`
+        > `language specific env vars` > `common env vars` > `instrument spec configs'
+        vars`. If the former var had been defined, then the other vars would be ignored.\n\tenv:
+        *null | [...]\n\t//+usage=Exporter defines exporter configuration.\n\texporter:
+        *null | {...}\n\t//+usage=Java defines configuration for java auto-instrumentation.\n\tjava:
+        *null | {...}\n\t//+usage=NodeJS defines configuration for nodejs auto-instrumentation.\n\tnodejs:
+        *null | {...}\n\t//+usage=Propagators defines inter-process context propagation
+        configuration. Values in this list will be set in the OTEL_PROPAGATORS env
+        var. Enum=tracecontext;baggage;b3;b3multi;jaeger;xray;ottrace;none\n\tpropagators:
+        *null | [...]\n\t//+usage=Python defines configuration for python auto-instrumentation.\n\tpython:
+        *null | {...}\n\t//+usage=Resource defines the configuration for the resource
+        attributes, as defined by the OpenTelemetry specification.\n\tresource: *null
+        | {...}\n\t//+usage=Sampler defines sampling configuration.\n\tsampler: *null
+        | {...}\n}\n"
+  stage: PreDispatch
+  workload:
+    type: autodetects.core.oam.dev
+
+---
+apiVersion: core.oam.dev/v1beta1
+kind: TraitDefinition
+metadata:
+  annotations:
+    definition.oam.dev/alias: ""
+    definition.oam.dev/description: opentelemetry collector trait
+  labels: {}
+  name: opentelemetry-collector
+  namespace: vela-system
+spec:
+  schematic:
+    cue:
+      template: "outputs: collector: {\n\tkind:       \"OpenTelemetryCollector\"\n\tapiVersion:
+        \"opentelemetry.io/v1alpha1\"\n\tmetadata: name: context.name\n\tspec: {\n\t\taffinity:
+        \          parameter.affinity\n\t\targs:               parameter.args\n\t\tautoscaler:
+        \        parameter.autoscaler\n\t\tconfig:             parameter.config\n\t\tenv:
+        \               parameter.env\n\t\tenvFrom:            parameter.envFrom\n\t\thostNetwork:
+        \       parameter.hostNetwork\n\t\timage:              parameter.image\n\t\timagePullPolicy:
+        \   parameter.imagePullPolicy\n\t\tingress:            parameter.ingress\n\t\tmaxReplicas:
+        \       parameter.maxReplicas\n\t\tminReplicas:        parameter.minReplicas\n\t\tmode:
+        \              parameter.mode\n\t\tnodeSelector:       parameter.nodeSelector\n\t\tpodAnnotations:
+        \    parameter.podAnnotations\n\t\tpodSecurityContext: parameter.podSecurityContext\n\t\tports:
+        \             parameter.ports\n\t\tpriorityClassName:  parameter.priorityClassName\n\t\treplicas:
+        \          parameter.replicas\n\t\tresources:          parameter.resources\n\t\tsecurityContext:
+        \   parameter.securityContext\n\t}\n}\nparameter: {\n\t//+usage=If specified,
+        indicates the pod's scheduling constraints.\n\taffinity: *null | {...}\n\t//+usage=Args
+        is the set of arguments to pass to the OpenTelemetry Collector binary.\n\targs:
+        *null | {...}\n\t//+usage=Autoscaler specifies the pod autoscaling configuration
+        to use for the OpenTelemetryCollector workload.\n\tautoscaler: *null | {...}\n\t//+usage=Config
+        is the raw JSON to be used as the collector's configuration. Refer to the
+        OpenTelemetry Collector documentation for details.\n\tconfig: *null | string\n\t//+usage=ENV
+        vars to set on the OpenTelemetry Collector's Pods. These can then in certain
+        cases be consumed in the config file for the Collector.\n\tenv: *null | [...]\n\t//+usage=List
+        of sources to populate environment variables on the OpenTelemetry Collector's
+        Pods. These can then in certain cases be consumed in the config file for the
+        Collector.\n\tenvFrom: *null | [...]\n\t//+usage=HostNetwork indicates if
+        the pod should run in the host networking namespace.\n\thostNetwork: *null
+        | bool\n\t//+usage=Image indicates the container image to use for the OpenTelemetry
+        Collector.\n\timage: *null | string\n\t//+usage=ImagePullPolicy indicates
+        the pull policy to be used for retrieving the container image (Always, Never,
+        IfNotPresent)\n\timagePullPolicy: *null | string\n\t//+usage=Ingress is used
+        to specify how OpenTelemetry Collector is exposed. This functionality is only
+        available if one of the valid modes is set. Valid modes are: deployment, daemonset
+        and statefulset.\n\tingress: *null | {...}\n\t//+usage=MaxReplicas sets an
+        upper bound to the autoscaling feature. If MaxReplicas is set autoscaling
+        is enabled. Deprecated: use \"OpenTelemetryCollector.Spec.Autoscaler.MaxReplicas\"
+        instead.\n\tmaxReplicas: *null | int\n\t//+usage=MinReplicas sets a lower
+        bound to the autoscaling feature. Set this if your are using autoscaling.
+        It must be at least 1. Deprecated: use \"OpenTelemetryCollector.Spec.Autoscaler.MinReplicas\"
+        instead.\n\tminReplicas: *null | int\n\t//+usage=Mode represents how the collector
+        should be deployed (deployment, daemonset, statefulset or sidecar).\n\tmode:
+        *\"deployment\" | string\n\t//+usage=NodeSelector to schedule OpenTelemetry
+        Collector pods. This is only relevant to daemonset, statefulset, and deployment
+        mode.\n\tnodeSelector: *null | {...}\n\t//+usage=PodAnnotations is the set
+        of annotations that will be attached to Collector and Target Allocator pods.\n\tpodAnnotations:
+        *null | {...}\n\t//+usage=PodSecurityContext holds pod-level security attributes
+        and common container settings. Some fields are also present in container.securityContext.
+        \ Field values of container.securityContext take precedence over field values
+        of PodSecurityContext.\n\tpodSecurityContext: *null | {...}\n\t//+usage=Ports
+        allows a set of ports to be exposed by the underlying v1.Service. By default,
+        the operator will attempt to infer the required ports by parsing the .Spec.Config
+        property but this property can be used to open additional ports that can't
+        be inferred by the operator, like for custom receivers.\n\tports: *null |
+        [...]\n\t//+usage=If specified, indicates the pod's priority. If not specified,
+        the pod priority will be default or zero if there is no default.\n\tpriorityClassName:
+        *null | string\n\t//+usage=Replicas is the number of pod instances for the
+        underlying OpenTelemetry Collector. Set this if your are not using autoscaling.\n\treplicas:
+        *null | int\n\t//+usage=Resources to set on the OpenTelemetry Collector pods.\n\tresources:
+        *null | {...}\n\t//+usage=SecurityContext will be set as the container security
+        context.\n\tsecurityContext: *null | {...}\n\t//+usage=ServiceAccount indicates
+        the name of an existing service account to use with this instance. When set,
+        the operator will not automatically create a ServiceAccount for the collector.\n\tserviceAccount:
+        *null | string\n\t//+usage=TargetAllocator indicates a value which determines
+        whether to spawn a target allocation resource or not.\n\ttargetAllocator:
+        *null | {...}\n\t//+usage=Toleration to schedule OpenTelemetry Collector pods.
+        This is only relevant to daemonset, statefulset, and deployment mode.\n\ttolerations:
+        *null | [...]\n\t//+usage=UpgradeStrategy represents how the operator will
+        handle upgrades to the CR when a newer version of the operator is deployed.\n\tupgradeStrategy:
+        *null | string\n\t//+usage=VolumeClaimTemplates will provide stable storage
+        using PersistentVolumes. Only available when the mode=statefulset.\n\tvolumeClaimTemplates:
+        *null | [...]\n\t//+usage=VolumeMounts represents the mount points to use
+        in the underlying collector deployment(s).\n\tvolumeMounts: *null | [...]\n\t//+usage=Volumes
+        represents which volumes to use in the underlying collector deployment(s).\n\tvolumes:
+        *null | [...]\n}\n"
+  stage: PreDispatch
+  workload:
+    type: autodetects.core.oam.dev
+

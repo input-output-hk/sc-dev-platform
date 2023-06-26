@@ -6,6 +6,7 @@
     kubectl
     self'.packages.kubevela
     cue
+    kubernetes-helm
   ];
   env = {
     KUBECONFIG = "${self}/infra/kubeconfig-dapps-prod-us-east-1";

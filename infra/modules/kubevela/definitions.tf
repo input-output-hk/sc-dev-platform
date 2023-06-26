@@ -17,7 +17,7 @@ resource "kubernetes_manifest" "traitdefinition_https_route" {
       "podDisruptive" = false
       "schematic" = {
         "cue" = {
-          "template" = file("${path.module}/https-route.cue")
+          "template" = file("${path.module}/definitions/https-route.cue")
         }
       }
     }
@@ -43,7 +43,7 @@ resource "kubernetes_manifest" "traitdefinition_http_route" {
       "podDisruptive" = false
       "schematic" = {
         "cue" = {
-          "template" = file("${path.module}/http-route.cue")
+          "template" = file("${path.module}/definitions/http-route.cue")
         }
       }
     }
@@ -70,9 +70,43 @@ resource "kubectl_manifest" "traitdefinition_resource" {
       "podDisruptive" = true
       "schematic" = {
         "cue" = {
-          "template" = file("${path.module}/resource.cue")
+          "template" = file("${path.module}/definitions/resource.cue")
         }
       }
     }
   })
 }
+
+
+resource "kubectl_manifest" "componentdefinition_helmrelease" {
+  force_new = true
+  yaml_body = file("${path.module}/definitions/helm.yaml")
+  override_namespace = var.namespace
+}
+
+/*
+resource "kubectl_manifest" "componentdefinition_postgresql" {
+  force_new = true
+  yaml_body = yamlencode({
+    "apiVersion" = "core.oam.dev/v1beta1"
+    "kind" = "ComponentDefinition"
+    "metadata" = {
+      "annotations" = {
+        "definition.oam.dev/alias" = ""
+        "definition.oam.dev/description" = "postgres cluster component"
+      }
+      "name" = "postgres-cluster"
+      "namespace" = var.namespace
+    }
+    "spec" = {
+      workload = {
+        type = "autodetects.core.oam.dev"
+      }
+      "schematic" = {
+        "cue" = {
+          "template" = file("${path.module}/definitions/postgres.cue")
+        }
+      }
+    }
+  })
+}*/
