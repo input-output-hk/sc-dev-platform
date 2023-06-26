@@ -1,0 +1,31 @@
+apiVersion: core.oam.dev/v1beta1
+kind: Application
+metadata:
+  creationTimestamp: null
+  labels:
+    addons.oam.dev/name: cloudshell
+    addons.oam.dev/registry: KubeVela
+    addons.oam.dev/version: 0.0.8
+  name: addon-cloudshell
+  namespace: vela-system
+spec:
+  components:
+  - name: cloudshell-operator
+    properties:
+      chart: cloudtty
+      repoType: helm
+      url: https://release.daocloud.io/chartrepo/cloudshell
+      values:
+        image:
+          registry: hub.kubevela.net
+          repository: oamdev/cloudshell-operator
+          tag: v0.3.0
+        jobTemplate:
+          image:
+            registry: hub.kubevela.net
+            repository: oamdev/cloudshell
+            tag: v1.7.2
+      version: 0.3.0
+    type: helm
+status: {}
+

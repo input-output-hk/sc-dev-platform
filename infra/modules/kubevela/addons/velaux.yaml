@@ -1,0 +1,688 @@
+apiVersion: core.oam.dev/v1beta1
+kind: Application
+metadata:
+  creationTimestamp: null
+  labels:
+    addons.oam.dev/name: velaux
+    addons.oam.dev/registry: KubeVela
+    addons.oam.dev/version: v1.8.1
+  name: addon-velaux
+  namespace: vela-system
+spec:
+  components:
+  - name: velaux-additional-privileges
+    properties:
+      objects:
+      - apiVersion: rbac.authorization.k8s.io/v1
+        kind: ClusterRoleBinding
+        metadata:
+          name: clustergateway:kubevela:ux
+        roleRef:
+          apiGroup: rbac.authorization.k8s.io
+          kind: ClusterRole
+          name: cluster-admin
+        subjects:
+        - apiGroup: rbac.authorization.k8s.io
+          kind: Group
+          name: kubevela:ux
+        - kind: ServiceAccount
+          name: kubevela-ux
+          namespace: vela-system
+      - apiVersion: v1
+        kind: ServiceAccount
+        metadata:
+          name: kubevela-ux
+          namespace: vela-system
+        secrets:
+        - name: kubevela-ux-token
+      - apiVersion: v1
+        kind: Secret
+        metadata:
+          annotations:
+            kubernetes.io/service-account.name: kubevela-ux
+          name: kubevela-ux-token
+          namespace: vela-system
+        type: kubernetes.io/service-account-token
+    type: k8s-objects
+  - dependsOn:
+    - velaux-additional-privileges
+    name: velaux-server
+    properties:
+      cmd:
+      - server
+      - --datastore-type=kubeapi
+      - --feature-gates=EnableCacheJSFile=true
+      exposeType: ClusterIP
+      image: oamdev/velaux:v1.8.1
+      ports:
+      - expose: true
+        port: 8000
+        protocol: TCP
+    traits:
+    - properties:
+        name: kubevela-ux
+      type: service-account
+    - properties:
+        replicas: 1
+      type: scaler
+    - properties:
+        domains:
+        - vela.scdev.aws.iohkdev.io
+        rules:
+        - port: 8000
+      type: http-route
+    - properties:
+        domains:
+        - vela.scdev.aws.iohkdev.io
+        rules:
+        - port: 8000
+        secrets:
+        - name: test
+      type: https-route
+    type: webservice
+status: {}
+
+---
+apiVersion: v1
+data:
+  expanded-writer: |
+    nacos:
+      endpoint:
+        name: nacos
+        namespace: ""
+      format: json
+      metadata:
+        dataId: ""
+        group: ""
+        namespaceId: ""
+  schema: |
+    properties:
+      appName:
+        description: The app name of the configuration
+        title: appName
+        type: string
+      content:
+        additionalProperties: {}
+        description: The configuration content.
+        title: content
+        type: object
+      contentType:
+        default: json
+        enum:
+        - json
+        - yaml
+        - properties
+        - toml
+        title: contentType
+        type: string
+      dataId:
+        description: Configuration ID
+        title: dataId
+        type: string
+      group:
+        default: DEFAULT_GROUP
+        description: Configuration group
+        title: group
+        type: string
+      namespaceId:
+        description: The namespaceId of the configuration
+        title: namespaceId
+        type: string
+      tag:
+        description: The tag of the configuration
+        title: tag
+        type: string
+      tenant:
+        description: The tenant, corresponding to the namespace ID field of Nacos
+        title: tenant
+        type: string
+    required:
+    - dataId
+    - group
+    - content
+    - contentType
+    type: object
+  template: "metadata: {\n\tname:        \"nacos-config\"\n\talias:       \"Nacos
+    Configuration\"\n\tdescription: \"Write the configuration to the nacos\"\n\tsensitive:
+    \  false\n\tscope:       \"system\"\n}\n\ntemplate: {\n\tnacos: {\n\t\t// The
+    endpoint can not references the parameter.\n\t\tendpoint: {\n\t\t\t// Users must
+    create a config base the nacos-server template firstly.\n\t\t\tname: \"nacos\"\n\t\t}\n\t\tformat:
+    parameter.contentType\n\n\t\t// could references the parameter\n\t\tmetadata:
+    {\n\t\t\tdataId: parameter.dataId\n\t\t\tgroup:  parameter.group\n\t\t\tif parameter.appName
+    != _|_ {\n\t\t\t\tappName: parameter.appName\n\t\t\t}\n\t\t\tif parameter.namespaceId
+    != _|_ {\n\t\t\t\tnamespaceId: parameter.namespaceId\n\t\t\t}\n\t\t\tif parameter.tenant
+    != _|_ {\n\t\t\t\ttenant: parameter.tenant\n\t\t\t}\n\t\t\tif parameter.tag !=
+    _|_ {\n\t\t\t\ttag: parameter.tag\n\t\t\t}\n\t\t}\n\t\tcontent: parameter.content\n\t}\n\tparameter:
+    {\n\t\t// +usage=Configuration ID\n\t\tdataId: string\n\t\t// +usage=Configuration
+    group\n\t\tgroup: *\"DEFAULT_GROUP\" | string\n\t\t// +usage=The configuration
+    content.\n\t\tcontent: {\n\t\t\t...\n\t\t}\n\t\tcontentType: *\"json\" | \"yaml\"
+    | \"properties\" | \"toml\"\n\t\t// +usage=The app name of the configuration\n\t\tappName?:
+    string\n\t\t// +usage=The namespaceId of the configuration\n\t\tnamespaceId?:
+    string\n\t\t// +usage=The tenant, corresponding to the namespace ID field of Nacos\n\t\ttenant?:
+    string\n\t\t// +usage=The tag of the configuration\n\t\ttag?: string\n\t}\n}\n\n\n\tcontext:
+    {\n\t\tname: string\n\t\tnamespace: string\n\t}\n"
+kind: ConfigMap
+metadata:
+  annotations:
+    config.oam.dev/alias: Nacos Configuration
+    config.oam.dev/description: ""
+    config.oam.dev/sensitive: "false"
+  creationTimestamp: null
+  labels:
+    config.oam.dev/catalog: velacore-config
+    config.oam.dev/scope: system
+  name: config-template-nacos-config
+  namespace: vela-system
+
+---
+apiVersion: v1
+data:
+  expanded-writer: |
+    nacos: null
+  schema: |
+    properties:
+      client:
+        description: Discover the Nacos servers by the client.
+        properties:
+          accessKey:
+            description: the AccessKey for kms
+            title: accessKey
+            type: string
+          endpoint:
+            description: the endpoint for get Nacos server addresses
+            title: endpoint
+            type: string
+          openKMS:
+            description: it's to open kms,default is false. https://help.aliyun.com/product/28933.html
+            title: openKMS
+            type: boolean
+          password:
+            description: the password for nacos auth
+            title: password
+            type: string
+          regionId:
+            description: the regionId for kms
+            title: regionId
+            type: string
+          secretKey:
+            description: the SecretKey for kms
+            title: secretKey
+            type: string
+          username:
+            description: the username for nacos auth
+            title: username
+            type: string
+        required:
+        - endpoint
+        title: client
+        type: object
+      servers:
+        description: Directly configure the Nacos server address
+        items:
+          properties:
+            grpcPort:
+              description: nacos server grpc port, default=server port + 1000, this is
+                not required
+              title: grpcPort
+              type: integer
+            ipAddr:
+              description: the nacos server address
+              title: ipAddr
+              type: string
+            port:
+              default: 8849
+              description: nacos server port
+              title: port
+              type: integer
+          required:
+          - ipAddr
+          - port
+          type: object
+        title: servers
+        type: array
+    type: object
+  template: "metadata: {\n\tname:        \"nacos-server\"\n\talias:       \"Nacos
+    Server\"\n\tdescription: \"Config the Nacos server connectors\"\n\tsensitive:
+    \  false\n\tscope:       \"system\"\n}\n\ntemplate: {\n\tparameter: {\n\t\t//
+    +usage=Directly configure the Nacos server address\n\t\tservers?: [...{\n\t\t\t//
+    +usage=the nacos server address\n\t\t\tipAddr: string\n\t\t\t// +usage=nacos server
+    port\n\t\t\tport: *8849 | int\n\t\t\t// +usage=nacos server grpc port, default=server
+    port + 1000, this is not required\n\t\t\tgrpcPort?: int\n\t\t}]\n\t\t// +usage=Discover
+    the Nacos servers by the client.\n\t\tclient?: {\n\t\t\t// +usage=the endpoint
+    for get Nacos server addresses\n\t\t\tendpoint: string\n\t\t\t// +usage=the AccessKey
+    for kms\n\t\t\taccessKey?: string\n\t\t\t// +usage=the SecretKey for kms\n\t\t\tsecretKey?:
+    string\n\t\t\t// +usage=the regionId for kms\n\t\t\tregionId?: string\n\t\t\t//
+    +usage=the username for nacos auth\n\t\t\tusername?: string\n\t\t\t// +usage=the
+    password for nacos auth\n\t\t\tpassword?: string\n\t\t\t// +usage=it's to open
+    kms,default is false. https://help.aliyun.com/product/28933.html\n\t\t\topenKMS?:
+    bool\n\t\t}\n\t}\n}\n\n\n\tcontext: {\n\t\tname: string\n\t\tnamespace: string\n\t}\n"
+kind: ConfigMap
+metadata:
+  annotations:
+    config.oam.dev/alias: Nacos Server
+    config.oam.dev/description: ""
+    config.oam.dev/sensitive: "false"
+  creationTimestamp: null
+  labels:
+    config.oam.dev/catalog: velacore-config
+    config.oam.dev/scope: system
+  name: config-template-nacos-server
+  namespace: vela-system
+
+---
+apiVersion: v1
+data:
+  expanded-writer: |
+    nacos: null
+  schema: |
+    properties:
+      auth:
+        description: Authenticate the image registry
+        properties:
+          email:
+            description: Private Image registry email
+            title: email
+            type: string
+          password:
+            description: Private Image registry password
+            title: password
+            type: string
+          username:
+            description: Private Image registry username
+            title: username
+            type: string
+        required:
+        - username
+        - password
+        title: auth
+        type: object
+      insecure:
+        description: For the registry server that uses the self-signed certificate
+        title: insecure
+        type: boolean
+      registry:
+        default: index.docker.io
+        description: 'Image registry FQDN, such as: index.docker.io'
+        title: registry
+        type: string
+      useHTTP:
+        description: For the registry server that uses the HTTP protocol
+        title: useHTTP
+        type: boolean
+    required:
+    - registry
+    type: object
+  template: "import (\n\t\"encoding/base64\"\n\t\"encoding/json\"\n\t\"strconv\"\n)\n\nmetadata:
+    {\n\tname:        \"image-registry\"\n\talias:       \"Image Registry\"\n\tscope:
+    \      \"project\"\n\tdescription: \"Config information to authenticate image
+    registry\"\n\tsensitive:   false\n}\n\ntemplate: {\n\toutput: {\n\t\tapiVersion:
+    \"v1\"\n\t\tkind:       \"Secret\"\n\t\tmetadata: {\n\t\t\tname:      context.name\n\t\t\tnamespace:
+    context.namespace\n\t\t\tlabels: {\n\t\t\t\t\"config.oam.dev/catalog\": \"velacore-config\"\n\t\t\t\t\"config.oam.dev/type\":
+    \   \"image-registry\"\n\t\t\t}\n\t\t}\n\t\tif parameter.auth != _|_ {\n\t\t\ttype:
+    \"kubernetes.io/dockerconfigjson\"\n\t\t}\n\t\tif parameter.auth == _|_ {\n\t\t\ttype:
+    \"Opaque\"\n\t\t}\n\t\tstringData: {\n\t\t\tif parameter.auth != _|_ && parameter.auth.username
+    != _|_ {\n\t\t\t\t\".dockerconfigjson\": json.Marshal({\n\t\t\t\t\t\"auths\":
+    (parameter.registry): {\n\t\t\t\t\t\t\"username\": parameter.auth.username\n\t\t\t\t\t\t\"password\":
+    parameter.auth.password\n\t\t\t\t\t\tif parameter.auth.email != _|_ {\n\t\t\t\t\t\t\t\"email\":
+    parameter.auth.email\n\t\t\t\t\t\t}\n\t\t\t\t\t\t\"auth\": base64.Encode(null,
+    (parameter.auth.username + \":\" + parameter.auth.password))\n\t\t\t\t\t}\n\t\t\t\t})\n\t\t\t}\n\t\t\tif
+    parameter.insecure != _|_ {\n\t\t\t\t\"insecure-skip-verify\": strconv.FormatBool(parameter.insecure)\n\t\t\t}\n\t\t\tif
+    parameter.useHTTP != _|_ {\n\t\t\t\t\"protocol-use-http\": strconv.FormatBool(parameter.useHTTP)\n\t\t\t}\n\t\t}\n\t}\n\n\tparameter:
+    {\n\t\t// +usage=Image registry FQDN, such as: index.docker.io\n\t\tregistry:
+    *\"index.docker.io\" | string\n\t\t// +usage=Authenticate the image registry\n\t\tauth?:
+    {\n\t\t\t// +usage=Private Image registry username\n\t\t\tusername: string\n\t\t\t//
+    +usage=Private Image registry password\n\t\t\tpassword: string\n\t\t\t// +usage=Private
+    Image registry email\n\t\t\temail?: string\n\t\t}\n\t\t// +usage=For the registry
+    server that uses the self-signed certificate\n\t\tinsecure?: bool\n\t\t// +usage=For
+    the registry server that uses the HTTP protocol\n\t\tuseHTTP?: bool\n\t}\n}\n\n\n\tcontext:
+    {\n\t\tname: string\n\t\tnamespace: string\n\t}\n"
+kind: ConfigMap
+metadata:
+  annotations:
+    config.oam.dev/alias: Image Registry
+    config.oam.dev/description: ""
+    config.oam.dev/sensitive: "false"
+  creationTimestamp: null
+  labels:
+    config.oam.dev/catalog: velacore-config
+    config.oam.dev/scope: project
+  name: config-template-image-registry
+  namespace: vela-system
+
+---
+apiVersion: v1
+data:
+  ui-schema: '[{"jsonKey":"url","label":"URL","sort":1,"subParameters":[{"jsonKey":"value","label":"URL","uiType":"Input","validate":{"required":true}}],"uiType":"Ignore"},{"jsonKey":"data","sort":3}]'
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: workflowstep-uischema-webhook
+  namespace: vela-system
+
+---
+apiVersion: v1
+data:
+  ui-schema: '[{"jsonKey":"parallel","sort":5,"validate":{"defaultValue":false}},{"jsonKey":"policy","sort":1},{"jsonKey":"env","sort":3}]'
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: workflowstep-uischema-deploy2env
+  namespace: vela-system
+
+---
+apiVersion: v1
+data:
+  ui-schema: '[{"jsonKey":"policies","label":"Policies","sort":10,"uiType":"PolicySelect","validate":{"required":true}},{"jsonKey":"parallelism","sort":20,"style":{"colSpan":12}},{"jsonKey":"auto","sort":30,"style":{"colSpan":12}}]'
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: workflowstep-uischema-deploy
+  namespace: vela-system
+
+---
+apiVersion: v1
+data:
+  ui-schema: '[{"jsonKey":"dataId","sort":1,"style":{"colSpan":8}},{"jsonKey":"group","sort":3,"style":{"colSpan":8}},{"jsonKey":"contentType","sort":5,"style":{"colSpan":8}},{"jsonKey":"content","sort":7}]'
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: config-uischema-nacos-config
+  namespace: vela-system
+
+---
+apiVersion: v1
+data:
+  ui-schema: '[{"jsonKey":"image","label":"Image","sort":1,"uiType":"ImageInput"},{"disable":true,"jsonKey":"imagePullSecret","sort":2},{"jsonKey":"restart","sort":3,"uiType":"Select","validate":{"defaultValue":"Never","options":[{"label":"Never","value":"Never"},{"label":"OnFailure","value":"OnFailure"}],"required":true}},{"jsonKey":"count","sort":4,"uiType":"Number","validate":{"defaultValue":1,"max":128,"min":0,"required":true}},{"description":"Specifies
+    the memory resource required for the container, If set to 0, there is no limit.","jsonKey":"memory","label":"Memory","sort":5,"style":{"colSpan":12},"uiType":"MemoryNumber","validate":{"defaultValue":"1024Mi","required":true}},{"description":"Specifies
+    the cpu resource required for the container, If set to 0, there is no limit.","jsonKey":"cpu","label":"CPU","sort":7,"style":{"colSpan":12},"uiType":"CPUNumber","validate":{"defaultValue":"0.5","required":true}},{"jsonKey":"cmd","label":"CMD","sort":9},{"jsonKey":"env","label":"ENV","sort":10,"subParameterGroupOption":[{"keys":["name","value"],"label":"Add
+    By Value"},{"keys":["name","valueFrom"],"label":"Add By Secret"}],"subParameters":[{"jsonKey":"valueFrom","label":"Secret
+    Selector","subParameters":[{"disable":true,"jsonKey":"configMapKeyRef"},{"jsonKey":"secretKeyRef","subParameters":[{"jsonKey":"name","label":"Secret
+    Name","sort":1,"uiType":"SecretSelect"},{"jsonKey":"key","label":"Secret Key","sort":3,"uiType":"SecretKeySelect"}],"uiType":"Ignore"}],"uiType":"Ignore"}],"uiType":"Structs"},{"jsonKey":"readinessProbe","label":"ReadinessProbe","sort":13,"subParameters":[{"disable":true,"jsonKey":"hostAliases"},{"jsonKey":"timeoutSeconds","sort":1,"style":{"colSpan":12}},{"jsonKey":"failureThreshold","sort":4,"style":{"colSpan":12}},{"jsonKey":"initialDelaySeconds","sort":7,"style":{"colSpan":12},"validate":{"defaultValue":5,"required":true}},{"jsonKey":"periodSeconds","sort":9,"style":{"colSpan":12}},{"jsonKey":"successThreshold","sort":11,"style":{"colSpan":12}},{"jsonKey":"exec","sort":14},{"jsonKey":"httpGet","sort":19,"subParameters":[{"jsonKey":"port","sort":1,"style":{"colSpan":12},"validate":{"min":1,"required":true}},{"jsonKey":"path","sort":3,"style":{"colSpan":12},"validate":{"pattern":"^/(.*)$","required":true}},{"jsonKey":"httpHeaders","sort":5}]},{"jsonKey":"tcpSocket","sort":19,"subParameters":[{"jsonKey":"port","validate":{"min":1,"required":true}}]}],"uiType":"Group"},{"jsonKey":"livenessProbe","label":"LivenessProbe","sort":15,"subParameters":[{"disable":true,"jsonKey":"hostAliases"},{"jsonKey":"timeoutSeconds","sort":1,"style":{"colSpan":12}},{"jsonKey":"failureThreshold","sort":4,"style":{"colSpan":12}},{"jsonKey":"initialDelaySeconds","sort":7,"style":{"colSpan":12},"validate":{"defaultValue":5,"required":true}},{"jsonKey":"periodSeconds","sort":9,"style":{"colSpan":12}},{"jsonKey":"successThreshold","sort":11,"style":{"colSpan":12}},{"jsonKey":"exec","sort":14},{"jsonKey":"httpGet","sort":19,"subParameters":[{"jsonKey":"port","sort":1,"style":{"colSpan":12},"validate":{"min":1,"required":true}},{"jsonKey":"path","sort":3,"style":{"colSpan":12},"validate":{"pattern":"^/(.*)$","required":true}},{"jsonKey":"httpHeaders","sort":5}]},{"jsonKey":"tcpSocket","sort":19,"subParameters":[{"jsonKey":"port","validate":{"min":1,"required":true}}]}],"uiType":"Group"},{"jsonKey":"annotations","sort":19},{"jsonKey":"labels","sort":21},{"description":"Specify
+    image pull policy for your service","jsonKey":"imagePullPolicy","label":"Image
+    Pull Policy","sort":24,"uiType":"Select","validate":{"defaultValue":"IfNotPresent","options":[{"label":"IfNotPresent","value":"IfNotPresent"},{"label":"Always","value":"Always"},{"label":"Never","value":"Never"}]}},{"disable":true,"jsonKey":"volumes"}]'
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: component-uischema-task
+  namespace: vela-system
+
+---
+apiVersion: v1
+data:
+  ui-schema: '[{"jsonKey":"pvc","label":"PersistentVolumeClaim","sort":1,"subParameters":[{"jsonKey":"name","sort":1,"validate":{"maxLength":32,"pattern":"^[a-z0-9]([-a-z0-9]*[a-z0-9])$","required":true}},{"jsonKey":"mountPath","sort":3,"validate":{"pattern":"^/(.*)$","required":true}},{"jsonKey":"resources","sort":7,"subParameters":[{"jsonKey":"requests","sort":1,"style":{"colSpan":12},"subParameters":[{"jsonKey":"storage","label":"Request
+    Storage","uiType":"DiskNumber","validate":{"immutable":true,"required":true}}],"uiType":"Ignore"},{"jsonKey":"limits","sort":3,"style":{"colSpan":12},"subParameters":[{"jsonKey":"storage","label":"Limit
+    Storage","uiType":"DiskNumber","validate":{"immutable":true,"required":true}}],"uiType":"Ignore"}],"validate":{"defaultValue":{"limits":{"storage":"8Gi"},"requests":{"storage":"8Gi"}},"required":true}},{"description":"If
+    not specified, the cluster default StorageClass is used.","jsonKey":"storageClassName","sort":9},{"jsonKey":"accessModes","sort":11,"validate":{"defaultValue":["ReadWriteOnce"],"required":false}},{"description":"You
+    can set the value of volumeMode to Block to use a volume as a raw block device.","jsonKey":"volumeMode","sort":12,"uiType":"Select","validate":{"defaultValue":"Filesystem","options":[{"label":"Filesystem","value":"Filesystem"},{"label":"Block","value":"Block"}]}},{"description":"The
+    VolumeName is the binding reference to the PersistentVolume backing this claim.","jsonKey":"volumeName","sort":14},{"jsonKey":"selector","sort":17},{"description":"It
+    will create a new volume based on the contents of the specified data source.","jsonKey":"dataSource","sort":19},{"disable":true,"jsonKey":"dataSourceRef","sort":20},{"disable":true,"jsonKey":"mountOnly"}]},{"disable":true,"jsonKey":"secret","sort":3},{"disable":true,"jsonKey":"configMap","sort":5},{"disable":true,"jsonKey":"emptyDir"}]'
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: trait-uischema-storage
+  namespace: vela-system
+
+---
+apiVersion: v1
+data:
+  ui-schema: '[{"description":"Support push messages to Dingding Group.","jsonKey":"dingding","sort":1,"subParameters":[{"jsonKey":"url","sort":1,"subParameters":[{"jsonKey":"value","label":"Webhook","uiType":"Input","validate":{"required":true}}],"uiType":"Ignore"},{"description":"Specify
+    the message that you want to sent","jsonKey":"message","sort":3,"subParameters":[{"disable":true,"jsonKey":"msgtype"},{"disable":true,"jsonKey":"link"},{"disable":true,"jsonKey":"markdown"},{"disable":true,"jsonKey":"at"},{"disable":true,"jsonKey":"actionCard"},{"disable":true,"jsonKey":"feedCard"},{"jsonKey":"text","subParameters":[{"description":"Specify
+    the message that you want to sent","jsonKey":"content","label":"Message"}],"uiType":"Ignore"}],"uiType":"Ignore"}]},{"description":"Support
+    push email message.","jsonKey":"email","sort":3,"subParameters":[{"jsonKey":"from","sort":1,"subParameters":[{"jsonKey":"host","sort":1},{"jsonKey":"port","sort":3},{"jsonKey":"address","sort":5},{"jsonKey":"password","sort":7,"subParameters":[{"jsonKey":"value","label":"Password","uiType":"Password","validate":{"required":true}}],"uiType":"Ignore"},{"jsonKey":"alias","sort":9}]},{"jsonKey":"to","sort":3},{"jsonKey":"content","sort":5,"subParameters":[{"jsonKey":"subject","sort":1},{"jsonKey":"body","sort":3}]}]},{"description":"Support
+    push messages to slack channel.","jsonKey":"slack","sort":5,"subParameters":[{"jsonKey":"url","sort":1,"subParameters":[{"jsonKey":"value","label":"Webhook","uiType":"Input","validate":{"required":true}}],"uiType":"Ignore"},{"jsonKey":"message","subParameters":[{"disable":true,"jsonKey":"blocks"},{"disable":true,"jsonKey":"attachments"},{"disable":true,"jsonKey":"thread_ts"},{"disable":true,"jsonKey":"mrkdwn"},{"description":"Specify
+    the message that you want to sent","jsonKey":"text","label":"Message"}],"uiType":"Ignore"}]}]'
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: workflowstep-uischema-notification
+  namespace: vela-system
+
+---
+apiVersion: v1
+data:
+  ui-schema: '[{"jsonKey":"dbType","label":"DBType","sort":1,"validate":{"defaultValue":"kubeapi","options":[{"label":"MongoDB","value":"mongodb"},{"label":"KubeAPI","value":"kubeapi"}],"required":true}},{"conditions":[{"jsonKey":"dbType","op":"==","value":"mongodb"}],"jsonKey":"dbURL","label":"DatabaseURL","sort":3,"validate":{"required":true}},{"jsonKey":"database","sort":7,"validate":{"defaultValue":"kubevela","required":true}},{"disable":true,"jsonKey":"serviceAccountName"},{"jsonKey":"serviceType","sort":8},{"jsonKey":"domain","sort":9},{"jsonKey":"gatewayDriver","sort":10},{"jsonKey":"repo","sort":11},{"jsonKey":"imagePullSecrets","sort":13}]'
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: addon-uischema-velaux
+  namespace: vela-system
+
+---
+apiVersion: v1
+data:
+  ui-schema: '[{"jsonKey":"registry","sort":1},{"jsonKey":"insecure","sort":3,"style":{"colSpan":12}},{"jsonKey":"useHTTP","sort":5,"style":{"colSpan":12}},{"jsonKey":"auth","subParameters":[{"jsonKey":"username","sort":1,"style":{"colSpan":12}},{"jsonKey":"password","sort":3,"style":{"colSpan":12},"uiType":"Password"},{"jsonKey":"email","sort":8}]}]'
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: config-uischema-image-registry
+  namespace: vela-system
+
+---
+apiVersion: v1
+data:
+  ui-schema: '[{"jsonKey":"objects","uiType":"K8sObjectsCode"}]'
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: component-uischema-k8s-objects
+  namespace: vela-system
+
+---
+apiVersion: v1
+data:
+  ui-schema: '[{"jsonKey":"image","label":"Container Image","sort":1,"uiType":"ImageInput"},{"disable":true,"jsonKey":"imagePullSecret","sort":2},{"description":"Specifies
+    the memory resource required for the container, If set to 0, there is no limit.","jsonKey":"memory","label":"Memory","sort":4,"style":{"colSpan":12},"uiType":"MemoryNumber","validate":{"defaultValue":"1024Mi","required":true}},{"description":"Specifies
+    the cpu resource required for the container, If set to 0, there is no limit.","jsonKey":"cpu","label":"CPU","sort":5,"style":{"colSpan":12},"uiType":"CPUNumber","validate":{"defaultValue":"0.5","required":true}},{"jsonKey":"exposeType","sort":6,"validate":null},{"jsonKey":"ports","label":"Service
+    Ports","sort":7,"subParameters":[{"jsonKey":"port","sort":1,"validate":{"min":1,"required":true}},{"jsonKey":"protocol","sort":3},{"disable":true,"jsonKey":"name","sort":4},{"jsonKey":"expose","sort":5}],"validate":{"defaultValue":[{"expose":true,"port":80,"protocol":"TCP"}],"required":true}},{"jsonKey":"cmd","label":"CMD","sort":9},{"jsonKey":"env","label":"ENV","sort":10,"subParameterGroupOption":[{"keys":["name","value"],"label":"Add
+    By Value"},{"keys":["name","valueFrom"],"label":"Add By Secret"}],"subParameters":[{"jsonKey":"valueFrom","label":"Secret
+    Selector","subParameters":[{"disable":true,"jsonKey":"configMapKeyRef"},{"jsonKey":"secretKeyRef","subParameters":[{"jsonKey":"name","label":"Secret
+    Name","sort":1,"uiType":"SecretSelect"},{"jsonKey":"key","label":"Secret Key","sort":3,"uiType":"SecretKeySelect"}],"uiType":"Ignore"}],"uiType":"Ignore"}],"uiType":"Structs"},{"description":"Set
+    the path and type that the service needs to persist.","jsonKey":"volumeMounts","label":"Persistent
+    Storage","sort":12,"subParameters":[{"disable":true,"jsonKey":"configMap"},{"disable":true,"jsonKey":"secret"},{"jsonKey":"pvc","label":"Storage
+    By PVC","sort":1,"subParameters":[{"jsonKey":"name","sort":1,"validate":{"pattern":"^[a-z0-9]([-a-z0-9]*[a-z0-9])$","required":true}},{"jsonKey":"claimName","sort":3},{"jsonKey":"mountPath","sort":5,"validate":{"pattern":"^/(.*)$","required":true}}]},{"jsonKey":"hostPath","label":"Storage
+    By HostPath","sort":3,"subParameters":[{"jsonKey":"name","sort":1,"validate":{"pattern":"^[a-z0-9]([-a-z0-9]*[a-z0-9])$","required":true}},{"jsonKey":"path","label":"Host
+    Path","sort":3,"validate":{"pattern":"^/(.*)$","required":true}},{"jsonKey":"mountPath","sort":5,"validate":{"pattern":"^/(.*)$","required":true}}]},{"jsonKey":"emptyDir","label":"Temporary
+    Storage","sort":5,"subParameters":[{"jsonKey":"name","sort":1,"validate":{"pattern":"^[a-z0-9]([-a-z0-9]*[a-z0-9])$","required":true}},{"jsonKey":"medium","sort":3,"validate":{"options":[{"label":"Memory","value":"memory"},{"label":"Dir","value":""}],"required":false}},{"jsonKey":"mountPath","sort":5,"validate":{"pattern":"^/(.*)$","required":true}}]}],"uiType":"Group"},{"jsonKey":"readinessProbe","label":"ReadinessProbe","sort":13,"subParameters":[{"disable":true,"jsonKey":"hostAliases"},{"jsonKey":"timeoutSeconds","sort":1,"style":{"colSpan":12}},{"jsonKey":"failureThreshold","sort":4,"style":{"colSpan":12}},{"jsonKey":"initialDelaySeconds","sort":7,"style":{"colSpan":12},"validate":{"defaultValue":5,"required":true}},{"jsonKey":"periodSeconds","sort":9,"style":{"colSpan":12}},{"jsonKey":"successThreshold","sort":11,"style":{"colSpan":12}},{"jsonKey":"exec","sort":14},{"jsonKey":"httpGet","sort":19,"subParameters":[{"jsonKey":"port","sort":1,"style":{"colSpan":12},"validate":{"min":1,"required":true}},{"jsonKey":"path","sort":3,"style":{"colSpan":12},"validate":{"pattern":"^/(.*)$","required":true}},{"jsonKey":"httpHeaders","sort":5}]},{"jsonKey":"tcpSocket","sort":19,"subParameters":[{"jsonKey":"port","validate":{"min":1,"required":true}}]}],"uiType":"Group"},{"jsonKey":"livenessProbe","label":"LivenessProbe","sort":15,"subParameters":[{"disable":true,"jsonKey":"hostAliases"},{"jsonKey":"timeoutSeconds","sort":1,"style":{"colSpan":12}},{"jsonKey":"failureThreshold","sort":4,"style":{"colSpan":12}},{"jsonKey":"initialDelaySeconds","sort":7,"style":{"colSpan":12},"validate":{"defaultValue":5,"required":true}},{"jsonKey":"periodSeconds","sort":9,"style":{"colSpan":12}},{"jsonKey":"successThreshold","sort":11,"style":{"colSpan":12}},{"jsonKey":"exec","sort":14},{"jsonKey":"httpGet","sort":19,"subParameters":[{"jsonKey":"port","sort":1,"style":{"colSpan":12},"validate":{"min":1,"required":true}},{"jsonKey":"path","sort":3,"style":{"colSpan":12},"validate":{"pattern":"^/(.*)$","required":true}},{"jsonKey":"httpHeaders","sort":5}]},{"jsonKey":"tcpSocket","sort":19,"subParameters":[{"jsonKey":"port","validate":{"min":1,"required":true}}]}],"uiType":"Group"},{"jsonKey":"annotations","sort":19},{"jsonKey":"labels","sort":21},{"description":"Specify
+    image pull policy for your service","jsonKey":"imagePullPolicy","label":"Image
+    Pull Policy","sort":24,"uiType":"Select","validate":{"defaultValue":"IfNotPresent","options":[{"label":"IfNotPresent","value":"IfNotPresent"},{"label":"Always","value":"Always"},{"label":"Never","value":"Never"}]}},{"disable":true,"jsonKey":"addRevisionLabel"},{"disable":true,"jsonKey":"port"},{"disable":true,"jsonKey":"volumes"}]'
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: component-uischema-webservice
+  namespace: vela-system
+
+---
+apiVersion: v1
+data:
+  ui-schema: '[{"jsonKey":"selector","sort":100,"uiType":"ComponentSelect"},{"jsonKey":"components","sort":101,"uiType":"ComponentPatches"}]'
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: policy-uischema-override
+  namespace: vela-system
+
+---
+apiVersion: v1
+data:
+  ui-schema: '[{"jsonKey":"replicas","validate":{"min":0,"required":true}}]'
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: trait-uischema-scaler
+  namespace: vela-system
+
+---
+apiVersion: v1
+data:
+  ui-schema: '[{"jsonKey":"servers","sort":100,"subParameters":[{"jsonKey":"ipAddr","label":"IPAddr","sort":100},{"jsonKey":"port","label":"Port","sort":101},{"jsonKey":"grpcPort","label":"GRPCPort","sort":102}]},{"jsonKey":"client","sort":101,"subParameters":[{"jsonKey":"endpoint","sort":100},{"jsonKey":"accessKey","sort":101,"uiType":"Password"},{"jsonKey":"secretKey","sort":102,"uiType":"Password"},{"jsonKey":"regionId","sort":104,"style":{"colSpan":12}},{"jsonKey":"openKMS","sort":109,"style":{"colSpan":12},"uiType":"Switch"},{"jsonKey":"username","sort":110,"style":{"colSpan":12},"uiType":"Input"},{"jsonKey":"password","sort":113,"style":{"colSpan":12},"uiType":"Password"}]}]'
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: config-uischema-nacos-server
+  namespace: vela-system
+
+---
+apiVersion: v1
+data:
+  template: "import (\n\t\"vela/ql\"\n)\n\nparameter: {\n\tname:      string\n\tnamespace:
+    string\n\tcluster:   *\"\" | string\n}\n\npod: ql.#Read & {\n\tvalue: {\n\t\tapiVersion:
+    \"v1\"\n\t\tkind:       \"Pod\"\n\t\tmetadata: {\n\t\t\tname:      parameter.name\n\t\t\tnamespace:
+    parameter.namespace\n\t\t}\n\t}\n\tcluster: parameter.cluster\n}\n\neventList:
+    ql.#SearchEvents & {\n\tvalue: {\n\t\tapiVersion: \"v1\"\n\t\tkind:       \"Pod\"\n\t\tmetadata:
+    \  pod.value.metadata\n\t}\n\tcluster: parameter.cluster\n}\n\npodMetrics: ql.#Read
+    & {\n\tcluster: parameter.cluster\n\tvalue: {\n\t\tapiVersion: \"metrics.k8s.io/v1beta1\"\n\t\tkind:
+    \      \"PodMetrics\"\n\t\tmetadata: {\n\t\t\tname:      parameter.name\n\t\t\tnamespace:
+    parameter.namespace\n\t\t}\n\t}\n}\n\nstatus: {\n\tif pod.err == _|_ {\n\t\tcontainers:
+    [ for container in pod.value.spec.containers {\n\t\t\tname:  container.name\n\t\t\timage:
+    container.image\n\t\t\tresources: {\n\t\t\t\tif container.resources.limits !=
+    _|_ {\n\t\t\t\t\tlimits: container.resources.limits\n\t\t\t\t}\n\t\t\t\tif container.resources.requests
+    != _|_ {\n\t\t\t\t\trequests: container.resources.requests\n\t\t\t\t}\n\t\t\t\tif
+    podMetrics.err == _|_ {\n\t\t\t\t\tusage: {for containerUsage in podMetrics.value.containers
+    {\n\t\t\t\t\t\tif containerUsage.name == container.name {\n\t\t\t\t\t\t\tcpu:
+    \   containerUsage.usage.cpu\n\t\t\t\t\t\t\tmemory: containerUsage.usage.memory\n\t\t\t\t\t\t}\n\t\t\t\t\t}}\n\t\t\t\t}\n\t\t\t}\n\t\t\tif
+    pod.value.status.containerStatuses != _|_ {\n\t\t\t\tstatus: {for containerStatus
+    in pod.value.status.containerStatuses if containerStatus.name == container.name
+    {\n\t\t\t\t\tstate:        containerStatus.state\n\t\t\t\t\trestartCount: containerStatus.restartCount\n\t\t\t\t}}\n\t\t\t}\n\t\t}]\n\t\tif
+    eventList.err == _|_ {\n\t\t\tevents: eventList.list\n\t\t}\n\t}\n\tif pod.err
+    != _|_ {\n\t\terror: pod.err\n\t}\n}\n"
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: pod-view
+  namespace: vela-system
+
+---
+apiVersion: v1
+data:
+  template: "import (\n\t\"vela/ql\"\n)\n\nparameter: {\n\ttype:      string\n\tnamespace:
+    *\"\" | string\n\tcluster:   *\"\" | string\n}\n\nschema: {\n\t\"secret\": {\n\t\tapiVersion:
+    \"v1\"\n\t\tkind:       \"Secret\"\n\t}\n\t\"configMap\": {\n\t\tapiVersion: \"v1\"\n\t\tkind:
+    \      \"ConfigMap\"\n\t}\n\t\"pvc\": {\n\t\tapiVersion: \"v1\"\n\t\tkind:       \"PersistentVolumeClaim\"\n\t}\n\t\"storageClass\":
+    {\n\t\tapiVersion: \"storage.k8s.io/v1\"\n\t\tkind:       \"StorageClass\"\n\t}\n\t\"ns\":
+    {\n\t\tapiVersion: \"v1\"\n\t\tkind:       \"Namespace\"\n\t}\n\t\"provider\":
+    {\n\t\tapiVersion: \"terraform.core.oam.dev/v1beta1\"\n\t\tkind:       \"Provider\"\n\t}\n}\n\nList:
+    ql.#List & {\n\tresource: schema[parameter.type]\n\tfilter: {\n\t\tnamespace:
+    parameter.namespace\n\t}\n\tcluster: parameter.cluster\n}\n\nstatus: {\n\tif List.err
+    == _|_ {\n\t\tif len(List.list.items) == 0 {\n\t\t\terror: \"failed to list \\(parameter.type)
+    in namespace \\(parameter.namespace)\"\n\t\t}\n\t\tif len(List.list.items) !=
+    0 {\n\t\t\tlist: List.list.items\n\t\t}\n\t}\n\n\tif List.err != _|_ {\n\t\terror:
+    List.err\n\t}\n}\n"
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: resource-view
+  namespace: vela-system
+
+---
+apiVersion: v1
+data:
+  template: "import (\n\t\"vela/ql\"\n)\n\ncollectLogs: ql.#CollectLogsInPod & {\n\tcluster:
+    \  parameter.cluster\n\tnamespace: parameter.namespace\n\tpod:       parameter.pod\n\toptions:
+    {\n\t\tcontainer:     parameter.container\n\t\tprevious?:     parameter.previous\n\t\tsinceSeconds?:
+    parameter.sinceSeconds\n\t\tsinceTime?:    parameter.sinceTime\n\t\ttimestamps?:
+    \  parameter.timestamps\n\t\ttailLines?:    parameter.tailLines\n\t\tlimitBytes?:
+    \  parameter.limitBytes\n\t}\n}\nstatus: collectLogs.outputs\n\nparameter: {\n\t//
+    +usage=Specify the cluster of the pod\n\tcluster: string\n\t// +usage=Specify
+    the namespace of the pod\n\tnamespace: string\n\t// +usage=Specify the name of
+    the pod\n\tpod: string\n\n\t// +usage=Specify the name of the container\n\tcontainer:
+    string\n\t// +usage=If true, return previous terminated container logs\n\tprevious:
+    *false | bool\n\t// +usage=If set, show logs in relative times\n\tsinceSeconds:
+    *null | int\n\t// +usage=RFC3339 timestamp, if set, show logs since this time\n\tsinceTime:
+    *null | string\n\t// +usage=If true, add timestamp at the beginning of every line\n\ttimestamps:
+    *false | bool\n\t// +usage=If set, return the number of lines from the end of
+    logs\n\ttailLines: *null | int\n\t// +usage=If set, limit the size of returned
+    bytes\n\tlimitBytes: *null | int\n}\n"
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: collect-logs
+  namespace: vela-system
+
+---
+apiVersion: v1
+data:
+  template: "import (\n\t\"vela/ql\"\n)\n\nparameter: {\n\tappName?: string\n\tappNs?:
+    \  string\n}\n\nsecretList: ql.#List & {\n\tresource: {\n\t\tapiVersion: \"v1\"\n\t\tkind:
+    \      \"Secret\"\n\t}\n\tfilter: {\n\t\tmatchingLabels: {\n\t\t\t\"created-by\":
+    \"terraform-controller\"\n\t\t\tif parameter.appName != _|_ && parameter.appNs
+    != _|_ {\n\t\t\t\t\"app.oam.dev/name\":      parameter.appName\n\t\t\t\t\"app.oam.dev/namespace\":
+    parameter.appNs\n\t\t\t}\n\t\t}\n\t}\n}\n\nstatus: {\n\tif secretList.err == _|_
+    {\n\t\tsecrets: secretList.list.items\n\t}\n\tif secretList.err != _|_ {\n\t\terror:
+    secretList.err\n\t}\n}\n"
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: cloud-resource-secret-view
+  namespace: vela-system
+
+---
+apiVersion: v1
+data:
+  template: "import (\n\t\"vela/ql\"\n)\n\nparameter: {\n\tname:       string\n\tnamespace?:
+    string\n\tcluster?:   string\n\tkind:       string\n\tapiVersion: string\n}\nresponse:
+    ql.#Read & {\n\tvalue: {\n\t\tapiVersion: parameter.apiVersion\n\t\tkind:       parameter.kind\n\t\tmetadata:
+    {\n\t\t\tname: parameter.name\n\t\t\tif parameter.namespace != _|_ {\n\t\t\t\tnamespace:
+    parameter.namespace\n\t\t\t}\n\t\t}\n\t}\n\tif parameter.cluster != _|_ {\n\t\tcluster:
+    parameter.cluster\n\t}\n}\n\nif response.err == _|_ {\n\tstatus: {\n\t\tresource:
+    response.value\n\t}\n}\nif response.err != _|_ {\n\tstatus: {\n\t\terror: response.err\n\t}\n}\n"
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: application-resource-detail-view
+  namespace: vela-system
+
+---
+apiVersion: v1
+data:
+  template: "import (\n\t\"vela/ql\"\n)\n\nparameter: {\n\tappName: string\n\tappNs:
+    \  string\n}\n\nresources: ql.#ListResourcesInApp & {\n\tapp: {\n\t\tname:      parameter.appName\n\t\tnamespace:
+    parameter.appNs\n\t\tfilter: {\n\t\t\t\"apiVersion\": \"terraform.core.oam.dev/v1beta2\"\n\t\t\t\"kind\":
+    \      \"Configuration\"\n\t\t}\n\t\twithStatus: true\n\t}\n}\nstatus: {\n\tif
+    resources.err == _|_ {\n\t\t\"cloud-resources\": [ for i, resource in resources.list
+    {\n\t\t\tresource.object\n\t\t}]\n\t}\n\tif resources.err != _|_ {\n\t\terror:
+    resources.err\n\t}\n}\n"
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: cloud-resource-view
+  namespace: vela-system
+
+---
+apiVersion: v1
+data:
+  template: "import (\n\t\"vela/ql\"\n)\n\nparameter: {\n\tname:      string\n\tnamespace:
+    string\n\tcluster:   *\"\" | string\n\ttype:      \"deployment\" | \"statefulset\"
+    | \"pod\"\n}\n\nschema: {\n\t\"deployment\": {\n\t\tapiVersion: \"apps/v1\"\n\t\tkind:
+    \      \"Deployment\"\n\t}\n\t\"statefulset\": {\n\t\tapiVersion: \"apps/v1\"\n\t\tkind:
+    \      \"StatefulSet\"\n\t}\n\t\"pod\": {\n\t\tapiVersion: \"v1\"\n\t\tkind:       \"Pod\"\n\t}\n}\n\npod:
+    ql.#Read & {\n\tvalue: {\n\t\tapiVersion: schema[parameter.type].apiVersion\n\t\tkind:
+    \      schema[parameter.type].kind\n\t\tmetadata: {\n\t\t\tname:      parameter.name\n\t\t\tnamespace:
+    parameter.namespace\n\t\t}\n\t}\n\tcluster: parameter.cluster\n}\n\neventList:
+    ql.#SearchEvents & {\n\tvalue: {\n\t\tapiVersion: schema[parameter.type].apiVersion\n\t\tkind:
+    \      schema[parameter.type].kind\n\t\tmetadata: pod.value.metadata\n\t}\n\tcluster:
+    parameter.cluster\n}\n\nstatus: {\n\tif eventList.err == _|_ {\n\t\tevents: eventList.list\n\t}\n\tif
+    eventList.err != _|_ {\n\t\terror: eventList.err\n\t}\n}\n"
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: event-view
+  namespace: vela-system
+
+---
+apiVersion: v1
+data:
+  template: "import (\n\t\"vela/ql\"\n)\n\nparameter: {\n\tappName:    string\n\tappNs:
+    \     string\n\tcluster?:   string\n\tclusterNs?: string\n}\n\nresources: ql.#ListResourcesInApp
+    & {\n\tapp: {\n\t\tname:      parameter.appName\n\t\tnamespace: parameter.appNs\n\t\tfilter:
+    {\n\t\t\tif parameter.cluster != _|_ {\n\t\t\t\tcluster: parameter.cluster\n\t\t\t}\n\t\t\tif
+    parameter.clusterNs != _|_ {\n\t\t\t\tclusterNamespace: parameter.clusterNs\n\t\t\t}\n\t\t\tapiVersion:
+    \"v1\"\n\t\t\tkind:       \"Service\"\n\t\t}\n\t\twithStatus: true\n\t}\n}\nstatus:
+    {\n\tif resources.err == _|_ {\n\t\tservices: [ for i, resource in resources.list
+    {\n\t\t\tresource.object\n\t\t}]\n\t}\n\tif resources.err != _|_ {\n\t\terror:
+    resources.err\n\t}\n}\n"
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: service-view
+  namespace: vela-system
+

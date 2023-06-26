@@ -1,0 +1,710 @@
+apiVersion: core.oam.dev/v1beta1
+kind: Application
+metadata:
+  annotations:
+    addon.oam.dev/traitDefinitions: prometheus-scrape
+  creationTimestamp: null
+  labels:
+    addons.oam.dev/name: prometheus-server
+    addons.oam.dev/registry: KubeVela
+    addons.oam.dev/version: v0.3.2
+  name: addon-prometheus-server
+  namespace: vela-system
+spec:
+  components:
+  - name: addon-prometheus-server-ns
+    properties:
+      objects:
+      - apiVersion: v1
+        kind: Namespace
+        metadata:
+          name: o11y-system
+    type: k8s-objects
+  - dependsOn:
+    - addon-prometheus-server-ns
+    name: prometheus-config
+    properties:
+      objects:
+      - apiVersion: v1
+        data:
+          alerting_rules.yml: '{}'
+          alerts: '{}'
+          allow-snippet-annotations: "false"
+          prometheus.yml: |-
+            global:
+              evaluation_interval: 1m
+              scrape_interval: 15s
+              scrape_timeout: 10s
+              external_labels:
+                cluster: $CLUSTER
+            rule_files:
+            - /etc/config/recording_rules.yml
+            - /etc/config/alerting_rules.yml
+            - /etc/config/rules
+            - /etc/config/alerts
+            - /etc/custom/*.yml
+            scrape_configs:
+            - job_name: prometheus
+              static_configs:
+              - targets:
+                - localhost:9090
+                labels:
+                  cluster: $CLUSTER
+            - bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+              job_name: kubernetes-apiservers
+              kubernetes_sd_configs:
+              - role: endpoints
+              relabel_configs:
+              - action: keep
+                regex: default;kubernetes;https
+                source_labels:
+                - __meta_kubernetes_namespace
+                - __meta_kubernetes_service_name
+                - __meta_kubernetes_endpoint_port_name
+              - replacement: $CLUSTER
+                target_label: cluster
+              scheme: https
+              tls_config:
+                ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+                insecure_skip_verify: true
+            - bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+              job_name: kubernetes-nodes
+              kubernetes_sd_configs:
+              - role: node
+              relabel_configs:
+              - action: labelmap
+                regex: __meta_kubernetes_node_label_(.+)
+              - replacement: kubernetes.default.svc:443
+                target_label: __address__
+              - regex: (.+)
+                replacement: /api/v1/nodes/$1/proxy/metrics
+                source_labels:
+                - __meta_kubernetes_node_name
+                target_label: __metrics_path__
+              - replacement: $CLUSTER
+                target_label: cluster
+              scheme: https
+              tls_config:
+                ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+                insecure_skip_verify: true
+            - bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+              job_name: kubernetes-nodes-cadvisor
+              kubernetes_sd_configs:
+              - role: node
+              relabel_configs:
+              - action: labelmap
+                regex: __meta_kubernetes_node_label_(.+)
+              - replacement: kubernetes.default.svc:443
+                target_label: __address__
+              - regex: (.+)
+                replacement: /api/v1/nodes/$1/proxy/metrics/cadvisor
+                source_labels:
+                - __meta_kubernetes_node_name
+                target_label: __metrics_path__
+              - replacement: $CLUSTER
+                target_label: cluster
+              scheme: https
+              tls_config:
+                ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+                insecure_skip_verify: true
+            - honor_labels: true
+              job_name: kubernetes-service-endpoints
+              kubernetes_sd_configs:
+              - role: endpoints
+              relabel_configs:
+              - action: keep
+                regex: true
+                source_labels:
+                - __meta_kubernetes_service_annotation_prometheus_io_scrape
+              - action: drop
+                regex: true
+                source_labels:
+                - __meta_kubernetes_service_annotation_prometheus_io_scrape_slow
+              - action: replace
+                regex: (https?)
+                source_labels:
+                - __meta_kubernetes_service_annotation_prometheus_io_scheme
+                target_label: __scheme__
+              - action: replace
+                regex: (.+)
+                source_labels:
+                - __meta_kubernetes_service_annotation_prometheus_io_path
+                target_label: __metrics_path__
+              - action: replace
+                regex: (.+?)(?::\d+)?;(\d+)
+                replacement: $1:$2
+                source_labels:
+                - __address__
+                - __meta_kubernetes_service_annotation_prometheus_io_port
+                target_label: __address__
+              - action: labelmap
+                regex: __meta_kubernetes_service_annotation_prometheus_io_param_(.+)
+                replacement: __param_$1
+              - action: labelmap
+                regex: __meta_kubernetes_service_label_(.+)
+              - action: replace
+                source_labels:
+                - __meta_kubernetes_namespace
+                target_label: namespace
+              - action: replace
+                source_labels:
+                - __meta_kubernetes_service_name
+                target_label: service
+              - action: replace
+                source_labels:
+                - __meta_kubernetes_pod_node_name
+                target_label: node
+              - replacement: $CLUSTER
+                target_label: cluster
+              tls_config:
+                ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+                insecure_skip_verify: true
+            - honor_labels: true
+              job_name: kubernetes-service-endpoints-slow
+              kubernetes_sd_configs:
+              - role: endpoints
+              relabel_configs:
+              - action: keep
+                regex: true
+                source_labels:
+                - __meta_kubernetes_service_annotation_prometheus_io_scrape_slow
+              - action: replace
+                regex: (https?)
+                source_labels:
+                - __meta_kubernetes_service_annotation_prometheus_io_scheme
+                target_label: __scheme__
+              - action: replace
+                regex: (.+)
+                source_labels:
+                - __meta_kubernetes_service_annotation_prometheus_io_path
+                target_label: __metrics_path__
+              - action: replace
+                regex: (.+?)(?::\d+)?;(\d+)
+                replacement: $1:$2
+                source_labels:
+                - __address__
+                - __meta_kubernetes_service_annotation_prometheus_io_port
+                target_label: __address__
+              - action: labelmap
+                regex: __meta_kubernetes_service_annotation_prometheus_io_param_(.+)
+                replacement: __param_$1
+              - action: labelmap
+                regex: __meta_kubernetes_service_label_(.+)
+              - action: replace
+                source_labels:
+                - __meta_kubernetes_namespace
+                target_label: namespace
+              - action: replace
+                source_labels:
+                - __meta_kubernetes_service_name
+                target_label: service
+              - action: replace
+                source_labels:
+                - __meta_kubernetes_pod_node_name
+                target_label: node
+              - replacement: $CLUSTER
+                target_label: cluster
+              scrape_interval: 5m
+              scrape_timeout: 30s
+            - honor_labels: true
+              job_name: prometheus-pushgateway
+              kubernetes_sd_configs:
+              - role: service
+              relabel_configs:
+              - action: keep
+                regex: pushgateway
+                source_labels:
+                - __meta_kubernetes_service_annotation_prometheus_io_probe
+              - replacement: $CLUSTER
+                target_label: cluster
+            - honor_labels: true
+              job_name: kubernetes-services
+              kubernetes_sd_configs:
+              - role: service
+              metrics_path: /probe
+              params:
+                module:
+                - http_2xx
+              relabel_configs:
+              - action: keep
+                regex: true
+                source_labels:
+                - __meta_kubernetes_service_annotation_prometheus_io_probe
+              - source_labels:
+                - __address__
+                target_label: __param_target
+              - replacement: blackbox
+                target_label: __address__
+              - source_labels:
+                - __param_target
+                target_label: instance
+              - action: labelmap
+                regex: __meta_kubernetes_service_label_(.+)
+              - source_labels:
+                - __meta_kubernetes_namespace
+                target_label: namespace
+              - source_labels:
+                - __meta_kubernetes_service_name
+                target_label: service
+              - replacement: $CLUSTER
+                target_label: cluster
+              tls_config:
+                ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+                insecure_skip_verify: true
+            - honor_labels: true
+              job_name: kubernetes-pods
+              kubernetes_sd_configs:
+              - role: pod
+              relabel_configs:
+              - action: keep
+                regex: true
+                source_labels:
+                - __meta_kubernetes_pod_annotation_prometheus_io_scrape
+              - action: drop
+                regex: true
+                source_labels:
+                - __meta_kubernetes_pod_annotation_prometheus_io_scrape_slow
+              - action: replace
+                regex: (https?)
+                source_labels:
+                - __meta_kubernetes_pod_annotation_prometheus_io_scheme
+                target_label: __scheme__
+              - action: replace
+                regex: (.+)
+                source_labels:
+                - __meta_kubernetes_pod_annotation_prometheus_io_path
+                target_label: __metrics_path__
+              - action: replace
+                regex: (.+?)(?::\d+)?;(\d+)
+                replacement: $1:$2
+                source_labels:
+                - __address__
+                - __meta_kubernetes_pod_annotation_prometheus_io_port
+                target_label: __address__
+              - action: labelmap
+                regex: __meta_kubernetes_pod_annotation_prometheus_io_param_(.+)
+                replacement: __param_$1
+              - action: labelmap
+                regex: __meta_kubernetes_pod_label_(.+)
+              - action: replace
+                source_labels:
+                - __meta_kubernetes_namespace
+                target_label: namespace
+              - action: replace
+                source_labels:
+                - __meta_kubernetes_pod_name
+                target_label: pod
+              - action: drop
+                regex: Pending|Succeeded|Failed|Completed
+                source_labels:
+                - __meta_kubernetes_pod_phase
+              - replacement: $CLUSTER
+                target_label: cluster
+              tls_config:
+                ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+                insecure_skip_verify: true
+            - honor_labels: true
+              job_name: kubernetes-pods-slow
+              kubernetes_sd_configs:
+              - role: pod
+              relabel_configs:
+              - action: keep
+                regex: true
+                source_labels:
+                - __meta_kubernetes_pod_annotation_prometheus_io_scrape_slow
+              - action: replace
+                regex: (https?)
+                source_labels:
+                - __meta_kubernetes_pod_annotation_prometheus_io_scheme
+                target_label: __scheme__
+              - action: replace
+                regex: (.+)
+                source_labels:
+                - __meta_kubernetes_pod_annotation_prometheus_io_path
+                target_label: __metrics_path__
+              - action: replace
+                regex: (.+?)(?::\d+)?;(\d+)
+                replacement: $1:$2
+                source_labels:
+                - __address__
+                - __meta_kubernetes_pod_annotation_prometheus_io_port
+                target_label: __address__
+              - action: labelmap
+                regex: __meta_kubernetes_pod_annotation_prometheus_io_param_(.+)
+                replacement: __param_$1
+              - action: labelmap
+                regex: __meta_kubernetes_pod_label_(.+)
+              - action: replace
+                source_labels:
+                - __meta_kubernetes_namespace
+                target_label: namespace
+              - action: replace
+                source_labels:
+                - __meta_kubernetes_pod_name
+                target_label: pod
+              - action: drop
+                regex: Pending|Succeeded|Failed|Completed
+                source_labels:
+                - __meta_kubernetes_pod_phase
+              - replacement: $CLUSTER
+                target_label: cluster
+              scrape_interval: 5m
+              scrape_timeout: 30s
+              tls_config:
+                ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+                insecure_skip_verify: true
+            alerting:
+              alertmanagers:
+              - kubernetes_sd_configs:
+                  - role: pod
+                tls_config:
+                  ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+                bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+                relabel_configs:
+                - source_labels: [__meta_kubernetes_namespace]
+                  regex: default
+                  action: keep
+                - source_labels: [__meta_kubernetes_pod_label_app]
+                  regex: prometheus
+                  action: keep
+                - source_labels: [__meta_kubernetes_pod_label_component]
+                  regex: alertmanager
+                  action: keep
+                - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_probe]
+                  regex: .*
+                  action: keep
+                - source_labels: [__meta_kubernetes_pod_container_port_number]
+                  regex: "9093"
+                  action: keep
+          recording_rules.yml: '{}'
+          rules: '{}'
+        kind: ConfigMap
+        metadata:
+          name: prometheus-server
+    type: k8s-objects
+  - dependsOn:
+    - prometheus-config
+    name: prometheus-server
+    properties:
+      exposeType: LoadBalancer
+      image: quay.io/prometheus/prometheus:v2.34.0
+      imagePullPolicy: IfNotPresent
+      livenessProbe:
+        httpGet:
+          path: /-/healthy
+          port: 9090
+      ports:
+      - port: 10902
+      - expose: true
+        name: grpc
+        port: 10901
+      readinessProbe:
+        httpGet:
+          path: /-/ready
+          port: 9090
+      volumeMounts:
+        configMap:
+        - cmName: prometheus-server
+          mountPath: /etc/bootconfig
+          name: bootconfig-volume
+        emptyDir:
+        - mountPath: /data
+          name: storage-volume
+    traits:
+    - properties:
+        args:
+        - --config.file=/etc/config/prometheus.yml
+        - --storage.tsdb.path=/data
+        - --web.console.libraries=/etc/prometheus/console_libraries
+        - --web.console.templates=/etc/prometheus/consoles
+        - --web.enable-lifecycle
+      type: command
+    - properties:
+        appMountPath: /etc/config
+        args:
+        - sh
+        - -c
+        - |-
+          NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
+          KUBE_TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+          DEPLOYNAME=$(echo $HOSTNAME | sed -r 's/(.+)-[^-]+-[^-]+/\1/g')
+          curl -sSk -H "Authorization: Bearer $KUBE_TOKEN" \
+                  https://kubernetes.default/apis/apps/v1/namespaces/$NAMESPACE/deployments/$DEPLOYNAME \
+              | grep "\"app.oam.dev/cluster\"" | sed -r 's/.+:\s+"(.*)",/\1/g' > /etc/config/cluster.name \
+          && CLS=$(cat /etc/config/cluster.name) \
+          && CLUSTER="${CLS:-local}" \
+          && echo "cluster: $CLUSTER" \
+          && sed s/\$CLUSTER/$CLUSTER/g /etc/bootconfig/prometheus.yml > /etc/config/prometheus.yml
+        extraVolumeMounts:
+        - mountPath: /etc/bootconfig
+          name: bootconfig-volume
+        image: curlimages/curl
+        initMountPath: /etc/config
+        mountName: config-volume
+        name: init-config
+      type: init-container
+    - properties:
+        create: true
+        name: prometheus-server
+        privileges:
+        - apiGroups:
+          - ""
+          resources:
+          - nodes
+          - nodes/proxy
+          - nodes/metrics
+          - services
+          - endpoints
+          - pods
+          - ingresses
+          - configmaps
+          scope: cluster
+          verbs:
+          - get
+          - list
+          - watch
+        - apiGroups:
+          - extensions
+          - networking.k8s.io
+          resources:
+          - ingresses/status
+          - ingresses
+          scope: cluster
+          verbs:
+          - get
+          - list
+          - watch
+        - nonResourceURLs:
+          - /metrics
+          scope: cluster
+          verbs:
+          - get
+        - apiGroups:
+          - apps
+          resourceNames:
+          - prometheus-server
+          resources:
+          - deployments
+          scope: cluster
+          verbs:
+          - get
+        - apiGroups:
+          - cluster.core.oam.dev
+          resources:
+          - clustergateways
+          - clustergateways/proxy
+          scope: cluster
+          verbs:
+          - get
+          - list
+      type: service-account
+    - properties:
+        cpu: 0.5
+        memory: 1024Mi
+      type: resource
+    - properties:
+        operations:
+        - op: add
+          path: /spec/template/spec/containers/-
+          value:
+            args:
+            - sidecar
+            - --tsdb.path=/data
+            - --prometheus.url=http://127.0.0.1:9090
+            env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            image: quay.io/thanos/thanos:v0.8.0
+            livenessProbe:
+              httpGet:
+                path: /-/healthy
+                port: 10902
+            name: thanos
+            ports:
+            - containerPort: 10902
+              name: http-sidecar
+            - containerPort: 10901
+              name: grpc
+            readinessProbe:
+              httpGet:
+                path: /-/ready
+                port: 10902
+            volumeMounts:
+            - mountPath: /data
+              name: storage-volume
+      type: json-patch
+    type: webservice
+  - name: thanos-query
+    properties:
+      exposeType: LoadBalancer
+      image: quay.io/thanos/thanos:v0.8.0
+      livenessProbe:
+        httpGet:
+          path: /-/healthy
+          port: 9090
+      ports:
+      - expose: true
+        name: http
+        port: 9090
+      readinessProbe:
+        httpGet:
+          path: /-/ready
+          port: 9090
+    traits:
+    - properties:
+        args:
+        - query
+        - --http-address=0.0.0.0:9090
+        - --log.level=debug
+        - --query.replica-label=replica
+        - --store.sd-files=/etc/config/targets.yaml
+      type: command
+    - properties:
+        appMountPath: /etc/config
+        args:
+        - sh
+        - -c
+        - |-
+          NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
+          KUBE_TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+          curl -sSk -H "Authorization: Bearer $KUBE_TOKEN" \
+                  https://$KUBERNETES_SERVICE_HOST:$KUBERNETES_PORT_443_TCP_PORT/api/v1/namespaces/$NAMESPACE/services?labelSelector=addons.oam.dev/name=prometheus-server,app.oam.dev\/component=prometheus-server \
+              | grep "\"ip\"" | sed -r 's/.+:\s+"(.*)"/\1/g' > /etc/config/prom-endpoints
+          curl -sSk -H "Authorization: Bearer $KUBE_TOKEN" \
+                  https://$KUBERNETES_SERVICE_HOST:$KUBERNETES_PORT_443_TCP_PORT/apis/cluster.core.oam.dev/v1alpha1/clustergateways \
+              | grep "\"name\"" | sed -r 's/.+:\s+"(.*)",/\1/g' > /etc/config/clusters
+          while read cls; do
+          curl -sSk -H "Authorization: Bearer $KUBE_TOKEN" \
+                  https://$KUBERNETES_SERVICE_HOST:$KUBERNETES_PORT_443_TCP_PORT/apis/cluster.core.oam.dev/v1alpha1/clustergateways/$cls/proxy/api/v1/namespaces/$NAMESPACE/services?labelSelector=addons.oam.dev/name=prometheus-server,app.oam.dev\/component=prometheus-server \
+              | grep "\"ip\"" | sed -r 's/.+:\s+"(.*)"/\1/g' >> /etc/config/prom-endpoints
+          done < /etc/config/clusters
+          echo "- targets:" > /etc/config/targets.yaml
+          while read ip; do
+          echo "  - $ip:10901" >> /etc/config/targets.yaml
+          done < /etc/config/prom-endpoints
+        image: curlimages/curl
+        initMountPath: /etc/config
+        mountName: config-volume
+        name: init-config
+      type: init-container
+    - properties:
+        name: prometheus-server
+      type: service-account
+    type: webservice
+  policies:
+  - name: namespace
+    properties:
+      rules:
+      - selector:
+          resourceTypes:
+          - Namespace
+    type: shared-resource
+  - name: namespace-take-over
+    properties:
+      rules:
+      - selector:
+          resourceTypes:
+          - Namespace
+    type: take-over
+  - name: ignore-recycle-pvc-ns
+    properties:
+      rules:
+      - selector:
+          resourceTypes:
+          - PersistentVolumeClaim
+          - Namespace
+        strategy: never
+    type: garbage-collect
+  - name: topology-distributed
+    properties:
+      clusterLabelSelector: {}
+      namespace: o11y-system
+    type: topology
+  - name: topology-centralized
+    properties:
+      clusters:
+      - local
+      namespace: o11y-system
+    type: topology
+  - name: component-prometheus
+    properties:
+      selector:
+      - addon-prometheus-server-ns
+      - prometheus-config
+      - prometheus-storage
+      - prometheus-server
+    type: override
+  - name: component-thanos
+    properties:
+      selector:
+      - thanos-query
+    type: override
+  workflow:
+    steps:
+    - name: deploy-prometheus
+      properties:
+        policies:
+        - component-prometheus
+        - topology-distributed
+      type: deploy
+    - name: deploy-thanos
+      properties:
+        policies:
+        - component-thanos
+        - topology-centralized
+      type: deploy
+    - name: get-prometheus-endpoint
+      outputs:
+      - name: url
+        valueFrom: value.url
+      properties:
+        components:
+        - thanos-query
+        name: addon-prometheus-server
+        namespace: vela-system
+        outer: true
+        portName: http
+      type: collect-service-endpoints
+    - inputs:
+      - from: url
+        parameterKey: config.url
+      name: prometheus-server-register
+      properties:
+        config: {}
+        name: prometheus-vela
+        template: prometheus-server
+      type: create-config
+status: {}
+
+---
+apiVersion: core.oam.dev/v1beta1
+kind: TraitDefinition
+metadata:
+  annotations:
+    definition.oam.dev/alias: ""
+    definition.oam.dev/description: Expose port and allow prometheus to scrape the
+      service.
+  labels: {}
+  name: prometheus-scrape
+  namespace: vela-system
+spec:
+  appliesToWorkloads:
+  - '*'
+  podDisruptive: false
+  schematic:
+    cue:
+      template: "outputs: service: {\n\tapiVersion: \"v1\"\n\tkind:       \"Service\"\n\tmetadata:
+        name: context.name + \"-prometheus-scrape\"\n\tmetadata: annotations: {\n\t\t\"prometheus.io/port\":
+        \  \"\\(parameter.port)\"\n\t\t\"prometheus.io/scrape\": \"true\"\n\t\t\"prometheus.io/path\":
+        \  parameter.path\n\t}\n\tspec: {\n\t\tif parameter.selector != _|_ {\n\t\t\tselector:
+        parameter.selector\n\t\t}\n\t\tif parameter.selector == _|_ {\n\t\t\tselector:
+        \"app.oam.dev/component\": context.name\n\t\t}\n\t\tports: [{\n\t\t\tport:
+        \      parameter.port\n\t\t\ttargetPort: parameter.port\n\t\t}]\n\t\ttype:
+        parameter.type\n\t}\n}\nparameter: {\n\t// +usage=Specify the port to be scraped\n\tport:
+        *8080 | int\n\t// +usage=Specify the path to be scraped\n\tpath: *\"/metrics\"
+        | string\n\t// +usage=Specify the selector of the service. In most cases,
+        you don't need to set it.\n\tselector?: [string]: string\n\t// +usage=Specify
+        the service type.\n\ttype: *\"ClusterIP\" | string\n}\n"
+

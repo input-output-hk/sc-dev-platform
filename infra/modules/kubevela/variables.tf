@@ -15,3 +15,9 @@ variable "cluster-name" {
   default     = "sample-cluster"
   type        = string
 }
+
+variable "addons" {
+  description = "List of kubevela addons"
+  type        = list(string)
+  default     = []
+}

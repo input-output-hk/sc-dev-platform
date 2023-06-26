@@ -1,0 +1,92 @@
+apiVersion: core.oam.dev/v1beta1
+kind: Application
+metadata:
+  creationTimestamp: null
+  labels:
+    addons.oam.dev/name: node-exporter
+    addons.oam.dev/registry: KubeVela
+    addons.oam.dev/version: v0.3.0
+  name: addon-node-exporter
+  namespace: vela-system
+spec:
+  components:
+  - name: addon-node-exporter-ns
+    properties:
+      objects:
+      - apiVersion: v1
+        kind: Namespace
+        metadata:
+          name: o11y-system
+    type: k8s-objects
+  - dependsOn:
+    - addon-node-exporter-ns
+    name: node-exporter
+    properties:
+      image: quay.io/prometheus/node-exporter
+      imagePullPolicy: IfNotPresent
+      volumeMounts:
+        hostPath:
+        - mountPath: /host/sys
+          mountPropagation: HostToContainer
+          name: sys
+          path: /sys
+          readOnly: true
+        - mountPath: /host/root
+          mountPropagation: HostToContainer
+          name: root
+          path: /
+          readOnly: true
+    traits:
+    - properties:
+        args:
+        - --path.sysfs=/host/sys
+        - --path.rootfs=/host/root
+        - --no-collector.wifi
+        - --no-collector.hwmon
+        - --collector.filesystem.ignored-mount-points=^/(dev|proc|sys|var/lib/docker/.+|var/lib/kubelet/pods/.+)($|/)
+        - --collector.netclass.ignored-devices=^(veth.*)$
+      type: command
+    - properties:
+        annotations:
+          prometheus.io/path: /metrics
+          prometheus.io/port: "9100"
+          prometheus.io/scrape: "true"
+        port:
+        - 9100
+      type: expose
+    - properties:
+        cpu: 0.1
+        memory: 250Mi
+      type: resource
+    type: daemon
+  policies:
+  - name: namespace
+    properties:
+      rules:
+      - selector:
+          resourceTypes:
+          - Namespace
+    type: shared-resource
+  - name: namespace-take-over
+    properties:
+      rules:
+      - selector:
+          resourceTypes:
+          - Namespace
+    type: take-over
+  - name: ignore-recycle-pvc-ns
+    properties:
+      rules:
+      - selector:
+          resourceTypes:
+          - PersistentVolumeClaim
+          - Namespace
+        strategy: never
+    type: garbage-collect
+  - name: topology-distributed
+    properties:
+      clusterLabelSelector: {}
+      namespace: o11y-system
+    type: topology
+status: {}
+

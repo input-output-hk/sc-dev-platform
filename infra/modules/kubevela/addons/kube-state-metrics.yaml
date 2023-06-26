@@ -1,0 +1,206 @@
+apiVersion: core.oam.dev/v1beta1
+kind: Application
+metadata:
+  creationTimestamp: null
+  labels:
+    addons.oam.dev/name: kube-state-metrics
+    addons.oam.dev/registry: KubeVela
+    addons.oam.dev/version: v0.3.0
+  name: addon-kube-state-metrics
+  namespace: vela-system
+spec:
+  components:
+  - name: addon-kube-state-metrics-ns
+    properties:
+      objects:
+      - apiVersion: v1
+        kind: Namespace
+        metadata:
+          name: o11y-system
+    type: k8s-objects
+  - dependsOn:
+    - addon-kube-state-metrics-ns
+    name: kube-state-metrics
+    properties:
+      image: bitnami/kube-state-metrics:2.4.2
+      imagePullPolicy: IfNotPresent
+      livenessProbe:
+        httpGet:
+          path: /healthz
+          port: 8080
+        initialDelaySeconds: 5
+        timeoutSeconds: 5
+      readinessProbe:
+        httpGet:
+          path: /
+          port: 8080
+        initialDelaySeconds: 5
+        timeoutSeconds: 5
+    traits:
+    - properties:
+        args:
+        - --metric-labels-allowlist=deployments=[app.oam.dev/name,app.oam.dev/namespace]
+      type: command
+    - properties:
+        create: true
+        name: kube-state-metrics
+        privileges:
+        - apiGroups:
+          - certificates.k8s.io
+          resources:
+          - certificatesigningrequests
+          scope: cluster
+          verbs:
+          - list
+          - watch
+        - apiGroups:
+          - ""
+          resources:
+          - configmaps
+          - endpoints
+          - limitranges
+          - namespaces
+          - nodes
+          - persistentvolumeclaims
+          - persistentvolumes
+          - pods
+          - replicationcontrollers
+          - resourcequotas
+          - secrets
+          - services
+          scope: cluster
+          verbs:
+          - list
+          - watch
+        - apiGroups:
+          - batch
+          resources:
+          - cronjobs
+          - jobs
+          scope: cluster
+          verbs:
+          - list
+          - watch
+        - apiGroups:
+          - extensions
+          - apps
+          resources:
+          - daemonsets
+          - deployments
+          - replicasets
+          scope: cluster
+          verbs:
+          - list
+          - watch
+        - apiGroups:
+          - autoscaling
+          resources:
+          - horizontalpodautoscalers
+          scope: cluster
+          verbs:
+          - list
+          - watch
+        - apiGroups:
+          - extensions
+          - networking.k8s.io
+          resources:
+          - ingresses
+          scope: cluster
+          verbs:
+          - list
+          - watch
+        - apiGroups:
+          - admissionregistration.k8s.io
+          resources:
+          - mutatingwebhookconfigurations
+          - validatingwebhookconfigurations
+          scope: cluster
+          verbs:
+          - list
+          - watch
+        - apiGroups:
+          - networking.k8s.io
+          resources:
+          - networkpolicies
+          scope: cluster
+          verbs:
+          - list
+          - watch
+        - apiGroups:
+          - policy
+          resources:
+          - poddisruptionbudgets
+          scope: cluster
+          verbs:
+          - list
+          - watch
+        - apiGroups:
+          - apps
+          resources:
+          - statefulsets
+          scope: cluster
+          verbs:
+          - list
+          - watch
+        - apiGroups:
+          - storage.k8s.io
+          resources:
+          - storageclasses
+          - volumeattachments
+          scope: cluster
+          verbs:
+          - list
+          - watch
+        - apiGroups:
+          - coordination.k8s.io
+          resources:
+          - leases
+          scope: cluster
+          verbs:
+          - list
+          - watch
+      type: service-account
+    - properties:
+        annotations:
+          prometheus.io/path: /metrics
+          prometheus.io/port: "8080"
+          prometheus.io/scrape: "true"
+        port:
+        - 8080
+      type: expose
+    - properties:
+        cpu: 0.1
+        memory: 250Mi
+      type: resource
+    type: webservice
+  policies:
+  - name: namespace
+    properties:
+      rules:
+      - selector:
+          resourceTypes:
+          - Namespace
+    type: shared-resource
+  - name: namespace-take-over
+    properties:
+      rules:
+      - selector:
+          resourceTypes:
+          - Namespace
+    type: take-over
+  - name: ignore-recycle-pvc-ns
+    properties:
+      rules:
+      - selector:
+          resourceTypes:
+          - PersistentVolumeClaim
+          - Namespace
+        strategy: never
+    type: garbage-collect
+  - name: topology-distributed
+    properties:
+      clusterLabelSelector: {}
+      namespace: o11y-system
+    type: topology
+status: {}
+

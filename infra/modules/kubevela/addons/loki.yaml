@@ -1,0 +1,816 @@
+apiVersion: core.oam.dev/v1beta1
+kind: Application
+metadata:
+  annotations:
+    addon.oam.dev/traitDefinitions: file-logs,stdout-logs
+  creationTimestamp: null
+  labels:
+    addons.oam.dev/name: loki
+    addons.oam.dev/registry: KubeVela
+    addons.oam.dev/version: v0.3.1
+  name: addon-loki
+  namespace: vela-system
+spec:
+  components:
+  - name: addon-loki-ns
+    properties:
+      objects:
+      - apiVersion: v1
+        kind: Namespace
+        metadata:
+          name: o11y-system
+    type: k8s-objects
+  - dependsOn:
+    - addon-loki-ns
+    name: loki
+    properties:
+      exposeType: LoadBalancer
+      image: grafana/loki:2.6.1
+      imagePullPolicy: IfNotPresent
+      livenessProbe:
+        httpGet:
+          path: /ready
+          port: 3100
+      ports:
+      - expose: true
+        name: http
+        port: 3100
+      readinessProbe:
+        httpGet:
+          path: /ready
+          port: 3100
+      volumeMounts:
+        configMap:
+        - cmName: loki
+          mountPath: /etc/loki
+          name: config
+        emptyDir:
+        - mountPath: /tmp
+          name: tmp
+        - mountPath: /data
+          name: storage
+    traits:
+    - properties:
+        args:
+        - -config.file=/etc/loki/loki.yaml
+      type: command
+    type: webservice
+  - name: loki-config
+    properties:
+      objects:
+      - apiVersion: v1
+        data:
+          loki.yaml: |-
+            auth_enabled: false
+            chunk_store_config:
+              max_look_back_period: 0s
+            compactor:
+              shared_store: filesystem
+              working_directory: /data/loki/boltdb-shipper-compactor
+            ingester:
+              chunk_block_size: 262144
+              chunk_idle_period: 3m
+              chunk_retain_period: 1m
+              lifecycler:
+                ring:
+                  replication_factor: 1
+              max_transfer_retries: 0
+              wal:
+                dir: /data/loki/wal
+            limits_config:
+              enforce_metric_name: false
+              max_entries_limit_per_query: 5000
+              reject_old_samples: true
+              reject_old_samples_max_age: 168h
+            memberlist:
+              join_members:
+              - 'loki'
+            schema_config:
+              configs:
+              - from: "2020-10-24"
+                index:
+                  period: 24h
+                  prefix: index_
+                object_store: filesystem
+                schema: v11
+                store: boltdb-shipper
+            server:
+              grpc_listen_port: 9095
+              http_listen_port: 3100
+            storage_config:
+              boltdb_shipper:
+                active_index_directory: /data/loki/boltdb-shipper-active
+                cache_location: /data/loki/boltdb-shipper-cache
+                cache_ttl: 24h
+                shared_store: filesystem
+              filesystem:
+                directory: /data/loki/chunks
+            table_manager:
+              retention_deletes_enabled: false
+              retention_period: 0s
+            frontend:
+              max_outstanding_per_tenant: 4096
+            query_range:
+              parallelise_shardable_queries: false
+        kind: ConfigMap
+        metadata:
+          name: loki
+    type: k8s-objects
+  - dependsOn:
+    - addon-loki-ns
+    - promtail-config
+    name: promtail
+    properties:
+      env:
+      - name: HOSTNAME
+        valueFrom:
+          fieldRef:
+            fieldPath: spec.nodeName
+      image: grafana/promtail
+      imagePullPolicy: IfNotPresent
+      readinessProbe:
+        httpGet:
+          path: /ready
+          port: 3101
+        initialDelaySeconds: 10
+      volumeMounts:
+        configMap:
+        - cmName: promtail
+          mountPath: /etc/bootconfig
+          name: bootconfig-volume
+        hostPath:
+        - mountPath: /run/promtail
+          name: run
+          path: /run/promtail
+        - mountPath: /var/lib/docker/containers
+          name: containers
+          path: /var/lib/docker/containers
+          readOnly: true
+        - mountPath: /var/log/pods
+          name: pods
+          path: /var/log/pods
+          readOnly: true
+    traits:
+    - properties:
+        args:
+        - -config.file=/etc/config/agent.yaml
+      type: command
+    - properties:
+        operations:
+        - op: add
+          path: /spec/template/spec/containers/0/securityContext
+          value:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+      type: json-patch
+    - properties:
+        appMountPath: /etc/config
+        args:
+        - sh
+        - -c
+        - |-
+          NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
+          KUBE_TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+          DEPLOYNAME=$(echo $HOSTNAME | sed -r 's/(.+)-[^-]+/\1/g')
+          curl -sSk -H "Authorization: Bearer $KUBE_TOKEN" \
+                  https://kubernetes.default/apis/apps/v1/namespaces/$NAMESPACE/daemonsets/$DEPLOYNAME \
+              | grep "\"app.oam.dev/cluster\"" | sed -r 's/.+:\s+"(.*)",/\1/g' > /etc/config/cluster.name \
+          && CLS=$(cat /etc/config/cluster.name) \
+          && CLUSTER="${CLS:-local}" \
+          && echo "cluster: $CLUSTER" \
+          && sed s/\$CLUSTER/$CLUSTER/g /etc/bootconfig/agent.yaml > /etc/config/agent.yaml
+        extraVolumeMounts:
+        - mountPath: /etc/bootconfig
+          name: bootconfig-volume
+        image: curlimages/curl
+        imagePullPolicy: IfNotPresent
+        initMountPath: /etc/config
+        mountName: config-volume
+        name: init-config
+      type: init-container
+    - properties:
+        create: true
+        name: promtail
+        privileges:
+        - apiGroups:
+          - ""
+          resources:
+          - nodes
+          - nodes/proxy
+          - services
+          - endpoints
+          - pods
+          - namespaces
+          scope: cluster
+          verbs:
+          - get
+          - watch
+          - list
+        - apiGroups:
+          - apps
+          resourceNames:
+          - promtail
+          - vector
+          resources:
+          - daemonsets
+          scope: namespace
+          verbs:
+          - get
+      type: service-account
+    type: daemon
+  - dependsOn:
+    - addon-loki-ns
+    name: promtail-config
+    properties:
+      objects:
+      - apiVersion: v1
+        data:
+          agent.yaml: |-
+            server:
+              log_level: info
+              http_listen_port: 3101
+
+            clients:
+              - url: http://loki:3100/loki/api/v1/push
+
+            positions:
+              filename: /run/promtail/positions.yaml
+
+            scrape_configs:
+              # See also https://github.com/grafana/loki/blob/master/production/ksonnet/promtail/scrape_config.libsonnet for reference
+              - job_name: kubernetes-pods
+                pipeline_stages:
+                  - cri: {}
+                  - static_labels:
+                      agent: promtail
+                      cluster: $CLUSTER
+                      forward: daemon
+                kubernetes_sd_configs:
+                  - role: pod
+                relabel_configs:
+                  - action: replace
+                    source_labels:
+                    - __meta_kubernetes_namespace
+                    target_label: namespace
+                  - action: replace
+                    source_labels:
+                    - __meta_kubernetes_pod_name
+                    target_label: pod
+                  - action: replace
+                    source_labels:
+                    - __meta_kubernetes_pod_container_name
+                    target_label: container
+                  - action: replace
+                    replacement: /var/log/pods/*$1/*.log
+                    separator: /
+                    source_labels:
+                    - __meta_kubernetes_pod_uid
+                    - __meta_kubernetes_pod_container_name
+                    target_label: __path__
+                  - action: replace
+                    regex: true/(.*)
+                    replacement: /var/log/pods/*$1/*.log
+                    separator: /
+                    source_labels:
+                    - __meta_kubernetes_pod_annotationpresent_kubernetes_io_config_hash
+                    - __meta_kubernetes_pod_annotation_kubernetes_io_config_hash
+                    - __meta_kubernetes_pod_container_name
+                    target_label: __path__
+        kind: ConfigMap
+        metadata:
+          name: promtail
+    type: k8s-objects
+  - name: event-log
+    properties:
+      image: maxrocketinternet/k8s-event-logger:1.7
+      labels:
+        kube-event-logger: "true"
+    traits:
+    - properties:
+        create: true
+        name: log-event
+        privileges:
+        - apiGroups:
+          - ""
+          resources:
+          - events
+          scope: cluster
+          verbs:
+          - '*'
+      type: service-account
+    type: webservice
+  policies:
+  - name: namespace
+    properties:
+      rules:
+      - selector:
+          resourceTypes:
+          - Namespace
+    type: shared-resource
+  - name: namespace-take-over
+    properties:
+      rules:
+      - selector:
+          resourceTypes:
+          - Namespace
+    type: take-over
+  - name: ignore-recycle-pvc-ns
+    properties:
+      rules:
+      - selector:
+          resourceTypes:
+          - PersistentVolumeClaim
+          - Namespace
+        strategy: never
+    type: garbage-collect
+  - name: not-keep-crd
+    properties:
+      rules:
+      - selector:
+          resourceTypes:
+          - CustomResourceDefinition
+        strategy:
+          path:
+          - '*'
+    type: apply-once
+  - name: topology-distributed
+    properties:
+      clusterLabelSelector: {}
+      namespace: o11y-system
+    type: topology
+  - name: topology-centralized
+    properties:
+      clusters:
+      - local
+      namespace: o11y-system
+    type: topology
+  - name: topology-distributed-exclude-local
+    properties:
+      allowEmpty: true
+      clusterLabelSelector:
+        cluster.core.oam.dev/control-plane: "false"
+      namespace: o11y-system
+    type: topology
+  - name: o11y-namespace
+    properties:
+      selector:
+      - addon-loki-ns
+    type: override
+  - name: loki-components
+    properties:
+      selector:
+      - addon-loki-ns
+      - loki-config
+      - loki
+    type: override
+  - name: agent-components
+    properties:
+      selector:
+      - addon-loki-ns
+      - promtail
+      - promtail-config
+      - event-log
+    type: override
+  workflow:
+    steps:
+    - name: deploy-ns
+      properties:
+        policies:
+        - topology-distributed
+        - o11y-namespace
+      type: deploy
+    - name: deploy-loki
+      properties:
+        policies:
+        - topology-centralized
+        - loki-components
+      type: deploy
+    - name: get-loki-endpoint
+      outputs:
+      - name: host
+        valueFrom: value.endpoint.host
+      - name: port
+        valueFrom: value.endpoint.port
+      - name: url
+        valueFrom: value.url
+      properties:
+        components:
+        - loki
+        name: addon-loki
+        namespace: vela-system
+        outer: true
+        portName: http
+      type: collect-service-endpoints
+    - inputs:
+      - from: url
+        parameterKey: config.url
+      name: loki-server-register
+      properties:
+        config: {}
+        name: loki-vela
+        template: loki
+      type: create-config
+    - inputs:
+      - from: host
+        parameterKey: ip
+      - from: port
+        parameterKey: targetPort
+      name: export-service
+      properties:
+        name: loki
+        namespace: o11y-system
+        port: 3100
+        topology: topology-distributed-exclude-local
+      type: export-service
+    - name: deploy-agent
+      properties:
+        policies:
+        - topology-distributed
+        - agent-components
+      type: deploy
+status: {}
+
+---
+apiVersion: core.oam.dev/v1beta1
+kind: TraitDefinition
+metadata:
+  annotations:
+    definition.oam.dev/description: Collect log from file or stdout using vector
+  labels: {}
+  name: file-logs
+  namespace: vela-system
+spec:
+  appliesToWorkloads:
+  - deployments.apps
+  - statefulsets.apps
+  podDisruptive: false
+  schematic:
+    cue:
+      template: "import (\n\t\"encoding/yaml\"\n\t\"path\"\n)\n\n_dir: *\"\" | string\noutputs:
+        config: {\n\tapiVersion: \"v1\"\n\tkind:       \"ConfigMap\"\n\tmetadata:
+        name:      context.name + \"-vector-config\"\n\tdata: \"vector.yaml\": yaml.Marshal(configFile)\n}\n_dir:
+        path.Dir(parameter.path)\npatch: {\n\t// +patchKey=name\n\tspec: template:
+        spec: volumes: [\n\t\t{\n\t\t\tname: \"vector-config\"\n\t\t\tprojected: {\n\t\t\t\tdefaultMode:
+        420\n\t\t\t\tsources: [\n\t\t\t\t\t{configMap: name: context.name + \"-vector-config\"},\n\t\t\t\t]\n\t\t\t}\n\t\t},\n\t\t{\n\t\t\tname:
+        \"container-log\"\n\t\t\temptyDir: {}\n\t\t},\n\t\t{\n\t\t\tname: \"vector-data\"\n\t\t\temptyDir:
+        {}\n\t\t},\n\t]\n}\npatch: {\n\t// +patchKey=name\n\tspec: template: spec:
+        containers: [{\n\t\tname:  \"vector-log\"\n\t\timage: \"timberio/vector:0.23.3-alpine\"\n\t\targs:
+        [\"--config-dir\", \"/etc/vector/\"]\n\t\tenv: [\n\t\t\t{\n\t\t\t\tname: \"MY_POD_NAME\"\n\t\t\t\tvalueFrom:
+        fieldRef: {\n\t\t\t\t\tapiVersion: \"v1\"\n\t\t\t\t\tfieldPath:  \"metadata.name\"\n\t\t\t\t}\n\t\t\t},\n\t\t\t{\n\t\t\t\tname:
+        \"MY_POD_NAMESPACE\"\n\t\t\t\tvalueFrom: fieldRef: {\n\t\t\t\t\tapiVersion:
+        \"v1\"\n\t\t\t\t\tfieldPath:  \"metadata.namespace\"\n\t\t\t\t}\n\t\t\t},\n\t\t]\n\t\tvolumeMounts:
+        [\n\t\t\t{\n\t\t\t\tmountPath: \"/data\" + _dir\n\t\t\t\tname:      \"container-log\"\n\t\t\t},\n\t\t\t{\n\t\t\t\tmountPath:
+        \"/etc/vector/\"\n\t\t\t\tname:      \"vector-config\"\n\t\t\t},\n\t\t\t{\n\t\t\t\tmountPath:
+        \"/vector-data-dir\"\n\t\t\t\tname:      \"vector-data\"\n\t\t\t},\n\t\t]},
+        {\n\t\tname: context.name\n\t\tvolumeMounts: [{\n\t\t\t{\n\t\t\t\tmountPath:
+        _dir\n\t\t\t\tname:      \"container-log\"\n\t\t\t}\n\t\t}]\n\t},\n\t]\n}\nconfigFile:
+        {\n\tdata_dir: \"/vector-data-dir\"\n\tapi: {\n\t\tenabled:    true\n\t\taddress:
+        \   \"127.0.0.1:8686\"\n\t\tplayground: false\n\t}\n\tsources: my_source_id:
+        {\n\t\ttype:              \"file\"\n\t\tignore_older_secs: 600\n\t\tinclude:
+        [\"/data\" + parameter.path]\n\t\tread_from: \"beginning\"\n\t}\n\tsinks:
+        loki: {\n\t\ttype: \"loki\"\n\t\tinputs: [\"my_source_id\"]\n\t\tendpoint:
+        \   \"http://loki.o11y-system:3100\"\n\t\tcompression: \"none\"\n\t\tlabels:
+        {\n\t\t\tagent:     \"vector\"\n\t\t\tstream:    \"file\"\n\t\t\tforward:
+        \  \"sidecar\"\n\t\t\tfilename:  \"{{ file }}\"\n\t\t\tpod:       \"${MY_POD_NAME}\"\n\t\t\tnamespace:
+        \"${MY_POD_NAMESPACE}\"\n\t\t\tcluster:   context.cluster\n\t\t}\n\t\tencoding:
+        codec: \"json\"\n\t}\n}\nparameter: path: string\n"
+
+---
+apiVersion: core.oam.dev/v1beta1
+kind: TraitDefinition
+metadata:
+  annotations:
+    definition.oam.dev/alias: lt
+    definition.oam.dev/description: ETL transformer for application log
+  labels: {}
+  name: stdout-logs
+  namespace: vela-system
+spec:
+  appliesToWorkloads:
+  - deployments.apps
+  - replicasets.apps
+  - statefulsets.apps
+  conflictsWith: null
+  podDisruptive: false
+  schematic:
+    cue:
+      template: "parameter: {\n\tgrafana:      *\"default\" | string\n\tparser?:      \"nginx\"
+        | \"apache\" | \"customize\"\n\tVRL?:         string\n\tlokiEndpoint: *\"http://loki:3100/\"
+        | string\n}\nsourceName: context.appName + \"_\" + context.name + \"_source\"\nparserName:
+        context.appName + \"_\" + context.name + \"_parser\"\nsinkName:   context.appName
+        + \"_\" + context.name + \"_sink\"\noutputs: vector_config: {\n\tapiVersion:
+        \"vector.oam.dev/v1alpha1\"\n\tkind:       \"Config\"\n\tmetadata: name: context.name\n\tspec:
+        {\n\t\trole: \"daemon\"\n\t\ttargetConfigMap: {\n\t\t\tnamespace: \"o11y-system\"\n\t\t\tname:
+        \     \"vector-controller\"\n\t\t}\n\t\tvectorConfig: {\n\t\t\tsources: \"\\(sourceName)\":
+        {\n\t\t\t\ttype:                 \"kubernetes_logs\"\n\t\t\t\textra_label_selector:
+        \"app.oam.dev/name=\" + context.appName + \",app.oam.dev/component=\" + context.name\n\t\t\t}\n\t\t\ttransforms:
+        \"\\(parserName)\": {\n\t\t\t\tinputs: [sourceName]\n\t\t\t\ttype:   \"remap\"\n\t\t\t\tsource:
+        *\"true\" | string\n\t\t\t\tif parameter.parser != _|_ {\n\t\t\t\t\tif parameter.parser
+        == \"apache\" {\n\t\t\t\t\t\tsource: \".message = parse_apache_log!(.message,
+        format: \\\"common\\\")\"\n\t\t\t\t\t}\n\t\t\t\t\tif parameter.parser == \"nginx\"
+        {\n\t\t\t\t\t\tsource: \".message = parse_nginx_log!(.message, \\\"combined\\\")\"\n\t\t\t\t\t}\n\t\t\t\t\tif
+        parameter.parser == \"customize\" && parameter.VRL != _|_ {\n\t\t\t\t\t\tsource:
+        parameter.VRL\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t\tsinks: \"\\(sinkName)\":
+        {\n\t\t\t\ttype: \"loki\"\n\t\t\t\tinputs: [parserName]\n\t\t\t\tendpoint:
+        \   parameter.lokiEndpoint\n\t\t\t\tcompression: \"none\"\n\t\t\t\trequest:
+        concurrency: 10\n\t\t\t\tlabels: {\n\t\t\t\t\tagent:     \"vector\"\n\t\t\t\t\tstream:
+        \   \"{{ stream }}\"\n\t\t\t\t\tforward:   \"daemon\"\n\t\t\t\t\tfilename:
+        \ \"{{ file }}\"\n\t\t\t\t\tnamespace: \"{{ kubernetes.pod_namespace }}\"\n\t\t\t\t\tpod:
+        \      \"{{ kubernetes.pod_name }}\"\n\t\t\t\t\tcontainer: \"{{ kubernetes.container_name
+        }}\"\n\t\t\t\t\tif parameter.parser != _|_ {\n\t\t\t\t\t\tparser: parameter.parser\n\t\t\t\t\t}\n\t\t\t\t\tapp:
+        \         context.appName\n\t\t\t\t\tappNamespace: context.namespace\n\t\t\t\t\tcluster:
+        \     context.cluster\n\t\t\t\t}\n\t\t\t\tencoding: codec: \"json\"\n\t\t\t}\n\t\t}\n\t}\n}\noutputs:
+        {\n\tif parameter.parser != _|_ {\n\t\tif parameter.parser == \"nginx\" {\n\t\t\tnginx_dashboard:
+        {\n\t\t\t\tapiVersion: \"o11y.prism.oam.dev/v1alpha1\"\n\t\t\t\tkind:       \"GrafanaDashboard\"\n\t\t\t\tmetadata:
+        {\n\t\t\t\t\tannotations: \"app.oam.dev/last-applied-configuration\": \"-\"\n\t\t\t\t\tname:
+        \"\\(context.name)@\\(parameter.grafana)\"\n\t\t\t\t}\n\t\t\t\tspec: nginx_dashboard_config\n\t\t\t}\n\t\t}\n\t}\n}\nnginx_dashboard_config:
+        {\n\tannotations: list: [{\n\t\tbuiltIn: 1\n\t\tdatasource: {\n\t\t\ttype:
+        \"datasource\"\n\t\t\tuid:  \"grafana\"\n\t\t}\n\t\tenable:    true\n\t\thide:
+        \     true\n\t\ticonColor: \"rgba(0, 211, 255, 1)\"\n\t\tname:      \"Annotations
+        & Alerts\"\n\t\ttarget: {\n\t\t\tlimit:    100\n\t\t\tmatchAny: false\n\t\t\ttags:
+        []\n\t\t\ttype: \"dashboard\"\n\t\t}\n\t\ttype: \"dashboard\"\n\t}]\n\tdescription:
+        \         \"KubeVela nginx application log analysitc dashboard\"\n\teditable:
+        \            true\n\tfiscalYearStartMonth: 0\n\tgnetId:               13865\n\tgraphTooltip:
+        \        0\n\tid:                   18\n\titeration:            1665717640752\n\tlinks:
+        []\n\tliveNow: false\n\tpanels: [{\n\t\tcollapsed: false\n\t\tdatasource:
+        {\n\t\t\ttype: \"loki\"\n\t\t\tuid:  \"${logsource}\"\n\t\t}\n\t\tgridPos:
+        {\n\t\t\th: 1\n\t\t\tw: 24\n\t\t\tx: 0\n\t\t\ty: 0\n\t\t}\n\t\tid: 24\n\t\tpanels:
+        []\n\t\ttitle: \"KPI's\"\n\t\ttype:  \"row\"\n\t}, {\n\t\tdatasource: {\n\t\t\ttype:
+        \"loki\"\n\t\t\tuid:  \"${logsource}\"\n\t\t}\n\t\tdescription: \"\"\n\t\tfieldConfig:
+        {\n\t\t\tdefaults: {\n\t\t\t\tcolor: mode: \"thresholds\"\n\t\t\t\tmappings:
+        []\n\t\t\t\tthresholds: {\n\t\t\t\t\tmode: \"absolute\"\n\t\t\t\t\tsteps:
+        [{\n\t\t\t\t\t\tcolor: \"purple\"\n\t\t\t\t\t\tvalue: null\n\t\t\t\t\t}]\n\t\t\t\t}\n\t\t\t\tunit:
+        \"short\"\n\t\t\t}\n\t\t\toverrides: []\n\t\t}\n\t\tgridPos: {\n\t\t\th: 4\n\t\t\tw:
+        5\n\t\t\tx: 0\n\t\t\ty: 1\n\t\t}\n\t\thideTimeOverride: false\n\t\tid:               4\n\t\tmaxDataPoints:
+        \   300\n\t\toptions: {\n\t\t\tcolorMode:   \"background\"\n\t\t\tgraphMode:
+        \  \"area\"\n\t\t\tjustifyMode: \"center\"\n\t\t\torientation: \"auto\"\n\t\t\treduceOptions:
+        {\n\t\t\t\tcalcs: [\n\t\t\t\t\t\"sum\",\n\t\t\t\t]\n\t\t\t\tfields: \"\"\n\t\t\t\tvalues:
+        false\n\t\t\t}\n\t\t\ttext: {}\n\t\t\ttextMode: \"value\"\n\t\t}\n\t\tpluginVersion:
+        \"8.5.3\"\n\t\ttargets: [{\n\t\t\texpr:         \"sum by(host) (count_over_time({app=\\\"$appName\\\",
+        appNamespace=\\\"$appNamespace\\\"} [$__interval]))  \"\n\t\t\tlegendFormat:
+        \"\"\n\t\t\trefId:        \"A\"\n\t\t}]\n\t\ttimeFrom: \"12h\"\n\t\ttitle:
+        \   \"Total requests  \"\n\t\ttransformations: []\n\t\ttype: \"stat\"\n\t},
+        {\n\t\tdatasource: {\n\t\t\ttype: \"loki\"\n\t\t\tuid:  \"${logsource}\"\n\t\t}\n\t\tdescription:
+        \"\"\n\t\tfieldConfig: {\n\t\t\tdefaults: {\n\t\t\t\tcolor: mode: \"thresholds\"\n\t\t\t\tmappings:
+        []\n\t\t\t\tthresholds: {\n\t\t\t\t\tmode: \"percentage\"\n\t\t\t\t\tsteps:
+        [{\n\t\t\t\t\t\tcolor: \"rgba(110, 157, 228, 0.76)\"\n\t\t\t\t\t\tvalue: null\n\t\t\t\t\t},
+        {\n\t\t\t\t\t\tcolor: \"rgba(73, 124, 202, 1)\"\n\t\t\t\t\t\tvalue: 20\n\t\t\t\t\t}]\n\t\t\t\t}\n\t\t\t\tunit:
+        \"short\"\n\t\t\t}\n\t\t\toverrides: []\n\t\t}\n\t\tgridPos: {\n\t\t\th: 8\n\t\t\tw:
+        7\n\t\t\tx: 5\n\t\t\ty: 1\n\t\t}\n\t\tid:            5\n\t\tmaxDataPoints:
+        20\n\t\toptions: {\n\t\t\tcolorMode:   \"background\"\n\t\t\tgraphMode:   \"area\"\n\t\t\tjustifyMode:
+        \"auto\"\n\t\t\torientation: \"auto\"\n\t\t\treduceOptions: {\n\t\t\t\tcalcs:
+        [\n\t\t\t\t\t\"sum\",\n\t\t\t\t]\n\t\t\t\tfields: \"\"\n\t\t\t\tvalues: false\n\t\t\t}\n\t\t\ttext:
+        {}\n\t\t\ttextMode: \"auto\"\n\t\t}\n\t\tpluginVersion: \"8.5.3\"\n\t\ttargets:
+        [{\n\t\t\tdatasource: {\n\t\t\t\ttype: \"loki\"\n\t\t\t\tuid:  \"loki-vela\"\n\t\t\t}\n\t\t\texpr:
+        \        \"sum by (message_status) (count_over_time({app=\\\"$appName\\\",
+        appNamespace=\\\"$appNamespace\\\"} | json |  __error__=\\\"\\\" | message_status
+        != \\\"\\\" [$__interval]))\"\n\t\t\tinstant:      false\n\t\t\tlegendFormat:
+        \" {{message_status}}\"\n\t\t\trange:        true\n\t\t\trefId:        \"A\"\n\t\t}]\n\t\ttitle:
+        \"Requests per status code\"\n\t\ttransformations: []\n\t\ttype: \"stat\"\n\t},
+        {\n\t\tdatasource: {\n\t\t\ttype: \"loki\"\n\t\t\tuid:  \"${logsource}\"\n\t\t}\n\t\tdescription:
+        \"\"\n\t\tfieldConfig: {\n\t\t\tdefaults: {\n\t\t\t\tcolor: mode: \"thresholds\"\n\t\t\t\tdecimals:
+        0\n\t\t\t\tmappings: []\n\t\t\t\tthresholds: {\n\t\t\t\t\tmode: \"absolute\"\n\t\t\t\t\tsteps:
+        [{\n\t\t\t\t\t\tcolor: \"semi-dark-orange\"\n\t\t\t\t\t\tvalue: null\n\t\t\t\t\t}]\n\t\t\t\t}\n\t\t\t\tunit:
+        \"decbytes\"\n\t\t\t}\n\t\t\toverrides: []\n\t\t}\n\t\tgridPos: {\n\t\t\th:
+        4\n\t\t\tw: 5\n\t\t\tx: 12\n\t\t\ty: 1\n\t\t}\n\t\tid:            30\n\t\tmaxDataPoints:
+        1\n\t\toptions: {\n\t\t\tcolorMode:   \"background\"\n\t\t\tgraphMode:   \"none\"\n\t\t\tjustifyMode:
+        \"auto\"\n\t\t\torientation: \"auto\"\n\t\t\treduceOptions: {\n\t\t\t\tcalcs:
+        [\n\t\t\t\t\t\"sum\",\n\t\t\t\t]\n\t\t\t\tfields: \"\"\n\t\t\t\tvalues: false\n\t\t\t}\n\t\t\ttext:
+        {}\n\t\t\ttextMode: \"auto\"\n\t\t}\n\t\tpluginVersion: \"8.5.3\"\n\t\ttargets:
+        [{\n\t\t\texpr:         \"bytes_over_time({app=\\\"$appName\\\", appNamespace=\\\"$appNamespace\\\"}[$__interval])\"\n\t\t\tinstant:
+        \     true\n\t\t\tlegendFormat: \"$label_value\"\n\t\t\trange:        false\n\t\t\trefId:
+        \       \"A\"\n\t\t}]\n\t\ttitle: \"NGINX logs in bytes\"\n\t\ttype:  \"stat\"\n\t},
+        {\n\t\tdatasource: {\n\t\t\ttype: \"loki\"\n\t\t\tuid:  \"${logsource}\"\n\t\t}\n\t\tdescription:
+        \"\"\n\t\tfieldConfig: {\n\t\t\tdefaults: {\n\t\t\t\tcolor: mode: \"thresholds\"\n\t\t\t\tmappings:
+        []\n\t\t\t\tthresholds: {\n\t\t\t\t\tmode: \"absolute\"\n\t\t\t\t\tsteps:
+        [{\n\t\t\t\t\t\tcolor: \"purple\"\n\t\t\t\t\t\tvalue: null\n\t\t\t\t\t}]\n\t\t\t\t}\n\t\t\t\tunit:
+        \"decbytes\"\n\t\t\t}\n\t\t\toverrides: []\n\t\t}\n\t\tgridPos: {\n\t\t\th:
+        4\n\t\t\tw: 5\n\t\t\tx: 17\n\t\t\ty: 1\n\t\t}\n\t\tid:            8\n\t\tmaxDataPoints:
+        1\n\t\toptions: {\n\t\t\tcolorMode:   \"background\"\n\t\t\tgraphMode:   \"none\"\n\t\t\tjustifyMode:
+        \"center\"\n\t\t\torientation: \"auto\"\n\t\t\treduceOptions: {\n\t\t\t\tcalcs:
+        [\n\t\t\t\t\t\"sum\",\n\t\t\t\t]\n\t\t\t\tfields: \"\"\n\t\t\t\tvalues: false\n\t\t\t}\n\t\t\ttext:
+        {}\n\t\t\ttextMode: \"value\"\n\t\t}\n\t\tpluginVersion: \"8.5.3\"\n\t\ttargets:
+        [{\n\t\t\tdatasource: {\n\t\t\t\ttype: \"loki\"\n\t\t\t\tuid:  \"loki-vela\"\n\t\t\t}\n\t\t\texpr:
+        \        \"sum_over_time({app=\\\"$appName\\\", appNamespace=\\\"$appNamespace\\\"}
+        | json | unwrap message_size |  __error__=\\\"\\\" [$__interval])\"\n\t\t\tinstant:
+        \     true\n\t\t\tlegendFormat: \"Bytes sent\"\n\t\t\trange:        false\n\t\t\trefId:
+        \       \"A\"\n\t\t}]\n\t\ttitle: \"Total Bytes Sent\"\n\t\ttransformations:
+        []\n\t\ttype: \"stat\"\n\t}, {\n\t\tdatasource: {\n\t\t\ttype: \"loki\"\n\t\t\tuid:
+        \ \"${logsource}\"\n\t\t}\n\t\tdescription: \"\"\n\t\tfieldConfig: {\n\t\t\tdefaults:
+        {\n\t\t\t\tcolor: mode: \"thresholds\"\n\t\t\t\tmappings: []\n\t\t\t\tthresholds:
+        {\n\t\t\t\t\tmode: \"absolute\"\n\t\t\t\t\tsteps: [{\n\t\t\t\t\t\tcolor: \"purple\"\n\t\t\t\t\t\tvalue:
+        null\n\t\t\t\t\t}]\n\t\t\t\t}\n\t\t\t}\n\t\t\toverrides: []\n\t\t}\n\t\tgridPos:
+        {\n\t\t\th: 4\n\t\t\tw: 5\n\t\t\tx: 0\n\t\t\ty: 5\n\t\t}\n\t\tid:       22\n\t\tinterval:
+        \"5m\"\n\t\toptions: {\n\t\t\tcolorMode:   \"background\"\n\t\t\tgraphMode:
+        \  \"none\"\n\t\t\tjustifyMode: \"auto\"\n\t\t\torientation: \"auto\"\n\t\t\treduceOptions:
+        {\n\t\t\t\tcalcs: [\n\t\t\t\t\t\"mean\",\n\t\t\t\t]\n\t\t\t\tfields: \"\"\n\t\t\t\tvalues:
+        false\n\t\t\t}\n\t\t\ttext: {}\n\t\t\ttextMode: \"value\"\n\t\t}\n\t\tpluginVersion:
+        \"8.5.3\"\n\t\ttargets: [{\n\t\t\texpr:         \"count(sum by (message_client)
+        (count_over_time({app=\\\"$appName\\\", appNamespace=\\\"$appNamespace\\\"}
+        | json |  __error__=\\\"\\\" [$__interval])))\"\n\t\t\tinstant:      true\n\t\t\tlegendFormat:
+        \"\"\n\t\t\trange:        false\n\t\t\trefId:        \"A\"\n\t\t}]\n\t\ttimeFrom:
+        \"5m\"\n\t\ttitle:    \"Realtime visitors \"\n\t\ttransformations: []\n\t\ttype:
+        \"stat\"\n\t}, {\n\t\tdatasource: {\n\t\t\ttype: \"loki\"\n\t\t\tuid:  \"${logsource}\"\n\t\t}\n\t\tdescription:
+        \"\"\n\t\tfieldConfig: {\n\t\t\tdefaults: {\n\t\t\t\tcolor: mode: \"thresholds\"\n\t\t\t\tdecimals:
+        0\n\t\t\t\tmappings: []\n\t\t\t\tthresholds: {\n\t\t\t\t\tmode: \"absolute\"\n\t\t\t\t\tsteps:
+        [{\n\t\t\t\t\t\tcolor: \"semi-dark-orange\"\n\t\t\t\t\t\tvalue: null\n\t\t\t\t\t}]\n\t\t\t\t}\n\t\t\t\tunit:
+        \"short\"\n\t\t\t}\n\t\t\toverrides: []\n\t\t}\n\t\tgridPos: {\n\t\t\th: 4\n\t\t\tw:
+        5\n\t\t\tx: 12\n\t\t\ty: 5\n\t\t}\n\t\tid:            31\n\t\tmaxDataPoints:
+        1\n\t\toptions: {\n\t\t\tcolorMode:   \"background\"\n\t\t\tgraphMode:   \"none\"\n\t\t\tjustifyMode:
+        \"auto\"\n\t\t\torientation: \"auto\"\n\t\t\treduceOptions: {\n\t\t\t\tcalcs:
+        [\n\t\t\t\t\t\"sum\",\n\t\t\t\t]\n\t\t\t\tfields: \"\"\n\t\t\t\tvalues: false\n\t\t\t}\n\t\t\ttext:
+        {}\n\t\t\ttextMode: \"auto\"\n\t\t}\n\t\tpluginVersion: \"8.5.3\"\n\t\ttargets:
+        [{\n\t\t\texpr:    \"count_over_time({app=\\\"$appName\\\", appNamespace=\\\"$appNamespace\\\"}[$__interval])\"\n\t\t\tinstant:
+        true\n\t\t\trange:   false\n\t\t\trefId:   \"A\"\n\t\t}]\n\t\ttitle: \"# NGINX
+        log lines\"\n\t\ttype:  \"stat\"\n\t}, {\n\t\tdatasource: {\n\t\t\ttype: \"loki\"\n\t\t\tuid:
+        \ \"${logsource}\"\n\t\t}\n\t\tdescription: \"\"\n\t\tfieldConfig: {\n\t\t\tdefaults:
+        {\n\t\t\t\tcolor: mode: \"thresholds\"\n\t\t\t\tdecimals: 1\n\t\t\t\tmappings:
+        []\n\t\t\t\tmax: 100\n\t\t\t\tmin: 0\n\t\t\t\tthresholds: {\n\t\t\t\t\tmode:
+        \"absolute\"\n\t\t\t\t\tsteps: [{\n\t\t\t\t\t\tcolor: \"purple\"\n\t\t\t\t\t\tvalue:
+        null\n\t\t\t\t\t}, {\n\t\t\t\t\t\tcolor: \"red\"\n\t\t\t\t\t\tvalue: 80\n\t\t\t\t\t}]\n\t\t\t\t}\n\t\t\t\tunit:
+        \"percent\"\n\t\t\t}\n\t\t\toverrides: []\n\t\t}\n\t\tgridPos: {\n\t\t\th:
+        4\n\t\t\tw: 5\n\t\t\tx: 17\n\t\t\ty: 5\n\t\t}\n\t\thideTimeOverride: true\n\t\tid:
+        \              19\n\t\tlinks: []\n\t\tmaxDataPoints: 1\n\t\toptions: {\n\t\t\tcolorMode:
+        \  \"background\"\n\t\t\tgraphMode:   \"none\"\n\t\t\tjustifyMode: \"center\"\n\t\t\torientation:
+        \"auto\"\n\t\t\treduceOptions: {\n\t\t\t\tcalcs: [\n\t\t\t\t\t\"max\",\n\t\t\t\t]\n\t\t\t\tfields:
+        \"\"\n\t\t\t\tvalues: false\n\t\t\t}\n\t\t\ttext: {}\n\t\t\ttextMode: \"value\"\n\t\t}\n\t\tpluginVersion:
+        \"8.5.3\"\n\t\ttargets: [{\n\t\t\tdatasource: {\n\t\t\t\ttype: \"loki\"\n\t\t\t\tuid:
+        \ \"loki-vela\"\n\t\t\t}\n\t\t\texpr:         \"sum(count_over_time({app=\\\"$appName\\\",
+        appNamespace=\\\"$appNamespace\\\"} | json | message_status >= 500 |__error__=\\\"\\\"[$__interval]))
+        / (sum(count_over_time({app=\\\"$appName\\\", appNamespace=\\\"$appNamespace\\\"}
+        | json | __error__=\\\"\\\"[$__interval]))/ 100)\"\n\t\t\tinstant:      false\n\t\t\tlegendFormat:
+        \"\"\n\t\t\trange:        true\n\t\t\trefId:        \"A\"\n\t\t}]\n\t\ttimeFrom:
+        \"1h\"\n\t\ttitle:    \"% of 5xx requests \"\n\t\ttype:     \"stat\"\n\t},
+        {\n\t\tdatasource: {\n\t\t\ttype: \"loki\"\n\t\t\tuid:  \"${logsource}\"\n\t\t}\n\t\tdescription:
+        \"\"\n\t\tfieldConfig: {\n\t\t\tdefaults: {\n\t\t\t\tcolor: mode: \"palette-classic\"\n\t\t\t\tcustom:
+        {\n\t\t\t\t\taxisLabel:     \"\"\n\t\t\t\t\taxisPlacement: \"auto\"\n\t\t\t\t\tbarAlignment:
+        \ 0\n\t\t\t\t\tdrawStyle:     \"line\"\n\t\t\t\t\tfillOpacity:   100\n\t\t\t\t\tgradientMode:
+        \ \"opacity\"\n\t\t\t\t\thideFrom: {\n\t\t\t\t\t\tlegend:  false\n\t\t\t\t\t\ttooltip:
+        false\n\t\t\t\t\t\tviz:     false\n\t\t\t\t\t}\n\t\t\t\t\tlineInterpolation:
+        \"linear\"\n\t\t\t\t\tlineWidth:         1\n\t\t\t\t\tpointSize:         5\n\t\t\t\t\tscaleDistribution:
+        type: \"linear\"\n\t\t\t\t\tshowPoints: \"never\"\n\t\t\t\t\tspanNulls:  true\n\t\t\t\t\tstacking:
+        {\n\t\t\t\t\t\tgroup: \"A\"\n\t\t\t\t\t\tmode:  \"normal\"\n\t\t\t\t\t}\n\t\t\t\t\tthresholdsStyle:
+        mode: \"off\"\n\t\t\t\t}\n\t\t\t\tdecimals: 0\n\t\t\t\tmappings: []\n\t\t\t\tthresholds:
+        {\n\t\t\t\t\tmode: \"absolute\"\n\t\t\t\t\tsteps: [{\n\t\t\t\t\t\tcolor: \"green\"\n\t\t\t\t\t\tvalue:
+        null\n\t\t\t\t\t}, {\n\t\t\t\t\t\tcolor: \"red\"\n\t\t\t\t\t\tvalue: 80\n\t\t\t\t\t}]\n\t\t\t\t}\n\t\t\t\tunit:
+        \"short\"\n\t\t\t}\n\t\t\toverrides: [{\n\t\t\t\tmatcher: {\n\t\t\t\t\tid:
+        \     \"byName\"\n\t\t\t\t\toptions: \"200\"\n\t\t\t\t}\n\t\t\t\tproperties:
+        [{\n\t\t\t\t\tid: \"color\"\n\t\t\t\t\tvalue: {\n\t\t\t\t\t\tfixedColor: \"green\"\n\t\t\t\t\t\tmode:
+        \      \"fixed\"\n\t\t\t\t\t}\n\t\t\t\t}]\n\t\t\t}, {\n\t\t\t\tmatcher: {\n\t\t\t\t\tid:
+        \     \"byName\"\n\t\t\t\t\toptions: \"404\"\n\t\t\t\t}\n\t\t\t\tproperties:
+        [{\n\t\t\t\t\tid: \"color\"\n\t\t\t\t\tvalue: {\n\t\t\t\t\t\tfixedColor: \"semi-dark-purple\"\n\t\t\t\t\t\tmode:
+        \      \"palette-classic\"\n\t\t\t\t\t}\n\t\t\t\t}]\n\t\t\t}, {\n\t\t\t\tmatcher:
+        {\n\t\t\t\t\tid:      \"byName\"\n\t\t\t\t\toptions: \"500\"\n\t\t\t\t}\n\t\t\t\tproperties:
+        [{\n\t\t\t\t\tid: \"color\"\n\t\t\t\t\tvalue: {\n\t\t\t\t\t\tfixedColor: \"dark-red\"\n\t\t\t\t\t\tmode:
+        \      \"fixed\"\n\t\t\t\t\t}\n\t\t\t\t}]\n\t\t\t}]\n\t\t}\n\t\tgridPos: {\n\t\t\th:
+        16\n\t\t\tw: 11\n\t\t\tx: 0\n\t\t\ty: 9\n\t\t}\n\t\tid:       2\n\t\tinterval:
+        \"30s\"\n\t\toptions: {\n\t\t\tlegend: {\n\t\t\t\tcalcs: []\n\t\t\t\tdisplayMode:
+        \"list\"\n\t\t\t\tplacement:   \"bottom\"\n\t\t\t\tshowLegend:  true\n\t\t\t}\n\t\t\ttooltip:
+        {\n\t\t\t\tmode: \"multi\"\n\t\t\t\tsort: \"none\"\n\t\t\t}\n\t\t}\n\t\tpluginVersion:
+        \"9.1.6\"\n\t\ttargets: [{\n\t\t\tdatasource: {\n\t\t\t\ttype: \"loki\"\n\t\t\t\tuid:
+        \ \"loki:local\"\n\t\t\t}\n\t\t\teditorMode:   \"code\"\n\t\t\texpr:         \"sum
+        by(message_status) (count_over_time({app=\\\"$appName\\\", appNamespace=\\\"$appNamespace\\\"}
+        | json | message_status != \\\"\\\" [$__interval]))\"\n\t\t\tlegendFormat:
+        \"{{message_status}}\"\n\t\t\tqueryType:    \"range\"\n\t\t\trefId:        \"A\"\n\t\t\tresolution:
+        \  1\n\t\t}]\n\t\ttitle: \"HTTP status statistic\"\n\t\ttransformations: []\n\t\ttype:
+        \"timeseries\"\n\t}, {\n\t\tdatasource: {\n\t\t\ttype: \"loki\"\n\t\t\tuid:
+        \ \"${logsource}\"\n\t\t}\n\t\tfieldConfig: {\n\t\t\tdefaults: {\n\t\t\t\tcolor:
+        mode: \"palette-classic\"\n\t\t\t\tcustom: hideFrom: {\n\t\t\t\t\tlegend:
+        \ false\n\t\t\t\t\ttooltip: false\n\t\t\t\t\tviz:     false\n\t\t\t\t}\n\t\t\t\tmappings:
+        []\n\t\t\t}\n\t\t\toverrides: []\n\t\t}\n\t\tgridPos: {\n\t\t\th: 16\n\t\t\tw:
+        11\n\t\t\tx: 11\n\t\t\ty: 9\n\t\t}\n\t\tid: 34\n\t\toptions: {\n\t\t\tlegend:
+        {\n\t\t\t\tdisplayMode: \"list\"\n\t\t\t\tplacement:   \"bottom\"\n\t\t\t\tshowLegend:
+        \ true\n\t\t\t}\n\t\t\tpieType: \"pie\"\n\t\t\treduceOptions: {\n\t\t\t\tcalcs:
+        [\n\t\t\t\t\t\"lastNotNull\",\n\t\t\t\t]\n\t\t\t\tfields: \"\"\n\t\t\t\tvalues:
+        false\n\t\t\t}\n\t\t\ttooltip: {\n\t\t\t\tmode: \"single\"\n\t\t\t\tsort:
+        \"none\"\n\t\t\t}\n\t\t}\n\t\ttargets: [{\n\t\t\tdatasource: {\n\t\t\t\ttype:
+        \"loki\"\n\t\t\t\tuid:  \"loki:local\"\n\t\t\t}\n\t\t\teditorMode:   \"code\"\n\t\t\texpr:
+        \        \"sum by (message_path) (count_over_time({app=\\\"$appName\\\", appNamespace=\\\"$appNamespace\\\"}
+        | json | message_path != \\\"\\\" [$__interval]))\"\n\t\t\tlegendFormat: \"{{message_path}}\"\n\t\t\tqueryType:
+        \   \"range\"\n\t\t\trefId:        \"A\"\n\t\t}]\n\t\ttitle: \"Panel Title\"\n\t\ttype:
+        \ \"piechart\"\n\t}, {\n\t\tcollapsed: false\n\t\tdatasource: {\n\t\t\ttype:
+        \"loki\"\n\t\t\tuid:  \"${logsource}\"\n\t\t}\n\t\tgridPos: {\n\t\t\th: 1\n\t\t\tw:
+        24\n\t\t\tx: 0\n\t\t\ty: 25\n\t\t}\n\t\tid: 28\n\t\tpanels: []\n\t\ttargets:
+        [{\n\t\t\tdatasource: {\n\t\t\t\ttype: \"loki\"\n\t\t\t\tuid:  \"loki:local\"\n\t\t\t}\n\t\t\trefId:
+        \"A\"\n\t\t}]\n\t\ttitle: \"Acquisition and Behaviour\"\n\t\ttype:  \"row\"\n\t},
+        {\n\t\tdatasource: {\n\t\t\ttype: \"loki\"\n\t\t\tuid:  \"${logsource}\"\n\t\t}\n\t\tdescription:
+        \"\"\n\t\tfieldConfig: {\n\t\t\tdefaults: {\n\t\t\t\tcolor: mode: \"thresholds\"\n\t\t\t\tcustom:
+        {\n\t\t\t\t\talign:       \"auto\"\n\t\t\t\t\tdisplayMode: \"auto\"\n\t\t\t\t\tfilterable:
+        \ false\n\t\t\t\t\tinspect:     false\n\t\t\t\t}\n\t\t\t\tmappings: []\n\t\t\t\tthresholds:
+        {\n\t\t\t\t\tmode: \"absolute\"\n\t\t\t\t\tsteps: [{\n\t\t\t\t\t\tcolor: \"green\"\n\t\t\t\t\t\tvalue:
+        null\n\t\t\t\t\t}, {\n\t\t\t\t\t\tcolor: \"red\"\n\t\t\t\t\t\tvalue: 80\n\t\t\t\t\t}]\n\t\t\t\t}\n\t\t\t}\n\t\t\toverrides:
+        [{\n\t\t\t\tmatcher: {\n\t\t\t\t\tid:      \"byName\"\n\t\t\t\t\toptions:
+        \"Total\"\n\t\t\t\t}\n\t\t\t\tproperties: [{\n\t\t\t\t\tid:    \"custom.width\"\n\t\t\t\t\tvalue:
+        300\n\t\t\t\t}, {\n\t\t\t\t\tid:    \"custom.displayMode\"\n\t\t\t\t\tvalue:
+        \"gradient-gauge\"\n\t\t\t\t}, {\n\t\t\t\t\tid: \"color\"\n\t\t\t\t\tvalue:
+        mode: \"continuous-BlPu\"\n\t\t\t\t}]\n\t\t\t}]\n\t\t}\n\t\tgridPos: {\n\t\t\th:
+        7\n\t\t\tw: 11\n\t\t\tx: 0\n\t\t\ty: 26\n\t\t}\n\t\tid:       12\n\t\tinterval:
+        \"5m\"\n\t\toptions: {\n\t\t\tfooter: {\n\t\t\t\tfields: \"\"\n\t\t\t\treducer:
+        [\n\t\t\t\t\t\"sum\",\n\t\t\t\t]\n\t\t\t\tshow: false\n\t\t\t}\n\t\t\tshowHeader:
+        true\n\t\t\tsortBy: [{\n\t\t\t\tdesc:        true\n\t\t\t\tdisplayName: \"Total\"\n\t\t\t}]\n\t\t}\n\t\tpluginVersion:
+        \"8.5.3\"\n\t\ttargets: [{\n\t\t\tdatasource: {\n\t\t\t\ttype: \"loki\"\n\t\t\t\tuid:
+        \ \"loki:local\"\n\t\t\t}\n\t\t\teditorMode:   \"code\"\n\t\t\texpr:         \"topk(5,sum
+        by (message_path) (count_over_time({app=\\\"$appName\\\", appNamespace=\\\"$appNamespace\\\"}
+        | json | message_path != \\\"\\\"  __error__=\\\"\\\" [$__interval])))\"\n\t\t\tlegendFormat:
+        \"{{message_path}}\"\n\t\t\tqueryType:    \"range\"\n\t\t\trefId:        \"A\"\n\t\t}]\n\t\ttitle:
+        \"Top Requested Pages\"\n\t\ttransformations: [{\n\t\t\tid: \"reduce\"\n\t\t\toptions:
+        reducers: [\n\t\t\t\t\"sum\",\n\t\t\t]\n\t\t}, {\n\t\t\tid: \"organize\"\n\t\t\toptions:
+        {\n\t\t\t\texcludeByName: {}\n\t\t\t\tindexByName: {}\n\t\t\t\trenameByName:
+        {\n\t\t\t\t\tField: \"Page\"\n\t\t\t\t\tTotal: \"\"\n\t\t\t\t}\n\t\t\t}\n\t\t}]\n\t\ttype:
+        \"table\"\n\t}, {\n\t\tdatasource: {\n\t\t\ttype: \"loki\"\n\t\t\tuid:  \"loki-vela\"\n\t\t}\n\t\tdescription:
+        \"\"\n\t\tfieldConfig: {\n\t\t\tdefaults: {\n\t\t\t\tcolor: mode: \"thresholds\"\n\t\t\t\tcustom:
+        {\n\t\t\t\t\talign:       \"auto\"\n\t\t\t\t\tdisplayMode: \"auto\"\n\t\t\t\t\tfilterable:
+        \ false\n\t\t\t\t\tinspect:     false\n\t\t\t\t}\n\t\t\t\tmappings: []\n\t\t\t\tthresholds:
+        {\n\t\t\t\t\tmode: \"absolute\"\n\t\t\t\t\tsteps: [{\n\t\t\t\t\t\tcolor: \"green\"\n\t\t\t\t\t\tvalue:
+        null\n\t\t\t\t\t}, {\n\t\t\t\t\t\tcolor: \"red\"\n\t\t\t\t\t\tvalue: 80\n\t\t\t\t\t}]\n\t\t\t\t}\n\t\t\t}\n\t\t\toverrides:
+        [{\n\t\t\t\tmatcher: {\n\t\t\t\t\tid:      \"byName\"\n\t\t\t\t\toptions:
+        \"Requests\"\n\t\t\t\t}\n\t\t\t\tproperties: [{\n\t\t\t\t\tid:    \"custom.width\"\n\t\t\t\t\tvalue:
+        300\n\t\t\t\t}, {\n\t\t\t\t\tid:    \"custom.displayMode\"\n\t\t\t\t\tvalue:
+        \"gradient-gauge\"\n\t\t\t\t}, {\n\t\t\t\t\tid: \"color\"\n\t\t\t\t\tvalue:
+        mode: \"continuous-BlPu\"\n\t\t\t\t}]\n\t\t\t}]\n\t\t}\n\t\tgridPos: {\n\t\t\th:
+        7\n\t\t\tw: 11\n\t\t\tx: 11\n\t\t\ty: 26\n\t\t}\n\t\tid:       6\n\t\tinterval:
+        \"1h\"\n\t\toptions: {\n\t\t\tfooter: {\n\t\t\t\tfields: \"\"\n\t\t\t\treducer:
+        [\n\t\t\t\t\t\"sum\",\n\t\t\t\t]\n\t\t\t\tshow: false\n\t\t\t}\n\t\t\tshowHeader:
+        true\n\t\t\tsortBy: [{\n\t\t\t\tdesc:        true\n\t\t\t\tdisplayName: \"Requests\"\n\t\t\t}]\n\t\t}\n\t\tpluginVersion:
+        \"8.5.3\"\n\t\ttargets: [{\n\t\t\tdatasource: {\n\t\t\t\ttype: \"loki\"\n\t\t\t\tuid:
+        \ \"loki-vela\"\n\t\t\t}\n\t\t\teditorMode:   \"code\"\n\t\t\texpr:         \"topk(20,
+        sum by (message_referer) (count_over_time({app=\\\"$appName\\\", appNamespace=\\\"$appNamespace\\\"}
+        | json |  message_referer != \\\"\\\" and message_referer !~ \\\".*?$host.*?\\\"
+        | __error__=\\\"\\\" [$__interval])))\"\n\t\t\tlegendFormat: \"{{message_referer}}\"\n\t\t\tqueryType:
+        \   \"range\"\n\t\t\trefId:        \"A\"\n\t\t}]\n\t\ttitle: \"Top HTTP Referers\"\n\t\ttransformations:
+        [{\n\t\t\tid: \"reduce\"\n\t\t\toptions: reducers: [\n\t\t\t\t\"sum\",\n\t\t\t]\n\t\t},
+        {\n\t\t\tid: \"organize\"\n\t\t\toptions: {\n\t\t\t\texcludeByName: {}\n\t\t\t\tindexByName:
+        {}\n\t\t\t\trenameByName: {\n\t\t\t\t\tField: \"Referer\"\n\t\t\t\t\tTotal:
+        \"Requests\"\n\t\t\t\t}\n\t\t\t}\n\t\t}]\n\t\ttype: \"table\"\n\t}, {\n\t\tdatasource:
+        {\n\t\t\ttype: \"loki\"\n\t\t\tuid:  \"${logsource}\"\n\t\t}\n\t\tdescription:
+        \"\"\n\t\tfieldConfig: {\n\t\t\tdefaults: {\n\t\t\t\tcolor: mode: \"thresholds\"\n\t\t\t\tcustom:
+        {\n\t\t\t\t\talign:       \"auto\"\n\t\t\t\t\tdisplayMode: \"auto\"\n\t\t\t\t\tfilterable:
+        \ false\n\t\t\t\t\tinspect:     false\n\t\t\t\t}\n\t\t\t\tmappings: []\n\t\t\t\tthresholds:
+        {\n\t\t\t\t\tmode: \"absolute\"\n\t\t\t\t\tsteps: [{\n\t\t\t\t\t\tcolor: \"green\"\n\t\t\t\t\t\tvalue:
+        null\n\t\t\t\t\t}, {\n\t\t\t\t\t\tcolor: \"red\"\n\t\t\t\t\t\tvalue: 80\n\t\t\t\t\t}]\n\t\t\t\t}\n\t\t\t}\n\t\t\toverrides:
+        [{\n\t\t\t\tmatcher: {\n\t\t\t\t\tid:      \"byName\"\n\t\t\t\t\toptions:
+        \"Requests\"\n\t\t\t\t}\n\t\t\t\tproperties: [{\n\t\t\t\t\tid:    \"custom.width\"\n\t\t\t\t\tvalue:
+        300\n\t\t\t\t}, {\n\t\t\t\t\tid:    \"custom.displayMode\"\n\t\t\t\t\tvalue:
+        \"gradient-gauge\"\n\t\t\t\t}, {\n\t\t\t\t\tid: \"color\"\n\t\t\t\t\tvalue:
+        mode: \"continuous-BlPu\"\n\t\t\t\t}]\n\t\t\t}]\n\t\t}\n\t\tgridPos: {\n\t\t\th:
+        7\n\t\t\tw: 11\n\t\t\tx: 0\n\t\t\ty: 33\n\t\t}\n\t\tid:       7\n\t\tinterval:
+        \"\"\n\t\toptions: {\n\t\t\tfooter: {\n\t\t\t\tfields: \"\"\n\t\t\t\treducer:
+        [\n\t\t\t\t\t\"sum\",\n\t\t\t\t]\n\t\t\t\tshow: false\n\t\t\t}\n\t\t\tshowHeader:
+        true\n\t\t\tsortBy: [{\n\t\t\t\tdesc:        true\n\t\t\t\tdisplayName: \"Requests\"\n\t\t\t}]\n\t\t}\n\t\tpluginVersion:
+        \"8.5.3\"\n\t\ttargets: [{\n\t\t\tdatasource: {\n\t\t\t\ttype: \"loki\"\n\t\t\t\tuid:
+        \ \"loki:local\"\n\t\t\t}\n\t\t\teditorMode:   \"code\"\n\t\t\texpr:         \"topk(10,
+        sum by (message_agent) (count_over_time({app=\\\"$appName\\\", appNamespace=\\\"$appNamespace\\\"}|
+        json | message_agent != \\\"\\\"  __error__=\\\"\\\" [$__interval])))\"\n\t\t\tlegendFormat:
+        \"{{message_agent}}\"\n\t\t\tqueryType:    \"range\"\n\t\t\trefId:        \"A\"\n\t\t}]\n\t\ttitle:
+        \"Top User Agents\"\n\t\ttransformations: [{\n\t\t\tid: \"reduce\"\n\t\t\toptions:
+        reducers: [\n\t\t\t\t\"sum\",\n\t\t\t]\n\t\t}, {\n\t\t\tid: \"organize\"\n\t\t\toptions:
+        {\n\t\t\t\texcludeByName: Field: false\n\t\t\t\tindexByName: {}\n\t\t\t\trenameByName:
+        {\n\t\t\t\t\tField: \"Agent\"\n\t\t\t\t\tTotal: \"Requests\"\n\t\t\t\t}\n\t\t\t}\n\t\t}]\n\t\ttype:
+        \"table\"\n\t}, {\n\t\tdatasource: {\n\t\t\ttype: \"loki\"\n\t\t\tuid:  \"${logsource}\"\n\t\t}\n\t\tdescription:
+        \"\"\n\t\tfieldConfig: {\n\t\t\tdefaults: {\n\t\t\t\tcolor: mode: \"thresholds\"\n\t\t\t\tcustom:
+        {\n\t\t\t\t\talign:       \"auto\"\n\t\t\t\t\tdisplayMode: \"auto\"\n\t\t\t\t\tfilterable:
+        \ false\n\t\t\t\t\tinspect:     false\n\t\t\t\t}\n\t\t\t\tmappings: []\n\t\t\t\tthresholds:
+        {\n\t\t\t\t\tmode: \"absolute\"\n\t\t\t\t\tsteps: [{\n\t\t\t\t\t\tcolor: \"green\"\n\t\t\t\t\t\tvalue:
+        null\n\t\t\t\t\t}, {\n\t\t\t\t\t\tcolor: \"red\"\n\t\t\t\t\t\tvalue: 80\n\t\t\t\t\t}]\n\t\t\t\t}\n\t\t\t}\n\t\t\toverrides:
+        [{\n\t\t\t\tmatcher: {\n\t\t\t\t\tid:      \"byName\"\n\t\t\t\t\toptions:
+        \"Requests\"\n\t\t\t\t}\n\t\t\t\tproperties: [{\n\t\t\t\t\tid:    \"custom.width\"\n\t\t\t\t\tvalue:
+        300\n\t\t\t\t}, {\n\t\t\t\t\tid:    \"custom.displayMode\"\n\t\t\t\t\tvalue:
+        \"gradient-gauge\"\n\t\t\t\t}, {\n\t\t\t\t\tid: \"color\"\n\t\t\t\t\tvalue:
+        mode: \"continuous-BlPu\"\n\t\t\t\t}]\n\t\t\t}]\n\t\t}\n\t\tgridPos: {\n\t\t\th:
+        7\n\t\t\tw: 11\n\t\t\tx: 11\n\t\t\ty: 33\n\t\t}\n\t\tid:       3\n\t\tinterval:
+        \"30m\"\n\t\toptions: {\n\t\t\tfooter: {\n\t\t\t\tfields: \"\"\n\t\t\t\treducer:
+        [\n\t\t\t\t\t\"sum\",\n\t\t\t\t]\n\t\t\t\tshow: false\n\t\t\t}\n\t\t\tshowHeader:
+        true\n\t\t\tsortBy: [{\n\t\t\t\tdesc:        true\n\t\t\t\tdisplayName: \"Requests\"\n\t\t\t}]\n\t\t}\n\t\tpluginVersion:
+        \"8.5.3\"\n\t\ttargets: [{\n\t\t\tdatasource: {\n\t\t\t\ttype: \"loki\"\n\t\t\t\tuid:
+        \ \"loki:local\"\n\t\t\t}\n\t\t\teditorMode:   \"code\"\n\t\t\texpr:         \"topk(10,
+        sum by (message_client) (count_over_time({app=\\\"$appName\\\", appNamespace=\\\"$appNamespace\\\"}
+        | json | message_client != \\\"\\\"  __error__=\\\"\\\" [$__interval])))\"\n\t\t\tlegendFormat:
+        \"{{message_client}}\"\n\t\t\tqueryType:    \"range\"\n\t\t\trefId:        \"A\"\n\t\t}]\n\t\ttitle:
+        \"Top IPs\"\n\t\ttransformations: [{\n\t\t\tid: \"reduce\"\n\t\t\toptions:
+        reducers: [\n\t\t\t\t\"sum\",\n\t\t\t]\n\t\t}, {\n\t\t\tid: \"organize\"\n\t\t\toptions:
+        {\n\t\t\t\texcludeByName: Field: false\n\t\t\t\tindexByName: {}\n\t\t\t\trenameByName:
+        {\n\t\t\t\t\tField: \"IP Address\"\n\t\t\t\t\tTotal: \"Requests\"\n\t\t\t\t}\n\t\t\t}\n\t\t}]\n\t\ttype:
+        \"table\"\n\t}]\n\trefresh:       false\n\tschemaVersion: 36\n\tstyle:         \"dark\"\n\ttags:
+        []\n\ttemplating: list: [{\n\t\tcurrent: {\n\t\t\tselected: false\n\t\t\ttext:
+        \    context.namespace\n\t\t\tvalue:    context.namespace\n\t\t}\n\t\thide:
+        2\n\t\tname: \"appNamespace\"\n\t\toptions: [{\n\t\t\tselected: true\n\t\t\ttext:
+        \    context.namespace\n\t\t\tvalue:    context.namespace\n\t\t}]\n\t\tquery:
+        \      context.namespace\n\t\tskipUrlSync: false\n\t\ttype:        \"textbox\"\n\t},
+        {\n\t\tcurrent: {\n\t\t\tselected: false\n\t\t\ttext:     context.appName\n\t\t\tvalue:
+        \   context.appName\n\t\t}\n\t\thide: 2\n\t\tname: \"appName\"\n\t\toptions:
+        [{\n\t\t\tselected: true\n\t\t\ttext:     context.appName\n\t\t\tvalue:    context.appName\n\t\t}]\n\t\tquery:
+        \      context.appName\n\t\tskipUrlSync: false\n\t\ttype:        \"textbox\"\n\t},
+        {\n\t\tcurrent: {\n\t\t\tselected: false\n\t\t\ttext:     \"loki:local\"\n\t\t\tvalue:
+        \   \"loki:local\"\n\t\t}\n\t\thide:       2\n\t\tincludeAll: false\n\t\tmulti:
+        \     false\n\t\tname:       \"logsource\"\n\t\toptions: []\n\t\tquery:       \"loki\"\n\t\trefresh:
+        \    1\n\t\tregex:       \"\"\n\t\tskipUrlSync: false\n\t\ttype:        \"datasource\"\n\t}]\n\ttime:
+        {\n\t\tfrom: \"now-12h\"\n\t\tto:   \"now\"\n\t}\n\ttimepicker: refresh_intervals:
+        [\"10s\", \"30s\", \"1m\", \"5m\", \"15m\", \"30m\", \"1h\", \"2h\", \"1d\"]\n\ttimezone:
+        \ \"\"\n\ttitle:     \"KubeVela application \" + context.appName + \" log
+        analytics\"\n\tuid:       context.appName + \"log-dashboard\"\n\tweekStart:
+        \"\"\n}\n"
+  workloadRefPath: ""
+

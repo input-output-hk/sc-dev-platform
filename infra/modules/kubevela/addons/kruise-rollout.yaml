@@ -1,0 +1,257 @@
+apiVersion: core.oam.dev/v1beta1
+kind: Application
+metadata:
+  annotations:
+    addon.oam.dev/traitDefinitions: rolling-release,kruise-rollout
+    addon.oam.dev/workflowStepDefinitions: canary-deploy
+  creationTimestamp: null
+  labels:
+    addons.oam.dev/name: kruise-rollout
+    addons.oam.dev/registry: KubeVela
+    addons.oam.dev/version: 1.5.1
+  name: addon-kruise-rollout
+  namespace: vela-system
+spec:
+  components:
+  - name: kruise-rollout
+    properties:
+      chart: kruise-rollout
+      repoType: helm
+      url: https://openkruise.github.io/charts/
+      values:
+        replicaCount: 1
+        rollout:
+          webhook:
+            objectSelector:
+            - key: kruise-rollout.oam.dev/webhook
+              operator: Exists
+      version: 0.3.0
+    type: helm
+  policies:
+  - name: deploy-kruise-rollout
+    properties:
+      clusterLabelSelector: {}
+    type: topology
+status: {}
+
+---
+apiVersion: v1
+data:
+  rules: '[{"parentResourceType":{"group":"rollouts.kruise.io","kind":"Rollout"},"childrenResourceType":[{"apiVersion":"rollouts.kruise.io/v1alpha1","kind":"BatchRelease"}]},{"parentResourceType":{"group":"rollouts.kruise.io","kind":"BatchRelease"},"childrenResourceType":[{"apiVersion":"apps/v1","kind":"Deployment"}]}]'
+kind: ConfigMap
+metadata:
+  labels:
+    addons.oam.dev/auxiliary-name: resourceTree
+    addons.oam.dev/name: kruise-rollout
+    addons.oam.dev/version: 1.5.1
+    rules.oam.dev/resource-format: json
+    rules.oam.dev/resources: "true"
+  name: kruise-rollout-relation
+  namespace: vela-system
+
+---
+apiVersion: core.oam.dev/v1beta1
+kind: WorkflowStepDefinition
+metadata:
+  annotations:
+    custom.definition.oam.dev/category: Application Delivery
+    definition.oam.dev/description: A canary rollout step for components multi-cluster
+      delivery with policies.
+  labels:
+    custom.definition.oam.dev/catalog: Delivery
+    custom.definition.oam.dev/scope: Application
+  name: canary-deploy
+  namespace: vela-system
+spec:
+  schematic:
+    cue:
+      template: "import (\n\t\"vela/op\"\n)\n\ndeploy: op.#Deploy & {\n\tif parameter.policies
+        != _|_ {\n\t\tpolicies: parameter.policies\n\t}\n\tparallelism:              5\n\tignoreTerraformComponent:
+        true\n\tinlinePolicies: [{\n\t\ttype: \"override\"\n\t\tname: \"canary\"\n\t\tproperties:
+        {\n\t\t\tif parameter.components != _|_ {\n\t\t\t\tif len(parameter.components)
+        != 0 {\n\t\t\t\t\tselector: parameter.components\n\t\t\t\t}\n\t\t\t}\n\t\t\tcomponents:
+        [{\n\t\t\t\ttraits: [{\n\t\t\t\t\ttype: \"rolling-release\"\n\t\t\t\t\tproperties:
+        {\n\t\t\t\t\t\tweight:      parameter.weight\n\t\t\t\t\t\trolloutType: parameter.rolloutType\n\t\t\t\t\t}\n\t\t\t\t}]\n\t\t\t}]\n\t\t}\n\t}]\n}\nparameter:
+        {\n\t//+usage=Declare the policies that used for this deployment. If not specified,
+        the components will be deployed to the hub cluster.\n\tpolicies?: *[] | [...string]\n\t//+usage=Specify
+        which component(s) to use for the canary rollout. If you do not specify, all
+        components will be affected.\n\tcomponents?: *[] | [...string]\n\t//+usage=Specify
+        the percentage of replicas to update to the new version at each step, as well
+        as the routing of traffic to the new version, e.g., 20, 40...\n\tweight: int\n\t//+usage=Specifies
+        the rollout type. Optional values: \"partition\", \"canary\". If not specify,
+        the rolloutType is partition.\n\trolloutType: *\"partition\" | string\n}\n"
+
+---
+apiVersion: core.oam.dev/v1beta1
+kind: TraitDefinition
+metadata:
+  annotations:
+    definition.oam.dev/description: Rolling workload with specified weight via kruise
+      rollout. It's advisable not to use this trait directly. Instead, if you use
+      the canary-deploy step, this trait will be added implicitly
+  labels: {}
+  name: rolling-release
+  namespace: vela-system
+spec:
+  appliesToWorkloads:
+  - '*'
+  podDisruptive: true
+  schematic:
+    cue:
+      template: "#TrafficRouting: {\n\t// +usage=holds the name of a service which
+        selects pods with stable version and don't select any pods with canary version.
+        Use context.name as service if not filled\n\tservice?:           string\n\tgracePeriodSeconds:
+        *5 | int\n\t// +usage=refers to the ingress as traffic route. Use context.name
+        as service if not filled\n\tingressName?: string\n\t// +usage=refers to the
+        name of an `HTTPRoute` of gateway API.\n\tgatewayHTTPRouteName?: string\n\t//
+        +usage=specify the type of traffic route, can be ingress, gateway or aliyun-alb.\n\ttype:
+        *\"ingress\" | \"gateway\" | \"aliyun-alb\"\n}\n#WorkloadType: {\n\tapiVersion:
+        string\n\tkind:       string\n}\nparameter: {\n\t// +usage=Define the percentage
+        of traffic routing to the new version in each step, e.g., 20, 40...\n\tweight?:
+        int\n\t// +usage=Define the replicas of release to the new version in each
+        step, e.g., 5, 10...\n\treplicas?: int | string\n\t// +usage=Declare whether
+        the rolling reach end\n\tfinal: *false | bool\n\t// +usage=Define the workload
+        for rolling. If not specified, it will be auto detected.\n\tworkloadType?:
+        #WorkloadType\n\t//+usage=Specifies the rollout type. Optional values: \"partition\",
+        \"canary\". If not specify, the rolloutType is partition.\n\trolloutType:
+        *\"partition\" | string\n}\napp: component: {...}\napp: {\n\tfor comp in context.components
+        {\n\t\tif comp.name == context.name {\n\t\t\tcomponent: comp\n\t\t}\n\t}\n}\ntrafficRouting:
+        {\n\ttype?: \"ingress\" | \"gateway\"\n\tif app.component != _|_ {\n\t\tif
+        app.component.traits != _|_ {\n\t\t\tfor t in app.component.traits {\n\t\t\t\tif
+        t.type == \"gateway\" {\n\t\t\t\t\ttype: \"ingress\"\n\t\t\t\t}\n\n\t\t\t\tif
+        t.type == \"http-route\" || t.type == \"https-route\" || t.type == \"tcp-route\"
+        {\n\t\t\t\t\ttype: \"gateway\"\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n}\npatch:
+        metadata: {\n\tannotations: \"app.oam.dev/disable-health-check\": \"true\"\n\tlabels:
+        \"kruise-rollout.oam.dev/webhook\":        \"true\"\n}\noutputs: rollout:
+        {\n\tapiVersion: \"rollouts.kruise.io/v1alpha1\"\n\tkind:       \"Rollout\"\n\tmetadata:
+        {\n\t\tname:      context.name\n\t\tnamespace: context.namespace\n\t\tannotations:
+        {\n\t\t\t\"rollouts.kruise.io/rolling-style\":    parameter.rolloutType\n\t\t\t\"controller.core.oam.dev/skip-resume\":
+        \"true\"\n\t\t}\n\t}\n\tspec: {\n\t\tobjectRef: workloadRef: {\n\t\t\tapiVersion:
+        *context.output.apiVersion | string\n\t\t\tkind:       *context.output.kind
+        | string\n\t\t\tif parameter.workloadType != _|_ {\n\t\t\t\tapiVersion: parameter.workloadType.apiVersion\n\t\t\t\tkind:
+        \      parameter.workloadType.kind\n\t\t\t}\n\t\t\tif parameter.workloadType
+        == _|_ && context.output.kind == \"HelmRepository\" {\n\t\t\t\tapiVersion:
+        \"apps/v1\"\n\t\t\t\tkind:       \"Deployment\"\n\t\t\t}\n\n\t\t\tname: *context.name
+        | string\n\t\t\tif context.output.metadata.name != _|_ {\n\t\t\t\tname: context.output.metadata.name\n\t\t\t}\n\t\t}\n\t\tstrategy:
+        canary: {\n\t\t\tsteps: [{\n\t\t\t\tif parameter.weight != _|_ {\n\t\t\t\t\tweight:
+        parameter.weight\n\t\t\t\t\tpause: {\n\t\t\t\t\t\tif parameter.weight >= 100
+        {\n\t\t\t\t\t\t\tduration: 0\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t\tif
+        parameter.replicas != _|_ {\n\t\t\t\t\treplicas: parameter.replicas\n\t\t\t\t\tpause:
+        {\n\t\t\t\t\t\tif parameter.final {\n\t\t\t\t\t\t\tduration: 0\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}]\n\t\t\tif
+        trafficRouting.type != _|_ {\n\t\t\t\ttrafficRoutings: [{\n\t\t\t\t\tservice:
+        \           *context.name | string\n\t\t\t\t\tgracePeriodSeconds: *5 | int\n\n\t\t\t\t\tif
+        trafficRouting.type == \"ingress\" {\n\t\t\t\t\t\tingress: {\n\t\t\t\t\t\t\tname:
+        \     *context.name | string\n\t\t\t\t\t\t\tclassType: \"nginx\"\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\n\t\t\t\t\tif
+        trafficRouting.type == \"gateway\" {\n\t\t\t\t\t\tgateway: httpRouteName:
+        *context.name | string\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\t]\n\t\t\t}\n\t\t}\n\t}\n}\n"
+  stage: PreDispatch
+  status:
+    customStatus: "message: *\"\" | string\nif context.outputs.rollout.status != _|_
+      && context.outputs.rollout.status.message != _|_ {\n\t\t message: context.outputs.rollout.status.message\n}"
+    healthPolicy: "outdated: *false | bool\nif len(context.outputs.rollout.spec.strategy.canary.steps)
+      < 1 {\n\toutdated: true\n}\nif len(context.outputs.rollout.spec.strategy.canary.steps)
+      >= 1 {\n\tif context.parameter.weight != _|_ {\n\t\tif context.outputs.rollout.spec.strategy.canary.steps[0].weight
+      == _|_ {\n\t\t\toutdated: true\n\t\t}\n\t\tif context.outputs.rollout.spec.strategy.canary.steps[0].weight
+      != _|_ {\n\t\t\tif context.outputs.rollout.spec.strategy.canary.steps[0].weight
+      != context.parameter.weight {\n\t\t\t\toutdated: true\n\t\t\t}\n\t\t}\n\t}\n\tif
+      context.parameter.replicas != _|_ {\n\t\tif context.outputs.rollout.spec.strategy.canary.steps[0].replicas
+      == _|_ {\n\t\t\t\toutdated: true\n\t\t}\n\t\tif context.outputs.rollout.spec.strategy.canary.steps[0].replicas
+      != _|_ {\n\t\t\tif context.outputs.rollout.spec.strategy.canary.steps[0].replicas
+      != context.parameter.replicas {\n\t\t\t\t\toutdated: true\n\t\t\t}\n\t\t}\n\t}\n}\nisHealth:
+      *false | bool\nif context.outputs.rollout.status.phase == \"Healthy\" {\n\tif
+      !outdated {\n\t\t\tisHealth: true\n\t}\n}\nif context.outputs.rollout.status.phase
+      != \"Healthy\" {\n\tif context.outputs.rollout.status.canaryStatus != _|_ {\n\t\tif
+      !outdated {\n\t\t\t\tisHealth: context.outputs.rollout.status.canaryStatus.currentStepState
+      == \"StepPaused\"\n\t\t\t}\n\t}\n}"
+
+---
+apiVersion: core.oam.dev/v1beta1
+kind: TraitDefinition
+metadata:
+  annotations:
+    definition.oam.dev/description: Rollout workload by kruise controller.
+  labels: {}
+  name: kruise-rollout
+  namespace: vela-system
+spec:
+  appliesToWorkloads:
+  - '*'
+  podDisruptive: true
+  schematic:
+    cue:
+      template: "#CanaryStep: {\n\t// +usage=Define the percentage of traffic routing
+        to the new version in each step, e.g., 20%, 40%...\n\tweight?: int\n\t// +usage=Define
+        the replicas of release to the new version in each step, e.g., 5, 10...\n\treplicas?:
+        int | string\n\t// +usage=Define the behavior after release each step, if
+        not filled, the default requires manual determination. If filled, it indicates
+        the time to wait in seconds, e.g., 60\n\tduration?: int\n\t// +usage=Define
+        the Header/Cookie rules for the canary traffic in current step.\n\tmatches?:
+        [...#HttpRouteMatch]\n}\n#HttpRouteMatch: {\n\t// +usage=\n\theaders: [...#HTTPHeaderMatch]\n}\n#HTTPHeaderMatch:
+        {\n\tType?: *\"Exact\" | \"RegularExpression\"\n\tName:  string\n\tValue:
+        string\n}\n#TrafficRouting: {\n\t// +usage=holds the name of a service which
+        selects pods with stable version and don't select any pods with canary version.
+        Use context.name as service if not filled\n\tservice?:           string\n\tgracePeriodSeconds:
+        *5 | int\n\t// +usage=refers to the ingress as traffic route. Use context.name
+        as service if not filled\n\tingressName?: string\n\t// +usage=refers to the
+        name of an `HTTPRoute` of gateway API.\n\tgatewayHTTPRouteName?: string\n\t//
+        +usage=specify the type of traffic route, can be ingress or gateway.\n\ttype:
+        *\"ingress\" | \"gateway\" | \"aliyun-alb\"\n}\n#WorkloadType: {\n\tapiVersion:
+        string\n\tkind:       string\n}\nparameter: {\n\t// +usage=If true, a streaming
+        release will be performed, i.e., after the current step is released, subsequent
+        steps will be released without interval\n\tauto: *false | bool\n\t// +usage=Defines
+        the rolling style of Deployment, cloud be \"canary\" or \"batch\"\n\treleaseMode?:
+        *\"canary\" | \"batch\"\n\tcanary: {\n\t\t// +usage=Defines the entire rollout
+        process in steps\n\t\tsteps: [...#CanaryStep]\n\t\t// +usage=Define traffic
+        routing related service, ingress information\n\t\ttrafficRoutings?: [...#TrafficRouting]\n\t}\n\tworkloadType?:
+        #WorkloadType\n\t// *usage=Define the expect step\n\tstepPartition?: int\n}\nsrcName:
+        context.output.metadata.name\noutputs: rollout: {\n\tapiVersion: \"rollouts.kruise.io/v1alpha1\"\n\tkind:
+        \      \"Rollout\"\n\tmetadata: {\n\t\tname:      context.name\n\t\tnamespace:
+        context.namespace\n\t\tif parameter.releaseMode != _|_ {\n\t\t\tif parameter.releaseMode
+        == \"batch\" {\n\t\t\t\tannotations: \"rollouts.kruise.io/rolling-style\":
+        \"partition\"\n\t\t\t}\n\t\t}\n\t}\n\tspec: {\n\t\tobjectRef: workloadRef:
+        {\n\t\t\tif parameter[\"workloadType\"] != _|_ {\n\t\t\t\tapiVersion: parameter[\"workloadType\"].apiVersion\n\t\t\t}\n\t\t\tif
+        parameter[\"workloadType\"] == _|_ {\n\t\t\t\tif context.output.kind == \"HelmRepository\"
+        {\n\t\t\t\t\tapiVersion: \"apps/v1\"\n\t\t\t\t}\n\t\t\t\tif context.output.kind
+        != \"HelmRepository\" {\n\t\t\t\t\tapiVersion: context.output.apiVersion\n\t\t\t\t}\n\n\t\t\t}\n\t\t\tif
+        parameter[\"workloadType\"] != _|_ {\n\t\t\t\tkind: parameter[\"workloadType\"].kind\n\t\t\t}\n\t\t\tif
+        parameter[\"workloadType\"] == _|_ {\n\t\t\t\tif context.output.kind == \"HelmRepository\"
+        {\n\t\t\t\t\tkind: \"Deployment\"\n\t\t\t\t}\n\t\t\t\tif context.output.kind
+        != \"HelmRepository\" {\n\t\t\t\t\tkind: context.output.kind\n\t\t\t\t}\n\t\t\t}\n\t\t\tif
+        srcName != _|_ {\n\t\t\t\tname: srcName\n\t\t\t}\n\t\t\tif srcName == _|_
+        {\n\t\t\t\tname: context.name\n\t\t\t}\n\t\t}\n\t\tstrategy: canary: {\n\t\t\tsteps:
+        [\n\t\t\t\tfor k, v in parameter.canary.steps {\n\t\t\t\t\tif v.weight !=
+        _|_ {\n\t\t\t\t\t\tweight: v.weight\n\t\t\t\t\t}\n\n\t\t\t\t\tif v.replicas
+        != _|_ {\n\t\t\t\t\t\treplicas: v.replicas\n\t\t\t\t\t}\n\n\t\t\t\t\tif v.matches
+        != _|_ {\n\t\t\t\t\t\tmatches: [\n\t\t\t\t\t\t\tfor _, match in v.matches
+        {\n\t\t\t\t\t\t\t\theaders: [\n\t\t\t\t\t\t\t\t\tfor _, header in match.headers
+        {\n\t\t\t\t\t\t\t\t\t\ttype:  header.type\n\t\t\t\t\t\t\t\t\t\tname:  header.name\n\t\t\t\t\t\t\t\t\t\tvalue:
+        header.value\n\t\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t]\n\t\t\t\t\t\t\t},\n\t\t\t\t\t\t]\n\t\t\t\t\t}\n\n\t\t\t\t\tpause:
+        {\n\t\t\t\t\t\tif parameter.auto {\n\t\t\t\t\t\t\tduration: 0\n\t\t\t\t\t\t}\n\t\t\t\t\t\tif
+        parameter.stepPartition != _|_ {\n\t\t\t\t\t\t\tif k <= parameter.stepPartition-1
+        {\n\t\t\t\t\t\t\t\tduration: 0\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t}\n\t\t\t\t\t\tif
+        !parameter.auto && v.duration != _|_ && parameter.stepPartition == _|_ {\n\t\t\t\t\t\t\tduration:
+        v.duration\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t]\n\t\t\tif parameter.canary.trafficRoutings
+        != _|_ {\n\t\t\t\ttrafficRoutings: [\n\t\t\t\t\tfor routing in parameter.canary.trafficRoutings
+        {\n\t\t\t\t\t\tif routing.service != _|_ {\n\t\t\t\t\t\t\tservice: routing.service\n\t\t\t\t\t\t}\n\t\t\t\t\t\tif
+        routing.service == _|_ {\n\t\t\t\t\t\t\tservice: context.name\n\t\t\t\t\t\t}\n\t\t\t\t\t\tgracePeriodSeconds:
+        routing.gracePeriodSeconds\n\n\t\t\t\t\t\tif routing.type == \"ingress\" {\n\t\t\t\t\t\t\tif
+        routing.ingressName != _|_ {\n\t\t\t\t\t\t\t\tingress: name: routing.ingressName\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\tif
+        routing.ingressName == _|_ {\n\t\t\t\t\t\t\t\tingress: name: context.name\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t}\n\n\t\t\t\t\t\tif
+        routing.type == \"gateway\" {\n\t\t\t\t\t\t\tif routing.gatewayHTTPRouteName
+        != _|_ {\n\t\t\t\t\t\t\t\tgateway: httpRouteName: routing.gatewayHTTPRouteName\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\tif
+        routing.gatewayHTTPRouteName == _|_ {\n\t\t\t\t\t\t\t\tgateway: httpRouteName:
+        context.name\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t}\n\t\t\t\t\t},\n\t\t\t\t]\n\t\t\t}\n\t\t}\n\t}\n}\n"
+  status:
+    customStatus: 'message: context.outputs.rollout.status.message'
+    healthPolicy: 'isHealth: context.outputs.rollout.status.phase == "Healthy"'
+
+---
+apiVersion: v1
+data:
+  ui-schema: '[{"jsonKey":"policies","sort":50,"uiType":"PolicySelect"},{"jsonKey":"components","sort":30,"uiType":"ComponentSelect"},{"jsonKey":"weight","sort":10}]'
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: workflowstep-uischema-canary-deploy
+  namespace: vela-system
+
