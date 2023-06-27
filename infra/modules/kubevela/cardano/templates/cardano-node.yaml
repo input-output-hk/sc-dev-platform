@@ -1,24 +1,27 @@
-{{- range .Values.networks }}
+{{- range $index, $network := .Values.networks }}
 ---
 apiVersion: core.oam.dev/v1beta1
 kind: Application
 metadata:
-  name: cardano-node-{{ . }}
+  name: cardano-node-{{ $network }}
   namespace: vela-system
 spec:
   components:
-  - name: cardano-node-{{ . }}
+  - name: cardano-node-{{ $network }}
     type: webservice
     properties:
       cpu: "1"
+      {{ if eq $network "mainnet" }}
       memory: 16Gi
+      {{ else }}
+      memory: 8Gi
+      {{ end }}
       env:
       - name: NETWORK
-        value: {{ . }}
+        value: {{ $network }}
       exposeType: ClusterIP
       image: inputoutput/cardano-node
       imagePullPolicy: Always
-      memory: 1024Mi
       ports:
       - expose: true
         port: 8090
@@ -41,7 +44,7 @@ spec:
     - type: storage
       properties:
         pvc:
-        - name: node-data-{{ . }}
+        - name: node-data-{{ $network }}
           mountPath: /data
           storageClassName: ebs-sc
           resources:
