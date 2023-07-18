@@ -23,7 +23,7 @@ RUN cp /tmp/build/.nix-profile/bin/$ENTRYPOINT_BIN_NAME /tmp/build/entrypoint
 # but they're fully self-contained so we don't need Nix anymore.
 FROM scratch
 
-WORKDIR /app
+WORKDIR /tmp
 
 # Copy /nix/store
 COPY --from=builder /tmp/nix-store-closure /nix/store
