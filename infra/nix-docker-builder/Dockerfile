@@ -1,7 +1,7 @@
 # Nix builder
 FROM nixos/nix:latest AS builder
 ARG ENTRYPOINT_BIN_NAME=bash
-ARG INCLUDED_FLAKE_URIs
+ARG INCLUDED_FLAKE_URIS
 
 WORKDIR /tmp/build
 
