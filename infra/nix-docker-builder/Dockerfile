@@ -24,10 +24,10 @@ RUN rm -fR /nix
 # but they're fully self-contained so we don't need Nix anymore.
 FROM scratch
 
-WORKDIR /workspace/tmp
+WORKDIR /
 
 # Copy /nix/store
 COPY --from=builder /workspace/tmp/nix-store-closure /nix/store
 COPY --from=builder /workspace/tmp/build/.nix-profile /
 COPY --from=builder /workspace/tmp/build/entrypoint /entrypoint
-CMD ["/entrypoint"]
+ENTRYPOINT ["/entrypoint"]
