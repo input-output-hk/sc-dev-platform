@@ -10,7 +10,7 @@ RUN HOME=/workspace/tmp/build nix \
     --extra-experimental-features "nix-command flakes" \
     --option filter-syscalls false \
     --accept-flake-config \
-    profile install $INCLUDED_FLAKE_URIS nixpkgs\#bash
+    profile install $INCLUDED_FLAKE_URIS nixpkgs\#bash nixpkgs\#coreutils
 
 
 # Copy the Nix store closure into a directory. The Nix store closure is the
@@ -18,16 +18,18 @@ RUN HOME=/workspace/tmp/build nix \
 RUN mkdir -p /workspace/tmp/nix-store-closure
 RUN cp -R $(nix-store -qR /workspace/tmp/build/.nix-profile) /workspace/tmp/nix-store-closure
 RUN cp /workspace/tmp/build/.nix-profile/bin/$ENTRYPOINT_BIN_NAME /workspace/tmp/build/entrypoint
+RUN ln -s $(readlink -f /workspace/tmp/build/.nix-profile) /workspace/tmp/nix-profile
 RUN rm -fR /nix
 
 # Final image is based on scratch. We copy a bunch of Nix dependencies
 # but they're fully self-contained so we don't need Nix anymore.
 FROM scratch
 
-WORKDIR /
+WORKDIR /tmp
 
 # Copy /nix/store
 COPY --from=builder /workspace/tmp/nix-store-closure /nix/store
-COPY --from=builder /workspace/tmp/build/.nix-profile /
+COPY --from=builder /workspace/tmp/nix-profile /
 COPY --from=builder /workspace/tmp/build/entrypoint /entrypoint
+ENV PATH=/nix-profile/bin
 ENTRYPOINT ["/entrypoint"]
