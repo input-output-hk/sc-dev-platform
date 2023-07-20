@@ -16,8 +16,8 @@ RUN HOME=/workspace/tmp/build nix \
 # Copy the Nix store closure into a directory. The Nix store closure is the
 # entire set of Nix store values that we need for our build.
 RUN mkdir -p /workspace/tmp/nix-store-closure
-RUN cp -R $(nix-store -qR /tmp/build/.nix-profile) /workspace/tmp/nix-store-closure
-RUN cp /tmp/build/.nix-profile/bin/$ENTRYPOINT_BIN_NAME /workspace/tmp/build/entrypoint
+RUN cp -R $(nix-store -qR /workspace/tmp/build/.nix-profile) /workspace/tmp/nix-store-closure
+RUN cp /workspace/tmp/build/.nix-profile/bin/$ENTRYPOINT_BIN_NAME /workspace/tmp/build/entrypoint
 RUN rm -fR /nix
 
 # Final image is based on scratch. We copy a bunch of Nix dependencies
