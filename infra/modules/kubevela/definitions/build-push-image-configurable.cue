@@ -48,6 +48,9 @@ template: {
 							if parameter.buildArgs != _|_ for arg in parameter.buildArgs {
 								"--build-arg=\(arg)"
 							},
+							if parameter.singleSnapshot {
+								"--single-snapshot"
+							},
 						]
 						image: parameter.kanikoExecutor
 						if parameter.requests != _|_ && parameter.requests.ephemeralStorage != _|_ {
@@ -166,6 +169,8 @@ template: {
 			// +usage=Request a specified storage size
 			ephemeralStorage?: string
 		}
+		// +usage=Set the --single-snapshot flag https://github.com/GoogleContainerTools/kaniko#flag---single-snapshot
+		singleSnapshot: *false | true
 		// +usage=Specify the verbosity level
 		verbosity: *"info" | "panic" | "fatal" | "error" | "warn" | "debug" | "trace"
 	}
