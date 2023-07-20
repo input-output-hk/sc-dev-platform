@@ -18,8 +18,6 @@ RUN HOME=/tmp/build nix \
 RUN mkdir /tmp/nix-store-closure
 RUN cp -R $(nix-store -qR /tmp/build/.nix-profile) /tmp/nix-store-closure
 RUN cp /tmp/build/.nix-profile/bin/$ENTRYPOINT_BIN_NAME /tmp/build/entrypoint
-RUN mv /tmp/build/.nix-profile /tmp/build/nix-profile
-RUN HOME=/tmp/build nix-collect-garbage -d
 
 # Final image is based on scratch. We copy a bunch of Nix dependencies
 # but they're fully self-contained so we don't need Nix anymore.
@@ -29,6 +27,6 @@ WORKDIR /tmp
 
 # Copy /nix/store
 COPY --from=builder /tmp/nix-store-closure /nix/store
-COPY --from=builder /tmp/build/nix-profile /
+COPY --from=builder /tmp/build/.nix-profile /
 COPY --from=builder /tmp/build/entrypoint /entrypoint
 CMD ["/entrypoint"]
