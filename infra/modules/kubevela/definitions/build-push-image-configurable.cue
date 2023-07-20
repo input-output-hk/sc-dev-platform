@@ -42,6 +42,7 @@ template: {
 							"--context=\(url.value)",
 							"--destination=\(parameter.image)",
 							"--verbosity=\(parameter.verbosity)",
+							"--snapshot-mode=\(parameter.snapshotMode)",
 							if parameter.platform != _|_ {
 								"--customPlatform=\(parameter.platform)"
 							},
@@ -171,6 +172,8 @@ template: {
 		}
 		// +usage=Set the --single-snapshot flag https://github.com/GoogleContainerTools/kaniko#flag---single-snapshot
 		singleSnapshot: *false | true
+		// +usage=Set the --snapshot-mode flag https://github.com/GoogleContainerTools/kaniko#flag---single-snaphot-mode
+		snapshotMode: *"full" | "redo" | "time"
 		// +usage=Specify the verbosity level
 		verbosity: *"info" | "panic" | "fatal" | "error" | "warn" | "debug" | "trace"
 	}
