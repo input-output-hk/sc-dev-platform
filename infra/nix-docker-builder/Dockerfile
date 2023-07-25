@@ -32,7 +32,6 @@ WORKDIR /tmp
 
 # Copy /nix/store
 COPY --from=builder /workspace/tmp/nix-store-closure /nix/store
-COPY --from=builder /workspace/tmp/root/bin /
-COPY --from=builder /workspace/tmp/root/etc /
+COPY --from=builder /workspace/tmp/root /
 COPY --from=builder /workspace/tmp/build/entrypoint /entrypoint
 ENTRYPOINT ["/entrypoint"]
