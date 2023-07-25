@@ -18,7 +18,10 @@ RUN HOME=/workspace/tmp/build nix \
 RUN mkdir -p /workspace/tmp/nix-store-closure
 RUN cp -R $(nix-store -qR /workspace/tmp/build/.nix-profile) /workspace/tmp/nix-store-closure
 RUN cp /workspace/tmp/build/.nix-profile/bin/$ENTRYPOINT_BIN_NAME /workspace/tmp/build/entrypoint
-RUN ln -s $(readlink -f /workspace/tmp/build/.nix-profile) /workspace/tmp/nix-profile
+RUN mkdir -p /workspace/tmp/root/etc
+RUN cp -a /workspace/tmp/build/.nix-profile/bin /workspace/tmp/root/bin
+# /etc may be a symlink in the nix profile, but can't be on the image filesystem (the runtime needs to set up e.g. resolv.conf)
+RUN cp -a /workspace/tmp/build/.nix-profile/etc/* /workspace/tmp/root/etc
 RUN rm -fR /nix
 
 # Final image is based on scratch. We copy a bunch of Nix dependencies
@@ -29,7 +32,7 @@ WORKDIR /tmp
 
 # Copy /nix/store
 COPY --from=builder /workspace/tmp/nix-store-closure /nix/store
-COPY --from=builder /workspace/tmp/nix-profile /
+COPY --from=builder /workspace/tmp/root/bin /
+COPY --from=builder /workspace/tmp/root/etc /
 COPY --from=builder /workspace/tmp/build/entrypoint /entrypoint
-ENV PATH=/nix-profile/bin
 ENTRYPOINT ["/entrypoint"]
