@@ -77,6 +77,30 @@ resource "kubectl_manifest" "traitdefinition_resource" {
   })
 }
 
+resource "kubectl_manifest" "workflowtdefinition_build_nix_image" {
+  force_new = true
+  yaml_body = yamlencode({
+    "apiVersion" = "core.oam.dev/v1beta1"
+    "kind" = "WorkflowStepDefinition"
+    "metadata" = {
+      "annotations" = {
+        "custom.definition.oam.dev/category" = "CI Integration"
+        "definition.oam.dev/alias" = ""
+        "definition.oam.dev/description" = "Build and push image with nix flake URIs"
+      }
+      "name" = "build-nix-image"
+      "namespace" = var.namespace
+    }
+    "spec" = {
+      "schematic" = {
+        "cue" = {
+          "template" = file("${path.module}/definitions/build-nix-image.cue")
+        }
+      }
+    }
+  })
+}
+
 
 resource "kubectl_manifest" "componentdefinition_helmrelease" {
   force_new = true

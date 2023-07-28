@@ -43,6 +43,8 @@ template: {
 							"--destination=\(parameter.image)",
 							"--verbosity=\(parameter.verbosity)",
 							"--snapshot-mode=\(parameter.snapshotMode)",
+							"--build-arg=INCLUDED_FLAKE_URIS=\(strings.Join(parameter.includedFlakeURIs, " "))",
+							"--build-arg=ENTRYPOINT_BIN_NAME=\(parameter.entrypointBinName)",
 							if parameter.platform != _|_ {
 								"--customPlatform=\(parameter.platform)"
 							},
@@ -132,8 +134,8 @@ template: {
 		key:  string
 	}
 	#git: {
-		git:    string
-		branch: *"master" | string
+		git:    *"github.com/input-output-hk/sc-dev-platform" | string
+		branch: *"init-infra" | string
 	}
 	parameter: {
 		// +usage=Specify the kaniko executor image, default to oamdev/kaniko-executor:v1.9.1
@@ -141,9 +143,13 @@ template: {
 		// +usage=Specify the context to build image, you can use context with git and branch or directly specify the context, please refer to https://github.com/GoogleContainerTools/kaniko#kaniko-build-contexts
 		context: #git | string
 		// +usage=Specify the dockerfile
-		dockerfile: *"./Dockerfile" | string
+		dockerfile: *"./infra/nix-docker-builder/Dockerfile" | string
 		// +usage=Specify the image
 		image: string
+		// +usage=Specify list of flake reference uris to include in image
+		includedFlakeURIs: [...string]
+		// +usage=Specify name of file in /bin in the profile to select as entrypoint
+		entrypointBinName: *"bash" | string
 		// +usage=Specify the platform to build
 		platform?: string
 		// +usage=Specify the build args
@@ -160,7 +166,7 @@ template: {
 			// +usage=Specify the credentials to access image registry
 			image?: {
 				// +usage=Specify the secret name
-				name: string
+				name: *"iohk-ghcr-creds" | string
 				// +usage=Specify the secret key
 				key: *".dockerconfigjson" | string
 			}
@@ -171,9 +177,9 @@ template: {
 			ephemeralStorage?: string
 		}
 		// +usage=Set the --single-snapshot flag https://github.com/GoogleContainerTools/kaniko#flag---single-snapshot
-		singleSnapshot: *false | true
+		singleSnapshot: *true | false
 		// +usage=Set the --snapshot-mode flag https://github.com/GoogleContainerTools/kaniko#flag---single-snaphot-mode
-		snapshotMode: *"full" | "redo" | "time"
+		snapshotMode: *"redo" | "full" | "time"
 		// +usage=Specify the verbosity level
 		verbosity: *"info" | "panic" | "fatal" | "error" | "warn" | "debug" | "trace"
 	}
