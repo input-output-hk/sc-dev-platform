@@ -65,23 +65,21 @@ kaniko: op.#Apply & {
 					}
 				},
 			]
-			if parameter.credentials != _|_ && parameter.credentials.image != _|_ {
-				volumes: [
-					{
-						name: parameter.credentials.image.name
-						secret: {
-							defaultMode: 420
-							items: [
-								{
-									key:  parameter.credentials.image.key
-									path: "config.json"
-								},
-							]
-							secretName: parameter.credentials.image.name
-						}
-					},
-				]
-			}
+			volumes: [
+				{
+					name: parameter.credentials.image.name
+					secret: {
+						defaultMode: 420
+						items: [
+							{
+								key:  parameter.credentials.image.key
+								path: "config.json"
+							},
+						]
+						secretName: parameter.credentials.image.name
+					}
+				},
+			]
 			restartPolicy: "Never"
 		}
 	}
