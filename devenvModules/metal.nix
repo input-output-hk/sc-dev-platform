@@ -1,7 +1,7 @@
 { pkgs, ... }:
 {
   packages = with pkgs; [
-    awscli2
+    awscli
     sops
     terraform
     terragrunt

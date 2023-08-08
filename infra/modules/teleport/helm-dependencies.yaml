@@ -1,0 +1,10 @@
+apiVersion: v2
+name: Handle helm chart dependencies update
+version: 1.0.0
+dependencies:
+  - name: teleport-cluster
+    version: "11.1.2"
+    repository: "https://charts.releases.teleport.dev/"
+  - name: teleport-kube-agent
+    version: "11.1.2"
+    repository: "https://charts.releases.teleport.dev/"

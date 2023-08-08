@@ -3,4 +3,18 @@
 *.log
 tmp/
 
+# devshell
 .devenv
+.direnv
+.envrc.local
+
+# hashicorp/terraform
+.terraform*
+config.tf.json
+*.plan
+*.tfstate
+*.tfstate.backup
+*.tfvars
+
+# Terragrunt
+.terragrunt-cache

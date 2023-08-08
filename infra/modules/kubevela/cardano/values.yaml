@@ -1,0 +1,4 @@
+networks:
+  - mainnet
+  - preprod
+  - preview
