@@ -10,7 +10,11 @@ spec:
   - name: cardano-node-{{ $network }}
     type: webservice
     properties:
+      {{ if eq $network "mainnet" }}
+      cpu: "2"
+      {{ else }}
       cpu: "1"
+      {{ end}} 
       {{ if eq $network "mainnet" }}
       memory: 16Gi
       {{ else }}
