@@ -56,6 +56,7 @@ terraform {
 include {
   path = find_in_parent_folders()
 }
+
 # VPC as dependency
 dependency "vpc" {
   config_path = "../../vpc"
