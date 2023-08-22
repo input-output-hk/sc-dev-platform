@@ -22,7 +22,7 @@ RUN cp -a /workspace/tmp/build/.nix-profile/bin /workspace/tmp/root/bin
 # /etc may be a symlink in the nix profile, but can't be on the image filesystem (the runtime needs to set up e.g. resolv.conf)
 RUN mkdir -p /workspace/tmp/root/etc
 RUN cp -a /workspace/tmp/build/.nix-profile/etc/* /workspace/tmp/root/etc
-RUN cp -a /workspace/tmp/build/.nix-profile /workspace/tmp/root/profile
+RUN cp -a $(readlink -f /workspace/tmp/build/.nix-profile) /workspace/tmp/root/profile
 RUN rm -fR /nix
 
 # Final image is based on scratch. We copy a bunch of Nix dependencies
