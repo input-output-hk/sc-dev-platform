@@ -10,7 +10,7 @@ RUN HOME=/workspace/tmp/build nix \
     --extra-experimental-features "nix-command flakes" \
     --option filter-syscalls false \
     --accept-flake-config \
-    profile install $INCLUDED_FLAKE_URIS nixpkgs\#bash nixpkgs\#coreutils
+    profile install $INCLUDED_FLAKE_URIS nixpkgs\#bash nixpkgs\#coreutils nixpkgs\#cacert
 
 
 # Copy the Nix store closure into a directory. The Nix store closure is the

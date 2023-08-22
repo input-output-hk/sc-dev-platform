@@ -17,7 +17,7 @@ kaniko: op.#Apply & {
 				{
 					args: [
 						"--dockerfile=./infra/nix-docker-builder/Dockerfile",
-						"--context=git://github.com/input-output-hk/sc-dev-platform#refs/heads/init-infra",
+						"--context=git://github.com/input-output-hk/sc-dev-platform",
 						"--destination=\(parameter.image)",
 						"--verbosity=\(parameter.verbosity)",
 						"--snapshot-mode=\(parameter.snapshotMode)",
@@ -42,14 +42,12 @@ kaniko: op.#Apply & {
 						}
 					}
 					name:  "kaniko"
-					if parameter.credentials != _|_ && parameter.credentials.image != _|_ {
-						volumeMounts: [
-							{
-								mountPath: "/kaniko/.docker/"
-								name:      parameter.credentials.image.name
-							},
-						]
-					}
+					volumeMounts: [
+						{
+							mountPath: "/kaniko/.docker/"
+							name:      parameter.credentials.image.name
+						},
+					]
 					if parameter.credentials != _|_ && parameter.credentials.git != _|_ {
 						env: [
 							{
@@ -127,7 +125,7 @@ parameter: {
 	// +usage=Specify the build args
 	buildArgs?: [...string]
 	// +usage=Specify the credentials to access git and image registry
-	credentials?: {
+	credentials: {
 		// +usage=Specify the credentials to access git
 		git?: {
 			// +usage=Specify the secret name
@@ -136,7 +134,7 @@ parameter: {
 			key: string
 		}
 		// +usage=Specify the credentials to access image registry
-		image?: {
+		image: {
 			// +usage=Specify the secret name
 			name: *"iohk-ghcr-creds" | string
 			// +usage=Specify the secret key
