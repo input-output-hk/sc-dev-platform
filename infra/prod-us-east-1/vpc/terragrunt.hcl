@@ -12,7 +12,7 @@ locals {
 # Terragrunt will copy the Terraform configurations specified by the source parameter, along with any files in the
 # working directory, into a temporary folder, and execute your Terraform commands in that folder.
 terraform {
-  source = "git::https://github.com/terraform-aws-modules/terraform-aws-vpc.git//.?ref=tags/v3.14.4"
+  source = "git::https://github.com/terraform-aws-modules/terraform-aws-vpc.git//.?ref=v5.1.1"
 }
 
 # Include all settings from the root terragrunt.hcl file
@@ -46,6 +46,11 @@ inputs = {
     "kubernetes.io/cluster/${local.name}" = "shared"
     "kubernetes.io/role/internal-elb"     = 1
   }
+
+  map_public_ip_on_launch       = true
+  manage_default_network_acl    = false
+  manage_default_route_table    = false
+  manage_default_security_group = false
 
   tags = {
     Terraform   = "true"

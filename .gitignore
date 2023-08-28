@@ -18,3 +18,7 @@ config.tf.json
 
 # Terragrunt
 .terragrunt-cache
+
+# others
+*.pem
+*.key
