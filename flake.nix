@@ -35,6 +35,7 @@
             }
             ({ pkgs, lib, ... }: {
               environment.systemPackages = [ pkgs.git ];
+              # Remove when more actions have node 20 support
               nixpkgs.config.permittedInsecurePackages = [
                 "nodejs-16.20.2"
               ];
@@ -57,6 +58,7 @@
                 name = "plutus-benchmark";
                 tokenFile = "/root/runner-pat";
                 url = "https://github.com/input-output-hk/plutus";
+                nodeRuntimes = [ "node16" "node20" ];
               };
             })
           ];
