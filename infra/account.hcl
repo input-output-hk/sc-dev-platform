@@ -10,11 +10,10 @@ locals {
   # Allow users to access k8s over aws_auth config
   users = [
     # SRE
-    "parthiv.seetharaman",
     "olaniyi.oshunbote",
     "shea.levy",
+    "daniel.thagard",
     # TODO: Would be nice to autogenerate these
-    "vault-github-employees-Pacman99-admin-1675712570-y1IsbWJvNsTo2S1",
     "vault-github-employees-shlevy-admin-1675276763-1Llx839PFwXnsKIBx",
   ]
   domain = "dapps.aws.iohkdev.io"
