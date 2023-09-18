@@ -23,7 +23,6 @@ include {
   path = find_in_parent_folders()
 }
 
-
 inputs = {
   description   = "EKS Secret Encryption Key for ${local.name}"
   alias         = "${local.name}_secret_encryption"
