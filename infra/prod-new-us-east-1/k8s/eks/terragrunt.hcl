@@ -16,6 +16,10 @@ locals {
   name           = "${local.project}-${local.env}-${local.region}"
   kubeconfigPath = "${get_parent_terragrunt_dir()}/kubeconfig-${local.name}"
 
+  list_users = [for user in local.users :
+     "arn:aws:iam::${local.aws_account_id}:user/${user}"
+  ]
+
   map_users = [for user in local.users : {
     userarn  = "arn:aws:iam::${local.aws_account_id}:user/${user}"
     username = user
@@ -275,6 +279,8 @@ inputs = {
   }
   # aws-auth configmap
   manage_aws_auth_configmap = false
+
+  kms_key_owners = local.list_users
 
   aws_auth_users = local.map_users
 
