@@ -17,7 +17,7 @@ locals {
   kubeconfigPath = "${get_parent_terragrunt_dir()}/kubeconfig-${local.name}"
 
   list_users = [for user in local.users :
-     "arn:aws:iam::${local.aws_account_id}:user/${user}"
+    "arn:aws:iam::${local.aws_account_id}:user/${user}"
   ]
 
   map_users = [for user in local.users : {
@@ -75,7 +75,7 @@ generate = local.k8s.generate
 
 # These are the variables we have to pass in to use the module specified in the terragrunt configuration above
 inputs = {
-  cluster_name    = local.name
+  cluster_name     = local.name
   k8s-cluster-name = local.name # For provider block
 
   cluster_version = "1.26"
@@ -182,17 +182,17 @@ inputs = {
 
   #EKS managed node groups
   eks_managed_node_group_defaults = {
-    tags                         = merge(local.tags, local.asg_tags)
-    desired_size                 = 4
-    min_size                     = 1
-    max_size                     = 20
-    capacity_type                = "ON_DEMAND"
-    platform                     = "bottlerocket"
-    ami_release_version          = "1.14.3-764e37e4"
+    tags                = merge(local.tags, local.asg_tags)
+    desired_size        = 4
+    min_size            = 1
+    max_size            = 20
+    capacity_type       = "ON_DEMAND"
+    platform            = "bottlerocket"
+    ami_release_version = "1.14.3-764e37e4"
     iam_role_additional_policies = {
       AmazonSSMManagedInstanceCore = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
     }
-    ebs_optimized                = true
+    ebs_optimized = true
     update_config = {
       max_unavailable_percentage = 33
     }
@@ -278,9 +278,11 @@ inputs = {
 
   }
   # aws-auth configmap
-  manage_aws_auth_configmap = false
+  manage_aws_auth_configmap = true
+  create_aws_auth_configmap = true
 
-  kms_key_owners = local.list_users
+  kms_key_owners         = local.list_users
+  kms_key_administrators = local.list_users
 
   aws_auth_users = local.map_users
 
