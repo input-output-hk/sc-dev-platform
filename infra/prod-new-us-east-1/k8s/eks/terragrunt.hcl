@@ -279,7 +279,6 @@ inputs = {
   }
   # aws-auth configmap
   manage_aws_auth_configmap = true
-  create_aws_auth_configmap = true
 
   kms_key_owners         = local.list_users
   kms_key_administrators = local.list_users
