@@ -1,5 +1,5 @@
 include {
-  path = "${find_in_parent_folders()}"
+  path = find_in_parent_folders()
 }
 
 terraform {
@@ -8,8 +8,8 @@ terraform {
 
 locals {
   # Set kubernetes based providers
-  k8s = read_terragrunt_config("${get_parent_terragrunt_dir()}/provider-configs/k8s.hcl")
-  helm = read_terragrunt_config("${get_parent_terragrunt_dir()}/provider-configs/helm.hcl")
+  k8s     = read_terragrunt_config("${get_parent_terragrunt_dir()}/provider-configs/k8s.hcl")
+  helm    = read_terragrunt_config("${get_parent_terragrunt_dir()}/provider-configs/helm.hcl")
   kubectl = read_terragrunt_config("${get_parent_terragrunt_dir()}/provider-configs/kubectl.hcl")
 
   # Automatically load environment-level variables
@@ -45,12 +45,12 @@ dependency "vpc" {
 
 inputs = {
 
-  cluster-name = dependency.eks.outputs.cluster_name
+  cluster-name     = dependency.eks.outputs.cluster_name
   k8s-cluster-name = dependency.eks.outputs.cluster_name
 
   eks = {
     "cluster_oidc_issuer_url" = dependency.eks.outputs.cluster_oidc_issuer_url
-    "oidc_provider_arn"  = dependency.eks.outputs.oidc_provider_arn
+    "oidc_provider_arn"       = dependency.eks.outputs.oidc_provider_arn
   }
 
   aws-load-balancer-controller = {
@@ -77,23 +77,23 @@ inputs = {
       enabled      = true
       extra_values = <<-EXTRA_VALUES
         domainFilters:
-         - scdev.aws.iohkdev.io
-         - play.marlowe.iohk.io
+         - scdev-test.aws.iohkdev.io
+         - play-test.marlowe.iohk.io
       EXTRA_VALUES
     }
   }
 
   traefik = {
-    enabled = true
-    extra_values        = <<-EXTRA_VALUES
+    enabled      = true
+    extra_values = <<-EXTRA_VALUES
       image:
         tag: "3.0"
       experimental:
         kubernetesGateway:
-          enabled: true
+          enabled: false
       service:
         annotations:
-          "external-dns.alpha.kubernetes.io/hostname": "*.scdev.aws.iohkdev.io,play.marlowe.iohk.io"
+          "external-dns.alpha.kubernetes.io/hostname": "*.scdev-test.aws.iohkdev.io,play-test.marlowe.iohk.io"
       ports:
         web:
           redirectTo: websecure
@@ -115,9 +115,9 @@ inputs = {
   }
 
   cert-manager = {
-    enabled             = true
-    chart_version       = "v1.9.1"
-    acme_dns01_enabled  = false
+    enabled            = true
+    chart_version      = "v1.9.1"
+    acme_dns01_enabled = false
     # create cluster issuer below so that it is exposed with https
     acme_http01_enabled = false
     extra_values        = <<-EXTRA_VALUES
@@ -131,15 +131,14 @@ inputs = {
     csi_driver          = true
   }
   cert-manager-csi-driver = {
-    chart_version       = "v0.4.2"
+    chart_version = "v0.4.2"
   }
-
 }
 
 generate "letsencrypt_issuer" {
-  path = "letsencrypt_issuer.tf"
+  path      = "letsencrypt_issuer.tf"
   if_exists = "overwrite"
-  contents = <<EOF
+  contents  = <<EOF
     resource "kubectl_manifest" "letsencrypt_issuer" {
       yaml_body = file("${get_terragrunt_dir()}/letsencrypt_issuer.yaml")
     }
@@ -147,9 +146,9 @@ generate "letsencrypt_issuer" {
 }
 
 generate "gateway_crds" {
-  path = "gateway_crds.tf"
+  path      = "gateway_crds.tf"
   if_exists = "overwrite"
-  contents = <<EOF
+  contents  = <<EOF
     resource "kubectl_manifest" "gateway_crds" {
       yaml_body = file("${get_terragrunt_dir()}/gateway_crds.yaml")
     }
