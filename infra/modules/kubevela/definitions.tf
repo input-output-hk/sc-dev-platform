@@ -1,12 +1,12 @@
 resource "kubernetes_manifest" "traitdefinition_https_route" {
   manifest = {
     "apiVersion" = "core.oam.dev/v1beta1"
-    "kind" = "TraitDefinition"
+    "kind"       = "TraitDefinition"
     "metadata" = {
       "annotations" = {
         "definition.oam.dev/description" = "defines HTTPS rules for mapping requests from a Gateway to Application."
       }
-      "name" = "https-route"
+      "name"      = "https-route"
       "namespace" = var.namespace
     }
     "spec" = {
@@ -27,12 +27,12 @@ resource "kubernetes_manifest" "traitdefinition_https_route" {
 resource "kubernetes_manifest" "traitdefinition_http_route" {
   manifest = {
     "apiVersion" = "core.oam.dev/v1beta1"
-    "kind" = "TraitDefinition"
+    "kind"       = "TraitDefinition"
     "metadata" = {
       "annotations" = {
         "definition.oam.dev/description" = "defines HTTP rules for mapping requests from a Gateway to Application."
       }
-      "name" = "http-route"
+      "name"      = "http-route"
       "namespace" = var.namespace
     }
     "spec" = {
@@ -54,12 +54,12 @@ resource "kubectl_manifest" "traitdefinition_resource" {
   force_new = true
   yaml_body = yamlencode({
     "apiVersion" = "core.oam.dev/v1beta1"
-    "kind" = "TraitDefinition"
+    "kind"       = "TraitDefinition"
     "metadata" = {
       "annotations" = {
         "definition.oam.dev/description" = "Add resource requests and limits on K8s pod for your workload which follows the pod spec in path 'spec.template."
       }
-      "name" = "resource"
+      "name"      = "resource"
       "namespace" = var.namespace
     }
     "spec" = {
@@ -81,14 +81,14 @@ resource "kubectl_manifest" "workflowtdefinition_build_nix_image" {
   force_new = true
   yaml_body = yamlencode({
     "apiVersion" = "core.oam.dev/v1beta1"
-    "kind" = "WorkflowStepDefinition"
+    "kind"       = "WorkflowStepDefinition"
     "metadata" = {
       "annotations" = {
         "custom.definition.oam.dev/category" = "CI Integration"
-        "definition.oam.dev/alias" = ""
-        "definition.oam.dev/description" = "Build and push image with nix flake URIs"
+        "definition.oam.dev/alias"           = ""
+        "definition.oam.dev/description"     = "Build and push image with nix flake URIs"
       }
-      "name" = "build-nix-image"
+      "name"      = "build-nix-image"
       "namespace" = var.namespace
     }
     "spec" = {
@@ -103,8 +103,8 @@ resource "kubectl_manifest" "workflowtdefinition_build_nix_image" {
 
 
 resource "kubectl_manifest" "componentdefinition_helmrelease" {
-  force_new = true
-  yaml_body = file("${path.module}/definitions/helm.yaml")
+  force_new          = true
+  yaml_body          = file("${path.module}/definitions/helm.yaml")
   override_namespace = var.namespace
 }
 
