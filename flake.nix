@@ -5,6 +5,7 @@
     capsules.url = "github:input-output-hk/devshell-capsules";
     devenv.url = "github:cachix/devenv";
     disko.url = "github:nix-community/disko";
+    nixpkgs.url = "github:nixos/nixpkgs";
   };
   outputs = inputs@{ self, flake-parts, devenv, capsules, nixpkgs, ... }:
     flake-parts.lib.mkFlake { inherit inputs; } {
