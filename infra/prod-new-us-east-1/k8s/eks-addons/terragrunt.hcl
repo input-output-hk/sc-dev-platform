@@ -43,6 +43,11 @@ dependency "vpc" {
   }
 }
 
+dependency "before_addons" {
+  config_path  = "../before_addons"
+  skip_outputs = true
+}
+
 inputs = {
 
   cluster-name     = dependency.eks.outputs.cluster_name
@@ -90,7 +95,7 @@ inputs = {
         tag: "3.0"
       experimental:
         kubernetesGateway:
-          enabled: false
+          enabled: true
       service:
         annotations:
           "external-dns.alpha.kubernetes.io/hostname": "*.scdev-test.aws.iohkdev.io,play-test.marlowe.iohk.io"
@@ -133,24 +138,4 @@ inputs = {
   cert-manager-csi-driver = {
     chart_version = "v0.4.2"
   }
-}
-
-generate "letsencrypt_issuer" {
-  path      = "letsencrypt_issuer.tf"
-  if_exists = "overwrite"
-  contents  = <<EOF
-    resource "kubectl_manifest" "letsencrypt_issuer" {
-      yaml_body = file("${get_terragrunt_dir()}/letsencrypt_issuer.yaml")
-    }
-  EOF
-}
-
-generate "gateway_crds" {
-  path      = "gateway_crds.tf"
-  if_exists = "overwrite"
-  contents  = <<EOF
-    resource "kubectl_manifest" "gateway_crds" {
-      yaml_body = file("${get_terragrunt_dir()}/gateway_crds.yaml")
-    }
-  EOF
 }
