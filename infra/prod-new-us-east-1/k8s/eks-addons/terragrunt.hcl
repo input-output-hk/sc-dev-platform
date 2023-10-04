@@ -82,7 +82,7 @@ inputs = {
       enabled      = true
       extra_values = <<-EXTRA_VALUES
         domainFilters:
-         - scdev-test.aws.iohkdev.io
+         - scdev.aws.iohkdev.io
          - play-test.marlowe.iohk.io
       EXTRA_VALUES
     }
@@ -98,11 +98,11 @@ inputs = {
           enabled: true
       service:
         annotations:
-          "external-dns.alpha.kubernetes.io/hostname": "*.scdev-test.aws.iohkdev.io,play-test.marlowe.iohk.io"
+          "service.beta.kubernetes.io/aws-load-balancer-scheme": "internet-facing"
+          "external-dns.alpha.kubernetes.io/hostname": "*.test.scdev.aws.iohkdev.io,fun.test.scdev.aws.iohkdev.io,play-test.marlowe.iohk.io"
       ports:
         web:
           redirectTo: websecure
-
     EXTRA_VALUES
 
   }
