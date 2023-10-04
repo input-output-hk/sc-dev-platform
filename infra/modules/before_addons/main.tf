@@ -12,3 +12,12 @@ resource "kubectl_manifest" "gateway_crds" {
   for_each  = data.kubectl_file_documents.docs.manifests
   yaml_body = each.value
 }
+
+data "kubectl_file_documents" "system" {
+  content = file("${path.module}/gateway_system.yaml")
+}
+
+resource "kubectl_manifest" "gateway_system" {
+  for_each  = data.kubectl_file_documents.system.manifests
+  yaml_body = each.value
+}
