@@ -13,8 +13,8 @@ locals {
     "olaniyi.oshunbote",
     "shea.levy",
     "daniel.thagard",
-    # TODO: Would be nice to autogenerate these
-    "vault-github-employees-shlevy-admin-1675276763-1Llx839PFwXnsKIBx",
+    "rene.barbosa",
+    "oguzhan.boran",
   ]
   domain = "dapps.aws.iohkdev.io"
 }
