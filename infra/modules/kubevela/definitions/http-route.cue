@@ -14,7 +14,7 @@ outputs: {
 				if parameter.gatewayName == _|_ {
 					name: "traefik-gateway"
 				}
-				namespace: "vela-system"
+				namespace: "traefik"
 				if parameter.listenerName != _|_ {
 					sectionName: parameter.listenerName
 				}
