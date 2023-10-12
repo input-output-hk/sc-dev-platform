@@ -78,6 +78,7 @@ inputs = {
         domainFilters:
          - scdev.aws.iohkdev.io
          - play.marlowe.iohk.io
+         - runner.marlowe.iohk.io
       EXTRA_VALUES
     }
   }
@@ -92,7 +93,7 @@ inputs = {
           enabled: true
       service:
         annotations:
-          "external-dns.alpha.kubernetes.io/hostname": "*.scdev.aws.iohkdev.io,play.marlowe.iohk.io"
+          "external-dns.alpha.kubernetes.io/hostname": "*.scdev.aws.iohkdev.io,play.marlowe.iohk.io,*.runner.marlowe.iohk.io"
       ports:
         web:
           redirectTo: websecure
