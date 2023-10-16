@@ -3,10 +3,11 @@ locals {
   environment_vars = read_terragrunt_config(find_in_parent_folders("env.hcl"))
   account_vars     = read_terragrunt_config(find_in_parent_folders("account.hcl"))
   # Extract out common variables for reuse
-  env     = local.environment_vars.locals.environment
-  region  = local.environment_vars.locals.aws_region
-  project = local.account_vars.locals.project
-  name    = "${local.project}-${local.env}-${local.region}"
+  env         = local.environment_vars.locals.environment
+  region      = local.environment_vars.locals.aws_region
+  cidr_prefix = local.environment_vars.locals.cidr_prefix
+  project     = local.account_vars.locals.project
+  name        = "${local.project}-${local.env}-${local.region}"
 }
 
 # Terragrunt will copy the Terraform configurations specified by the source parameter, along with any files in the
@@ -23,12 +24,12 @@ include {
 # These are the variables we have to pass in to use the module specified in the terragrunt configuration above
 inputs = {
   name = local.name
-  cidr = "10.30.0.0/16"
+  cidr = "${local.cidr_prefix}.0.0/16"
 
   azs             = ["${local.region}a", "${local.region}b", "${local.region}c"]
-  private_subnets = ["10.30.48.0/20", "10.30.64.0/20", "10.30.80.0/20"]   # /20 will allow 4096 ips per subnet
-  public_subnets  = ["10.30.0.0/20", "10.30.16.0/20", "10.30.32.0/20"]    # /20 will allow 4096 ips per subnet
-  intra_subnets   = ["10.30.96.0/22", "10.30.100.0/22", "10.30.104.0/22"] # /22 will allow 1024 ips per subnet
+  private_subnets = ["${local.cidr_prefix}.48.0/20", "${local.cidr_prefix}.64.0/20", "${local.cidr_prefix}.80.0/20"]   # /20 will allow 4096 ips per subnet
+  public_subnets  = ["${local.cidr_prefix}.0.0/20", "${local.cidr_prefix}.16.0/20", "${local.cidr_prefix}.32.0/20"]    # /20 will allow 4096 ips per subnet
+  intra_subnets   = ["${local.cidr_prefix}.96.0/22", "${local.cidr_prefix}.100.0/22", "${local.cidr_prefix}.104.0/22"] # /22 will allow 1024 ips per subnet
 
   enable_nat_gateway     = true
   single_nat_gateway     = true
