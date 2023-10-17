@@ -6,7 +6,9 @@ locals {
   project     = "dapps"
   namespaces  = ["preprod-prod", "mainnet-prod"]
   clustername = "${local.project}-${local.environment}-${local.aws_region}"
-  domain      = "dapps.aws.iohkdev.io"
+
+  # This will generate A records for these domains pointing to Traefik's ELB
+  hostnames = ["*.test.scdev.aws.iohkdev.io"]
 
   cidr_prefix = "10.30"
 }
