@@ -16,9 +16,10 @@ locals {
   environment_vars = read_terragrunt_config(find_in_parent_folders("env.hcl"))
   account_vars     = read_terragrunt_config(find_in_parent_folders("account.hcl"))
   # Extract out common variables for reuse
-  env     = local.environment_vars.locals.environment
-  region  = local.environment_vars.locals.aws_region
-  profile = local.account_vars.locals.aws_profile
+  env       = local.environment_vars.locals.environment
+  region    = local.environment_vars.locals.aws_region
+  profile   = local.account_vars.locals.aws_profile
+  hostnames = local.environment_vars.locals.hostnames
 }
 
 generate = merge(local.k8s.generate, local.helm.generate, local.kubectl.generate)
@@ -83,7 +84,8 @@ inputs = {
       extra_values = <<-EXTRA_VALUES
         domainFilters:
          - scdev.aws.iohkdev.io
-         - play-test.marlowe.iohk.io
+         - play.marlowe.iohk.io
+         - runner.marlowe.iohk.io
       EXTRA_VALUES
     }
   }
@@ -99,7 +101,7 @@ inputs = {
       service:
         annotations:
           "service.beta.kubernetes.io/aws-load-balancer-scheme": "internet-facing"
-          "external-dns.alpha.kubernetes.io/hostname": "*.test.scdev.aws.iohkdev.io,fun.test.scdev.aws.iohkdev.io,play-test.marlowe.iohk.io"
+          "external-dns.alpha.kubernetes.io/hostname": "${join(",", local.hostnames)}"
       ports:
         web:
           redirectTo: websecure
