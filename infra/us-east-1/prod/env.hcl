@@ -6,5 +6,5 @@ locals {
   environment = "prod"
   project     = "scdev"
 
-  cidr_prefix = "10.40"
+  cidr_prefix = "10.30"
 }
