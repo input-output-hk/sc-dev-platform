@@ -6,7 +6,8 @@ locals {
   env         = local.environment_vars.locals.environment
   region      = local.environment_vars.locals.aws_region
   cidr_prefix = local.environment_vars.locals.cidr_prefix
-  project     = local.account_vars.locals.project
+  project     = local.environment_vars.locals.project
+  tribe       = local.account_vars.locals.tribe
   name        = "${local.project}-${local.env}-${local.region}"
 }
 
@@ -54,8 +55,10 @@ inputs = {
   manage_default_security_group = false
 
   tags = {
-    Terraform   = "true"
-    Environment = local.env
-    Project     = local.project
+    Terraform    = "true"
+    Environment  = local.env
+    Project      = local.project
+    Organization = "iog"
+    Tribe        = local.tribe
   }
 }

@@ -7,6 +7,7 @@ locals {
   aws_profile = "dapps-world"
   name        = "dapps"
   project     = "dapps"
+  tribe       = "smartcontracts"
   # Allow users to access k8s over aws_auth config
   users = [
     # SRE
