@@ -2,7 +2,7 @@
 # feed forward to the child modules.
 locals {
   aws_region  = "us-east-1"
-  environment = "prod-new"
+  environment = "prod-1-26"
   project     = "dapps"
   namespaces  = ["preprod-prod", "mainnet-prod"]
   clustername = "${local.project}-${local.environment}-${local.aws_region}"

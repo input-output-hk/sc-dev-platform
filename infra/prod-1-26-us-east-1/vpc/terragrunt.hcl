@@ -7,7 +7,7 @@ locals {
   region      = local.environment_vars.locals.aws_region
   cidr_prefix = local.environment_vars.locals.cidr_prefix
   project     = local.account_vars.locals.project
-  name        = "${local.project}-${local.env}-${local.region}"
+  name        = local.environment_vars.locals.clustername
 }
 
 # Terragrunt will copy the Terraform configurations specified by the source parameter, along with any files in the
@@ -32,8 +32,8 @@ inputs = {
   intra_subnets   = ["${local.cidr_prefix}.96.0/22", "${local.cidr_prefix}.100.0/22", "${local.cidr_prefix}.104.0/22"] # /22 will allow 1024 ips per subnet
 
   enable_nat_gateway     = true
-  single_nat_gateway     = true
-  one_nat_gateway_per_az = false
+  single_nat_gateway     = false
+  one_nat_gateway_per_az = true
 
   enable_dns_hostnames = true
   enable_dns_support   = true
