@@ -40,13 +40,15 @@ inputs = {
   enable_dns_support   = true
 
   public_subnet_tags = {
-    "kubernetes.io/cluster/${local.name}" = "shared"
-    "kubernetes.io/role/elb"              = 1
+    "kubernetes.io/cluster/${local.name}-blue"  = "shared"
+    "kubernetes.io/cluster/${local.name}-green" = "shared"
+    "kubernetes.io/role/elb"                    = 1
   }
 
   private_subnet_tags = {
-    "kubernetes.io/cluster/${local.name}" = "shared"
-    "kubernetes.io/role/internal-elb"     = 1
+    "kubernetes.io/cluster/${local.name}-blue"  = "shared"
+    "kubernetes.io/cluster/${local.name}-green" = "shared"
+    "kubernetes.io/role/internal-elb"           = 1
   }
 
   map_public_ip_on_launch       = true
