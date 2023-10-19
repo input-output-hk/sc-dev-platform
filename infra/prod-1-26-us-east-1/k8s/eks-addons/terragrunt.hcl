@@ -50,38 +50,24 @@ inputs = {
     }
     enable_traefik_load_balancer = true
     traefik_load_balancer = {
-      set = [{
-        name  = "image.tag"
-        value = "3.0"
-        },
-        {
-          name  = "experimental.kubernetesGateway.enabled"
-          value = true
-        },
-        {
-          name  = "service.annotations.service\\.beta\\.kubernetes\\.io\\/aws-load-balancer-type"
-          value = "external"
-        },
-        {
-          name  = "service.annotations.service\\.beta\\.kubernetes\\.io\\/aws-load-balancer-nlb-target-type"
-          value = "instance"
-        },
-        {
-          name  = "service.annotations.service\\.beta\\.kubernetes\\.io\\/aws-load-balancer-name"
-          value = "traefik"
-        },
-        {
-          name  = "service.annotations.service\\.beta\\.kubernetes\\.io\\/aws-load-balancer-scheme"
-          value = "internet-facing"
-        },
-        {
-          name  = "service.annotations.external-dns.alpha\\.kubernetes\\/hostname"
-          value = "${join(",", local.hostnames)}"
-        },
-        {
-          name  = "ports.web.redirectTo"
-          value = "websecure"
-        }
+      values = [
+        <<-EOT
+        image:
+          tag: "3.0"
+        experimental:
+          kubernetesGateway:
+            enabled: true
+        ports:
+          web:
+            redirectTo: websecure
+        service:
+          annotations:
+            "service.annotations.service.beta.kubernetes.io/aws-load-balancer-type": "external"
+            "service.annotations.service.beta.kubernetes.io/aws-load-balancer-nlb-target-type": "instance"
+            "service.annotations.service.beta.kubernetes.io/aws-load-balancer-name": "traefik"
+            "service.annotations.service.beta.kubernetes.io/aws-load-balancer-scheme": "internet-facing"
+            "external-dns.alpha.kubernetes/hostname": "${join(",", local.hostnames)}"
+        EOT
       ]
     }
     enable_kubevela_controller = true
