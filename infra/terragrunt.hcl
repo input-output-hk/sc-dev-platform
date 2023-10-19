@@ -41,7 +41,10 @@ locals {
   account_name = local.account_vars.locals.account_name
   account_id   = local.account_vars.locals.aws_account_id
   aws_profile  = local.account_vars.locals.aws_profile
+  tribe        = local.account_vars.locals.tribe
   aws_region   = local.environment_vars.locals.aws_region
+  env          = local.environment_vars.locals.environment
+  project      = local.environment_vars.locals.project
 }
 
 # Generate an AWS provider block
@@ -58,7 +61,16 @@ generate "provider" {
     #    role_arn = "arn:aws:iam::${local.account_id}:role/terragrunt"
     #  }
     # Only these AWS Account IDs may be operated on by this template
-}
+    default_tags {
+      tags = {
+        Environment  = "${local.env}"
+        Project      = "${local.project}"
+        Tribe        = "${local.tribe}"
+        Organization = "iog"
+        Terraform    = "true"
+    }
+  }
+  }
 EOF
 }
 

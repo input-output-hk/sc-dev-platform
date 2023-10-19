@@ -6,7 +6,8 @@ locals {
   env         = local.environment_vars.locals.environment
   region      = local.environment_vars.locals.aws_region
   cidr_prefix = local.environment_vars.locals.cidr_prefix
-  project     = local.account_vars.locals.project
+  project     = local.environment_vars.locals.project
+  tribe       = local.account_vars.locals.tribe
   name        = "${local.project}-${local.env}-${local.region}"
 }
 
@@ -32,20 +33,22 @@ inputs = {
   intra_subnets   = ["${local.cidr_prefix}.96.0/22", "${local.cidr_prefix}.100.0/22", "${local.cidr_prefix}.104.0/22"] # /22 will allow 1024 ips per subnet
 
   enable_nat_gateway     = true
-  single_nat_gateway     = true
-  one_nat_gateway_per_az = false
+  single_nat_gateway     = false
+  one_nat_gateway_per_az = true
 
   enable_dns_hostnames = true
   enable_dns_support   = true
 
   public_subnet_tags = {
-    "kubernetes.io/cluster/${local.name}" = "shared"
-    "kubernetes.io/role/elb"              = 1
+    "kubernetes.io/cluster/${local.name}-blue"  = "shared"
+    "kubernetes.io/cluster/${local.name}-green" = "shared"
+    "kubernetes.io/role/elb"                    = 1
   }
 
   private_subnet_tags = {
-    "kubernetes.io/cluster/${local.name}" = "shared"
-    "kubernetes.io/role/internal-elb"     = 1
+    "kubernetes.io/cluster/${local.name}-blue"  = "shared"
+    "kubernetes.io/cluster/${local.name}-green" = "shared"
+    "kubernetes.io/role/internal-elb"           = 1
   }
 
   map_public_ip_on_launch       = true
@@ -53,9 +56,4 @@ inputs = {
   manage_default_route_table    = false
   manage_default_security_group = false
 
-  tags = {
-    Terraform   = "true"
-    Environment = local.env
-    Project     = local.project
-  }
 }
