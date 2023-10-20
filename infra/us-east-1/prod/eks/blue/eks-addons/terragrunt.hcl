@@ -14,7 +14,7 @@ include {
 }
 
 terraform {
-  source = "github.com/renebarbosafl/terraform-aws-eks.git//addons?ref=v0.0.1"
+  source = "github.com/renebarbosafl/terraform-aws-eks.git//addons?ref=v0.0.2"
 }
 
 dependency "eks" {
