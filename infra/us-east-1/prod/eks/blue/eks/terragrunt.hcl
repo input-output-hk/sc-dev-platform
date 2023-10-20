@@ -11,7 +11,7 @@ locals {
   users          = local.account_vars.locals.users
   tribe          = local.account_vars.locals.tribe
   project        = local.account_vars.locals.project
-  name           = "${local.project}-${local.env}-${local.region}"
+  name           = "${local.project}-${local.env}-${local.region}-blue"
 
   list_users = [for user in local.users :
     "arn:aws:iam::${local.aws_account_id}:user/${user}"
