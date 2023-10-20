@@ -50,10 +50,14 @@ inputs = {
     }
     enable_traefik_load_balancer = true
     traefik_load_balancer = {
+      create_namespace = true
       values = [templatefile("templates/traefik.tpl", {
         hostnames = "${join(",", local.hostnames)}"
       })]
     }
     enable_kubevela_controller = true
+    kubevela_controller = {
+      create_namespace = true
+    }
   }
 }
