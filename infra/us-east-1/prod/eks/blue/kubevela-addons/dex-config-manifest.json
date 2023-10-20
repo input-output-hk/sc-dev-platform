@@ -1,0 +1,15 @@
+{
+    "apiVersion": "v1",
+    "data": {
+        "config.yaml": "ImNvbm5lY3RvcnMiOgotICJjb25maWciOgogICAgImNsaWVudElEIjogIjc1NjM5NTU3MTUwNi1nNTFncWEycHQ3ZDh2dGo0ZjhwaWltb2xvN3BkdmgyYy5hcHBzLmdvb2dsZXVzZXJjb250ZW50LmNvbSIKICAgICJjbGllbnRTZWNyZXQiOiAiR09DU1BYLWQyVWZVRDBuTE5kRXFlaFpsWTduZzRuRGhjRk8iCiAgICAiaG9zdGVkRG9tYWlucyI6CiAgICAtICJpb2hrLmlvIgogICAgInJlZGlyZWN0VVJJIjogImh0dHBzOi8vdmVsYS50ZXN0LnNjZGV2LmlvaGsuaW8vZGV4L2NhbGxiYWNrIgogICJpZCI6ICJnb29nbGUiCiAgIm5hbWUiOiAiZ29vZ2xlIgogICJ0eXBlIjogImdvb2dsZSIKImVuYWJsZVBhc3N3b3JkREIiOiB0cnVlCiJmcm9udGVuZCI6CiAgIklzc3VlciI6ICJLdWJlVmVsYSIKICAiTG9nb1VSTCI6ICIiCiAgIlRoZW1lIjogIiIKImlzc3VlciI6ICJodHRwczovL3ZlbGEudGVzdC5zY2Rldi5pb2hrLmlvL2RleCIKInN0YXRpY0NsaWVudHMiOgotICJpZCI6ICJ2ZWxhdXgiCiAgIm5hbWUiOiAiVmVsYVVYIgogICJyZWRpcmVjdFVSSXMiOgogIC0gImh0dHBzOi8vdmVsYS50ZXN0LnNjZGV2LmlvaGsuaW8vY2FsbGJhY2siCiAgInNlY3JldCI6ICJ2ZWxhdXgtc2VjcmV0Igoic3RvcmFnZSI6CiAgImNvbmZpZyI6CiAgICAiaW5DbHVzdGVyIjogdHJ1ZQogICJ0eXBlIjogImt1YmVybmV0ZXMiCiJ0ZWxlbWV0cnkiOgogICJodHRwIjogIiIKIndlYiI6CiAgImFsbG93ZWRPcmlnaW5zIjogIm51bGwiCiAgImh0dHAiOiAiMC4wLjAuMDo1NTU2IgogICJodHRwcyI6ICIiCiAgInRsc0NlcnQiOiAiIgogICJ0bHNLZXkiOiAiIgo="
+    },
+    "kind": "Secret",
+    "metadata": {
+        "creationTimestamp": "2023-10-20T02:36:59Z",
+        "name": "docker-cfg",
+        "namespace": "default",
+        "resourceVersion": "41866",
+        "uid": "1d778b67-394d-4305-866d-019f6324104a"
+    },
+    "type": "Opaque"
+}

@@ -10,8 +10,25 @@ variable "helm_defaults" {
   default     = {}
 }
 
-variable "cluster-name" {
+variable "cluster_name" {
   description = "Name of the Kubernetes cluster"
   default     = "sample-cluster"
   type        = string
+}
+
+variable "velaux_domain" {
+  description = "domain where VelaUX will be hosted"
+  type        = string
+}
+
+variable "dex_client_id" {
+  description = "client ID for dex provider"
+  type        = string
+  sensitive   = true
+}
+
+variable "dex_client_secret" {
+  description = "client secret for dex provider"
+  type        = string
+  sensitive   = true
 }

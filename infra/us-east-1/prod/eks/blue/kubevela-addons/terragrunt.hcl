@@ -9,14 +9,17 @@ locals {
   kubectl = read_terragrunt_config("${get_parent_terragrunt_dir()}/provider-configs/kubectl.hcl")
 
   environment_vars = read_terragrunt_config(find_in_parent_folders("env.hcl"))
-  dapps_namespaces = local.environment_vars.locals.namespaces
+
+  secret_vars       = yamldecode(sops_decrypt_file(find_in_parent_folders("secrets.yaml")))
+  dex_client_id     = local.secret_vars.dex.clientID
+  dex_client_secret = local.secret_vars.dex.clientSecret
 }
 
 # Generate provider blocks
 generate = merge(local.k8s.generate, local.helm.generate, local.kubectl.generate)
 
 terraform {
-  source = "../../../modules/kubevela-addons"
+  source = "../../../../../modules/kubevela-addons"
 }
 
 dependency "eks" {
@@ -28,13 +31,12 @@ dependency "eks" {
   }
 }
 
-dependency "kubevela" {
-  config_path = "../kubevela"
-}
-
 inputs = {
-  # cluster-name = local.cluster
   cluster-name     = dependency.eks.outputs.cluster_name
   k8s-cluster-name = dependency.eks.outputs.cluster_name # for provider block
-  namespace        = dependency.kubevela.outputs.namespace
+  namespace        = "vela-system"
+
+  velaux_domain     = "vela.test.scdev.iohk.io"
+  dex_client_id     = local.dex_client_id
+  dex_client_secret = local.dex_client_secret
 }
