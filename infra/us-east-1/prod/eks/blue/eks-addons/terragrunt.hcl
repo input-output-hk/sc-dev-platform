@@ -39,8 +39,13 @@ inputs = {
   oidc_provider_arn                  = dependency.eks.outputs.oidc_provider_arn
 
   eks_addons = {
+    # AWS Load Balancer Controller
     enable_aws_load_balancer_controller = true
+
+    # Metrics Server
     enable_metrics_server               = true
+
+    # Cluster Autoscaler
     enable_cluster_autoscaler           = true
     cluster_autoscaler = {
       set = [{
@@ -48,16 +53,24 @@ inputs = {
         value = "0.7"
       }]
     }
+
+    # Cert-Manager
+    enable_cert_manager = true
+    cert_manager = {
+      values = [templatefile("templates/cert-manager.tpl", {
+        hostnames = "${join(",", local.hostnames)}"
+      })]
+    }      
+
+    # Traefik Load Balancer
     enable_traefik_load_balancer = true
     traefik_load_balancer = {
-      create_namespace = true
       values = [templatefile("templates/traefik.tpl", {
         hostnames = "${join(",", local.hostnames)}"
       })]
     }
+
+    # KubeVela Controller
     enable_kubevela_controller = true
-    kubevela_controller = {
-      create_namespace = true
-    }
   }
 }
