@@ -45,13 +45,6 @@ include {
 # VPC as dependency
 dependency "vpc" {
   config_path = "../../../vpc"
-
-  mock_outputs = {
-    vpc_id          = "vpc-xxxxxxxx"
-    private_subnets = ["subnet-abcdef"]
-    intra_subnets   = ["subnet-abcdef"]
-    public_subnets  = ["subnet-abcdef"]
-  }
 }
 
 # These are the variables we have to pass in to use the module specified in the terragrunt configuration above

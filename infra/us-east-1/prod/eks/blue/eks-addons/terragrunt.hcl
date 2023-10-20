@@ -22,14 +22,6 @@ terraform {
 
 dependency "eks" {
   config_path = "../eks"
-
-  mock_outputs = {
-    cluster_name                       = "quick_brown_fox"
-    cluster_version                    = "1.26"
-    cluster_endpoint                   = "https://abcdef.gr7.us-east-1.eks.amazonaws.com"
-    cluster_certificate_authority_data = "bGF6eS1icm93bi1mb3gK"
-    oidc_provider_arn                  = "arn:aws:iam::677160962006:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/abcdef"
-  }
 }
 
 inputs = {
