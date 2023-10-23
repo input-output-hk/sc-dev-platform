@@ -96,10 +96,10 @@ inputs = {
 
         service:
           annotations:
-            "service.annotations.service.beta.kubernetes.io/aws-load-balancer-type": "external"
-            "service.annotations.service.beta.kubernetes.io/aws-load-balancer-nlb-target-type": "instance"
-            "service.annotations.service.beta.kubernetes.io/aws-load-balancer-name": "traefik"
-            "service.annotations.service.beta.kubernetes.io/aws-load-balancer-scheme": "internet-facing"
+            "service.beta.kubernetes.io/aws-load-balancer-type": "external"
+            "service.beta.kubernetes.io/aws-load-balancer-nlb-target-type": "instance"
+            "service.beta.kubernetes.io/aws-load-balancer-name": "traefik"
+            "service.beta.kubernetes.io/aws-load-balancer-scheme": "internet-facing"
             "external-dns.alpha.kubernetes.io/hostname": "${join(",", local.hostnames)}"
             "external-dns.alpha.kubernetes.io/aws-weight": "100"
             "external-dns.alpha.kubernetes.io/set-identifier": "traefik-blue"
