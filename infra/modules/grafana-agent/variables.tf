@@ -26,3 +26,9 @@ variable "grafana-username" {
   description = "username to grafana cloud"
   type = string
 }
+
+variable "grafana-k8s-username" {
+  description = "username to grafana cloud for k8s monitoring"
+  type = string
+}
+
