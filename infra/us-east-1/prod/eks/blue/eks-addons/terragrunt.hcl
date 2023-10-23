@@ -61,6 +61,7 @@ inputs = {
     # Cert-Manager
     enable_cert_manager = true
     cert_manager = {
+      chart_version = "v1.9.1" #FIXME
       values = [
         <<-EOT
         ingressShim:
