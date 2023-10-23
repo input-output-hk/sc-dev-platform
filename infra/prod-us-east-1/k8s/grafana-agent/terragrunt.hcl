@@ -36,5 +36,6 @@ inputs = {
   k8s-cluster-name = dependency.eks.outputs.cluster_id # for provider block
   namespace    = "grafana-agent"
   grafana-username = "379443"
+  grafana-k8s-username = "382930"
   grafana-password = local.grafana-password
 }
