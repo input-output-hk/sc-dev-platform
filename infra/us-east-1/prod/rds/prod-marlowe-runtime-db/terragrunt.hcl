@@ -1,28 +1,25 @@
 locals {
-
   # Automatically load environment-level variables
-  account_vars = read_terragrunt_config(find_in_parent_folders("account.hcl"))
+  environment_vars = read_terragrunt_config(find_in_parent_folders("env.hcl"))
+  account_vars     = read_terragrunt_config(find_in_parent_folders("account.hcl"))
 
   # Extract out common variables for reuse
   project = local.account_vars.locals.project
+  env     = local.environment_vars.locals.environment
   app     = "marlowe-runtime"
 
-  database_name = "${local.project}-${local.app}-database-new"
+  database_name = "${local.env}-${local.app}-db"
 
-  tags = {
-    Environment = "prod"
-    Terraform   = "true"
-    Project     = local.project
-  }
+  tags = {}
 
 }
 
 dependency "vpc" {
-  config_path = "../vpc"
+  config_path = "../../vpc"
 }
 
 dependency "eks" {
-  config_path = "../k8s/eks"
+  config_path = "../../eks/blue/eks"
 }
 
 terraform {
@@ -57,7 +54,6 @@ inputs = {
   major_engine_version = "15"
   family               = "postgres15"
 
-  snapshot_identifier     = "rds:dapps-marlowe-runtime-database-2023-10-09-07-59"
   skip_final_snapshot     = false
   copy_tags_to_snapshot   = true
   backup_retention_period = 21

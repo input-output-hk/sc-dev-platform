@@ -17,7 +17,7 @@ include {
 }
 
 terraform {
-  source = "github.com/input-output-hk/sc-dev-platform.git//infra/modules/eks/addons?ref=ea401d8fb9e7f938d3d5c1dee0ce480889722288"
+  source = "github.com/input-output-hk/sc-dev-platform.git//infra/modules/eks/addons?ref=2e8c2caa6e500cf8077e04c5d99355512284ccad"
 }
 
 dependency "eks" {
