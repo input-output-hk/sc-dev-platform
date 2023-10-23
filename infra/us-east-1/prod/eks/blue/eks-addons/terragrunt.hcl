@@ -100,7 +100,6 @@ inputs = {
             "service.annotations.service.beta.kubernetes.io/aws-load-balancer-name": "traefik"
             "service.annotations.service.beta.kubernetes.io/aws-load-balancer-scheme": "internet-facing"
             "external-dns.alpha.kubernetes.io/hostname": "${join(",", local.hostnames)}"
-            "external-dns.alpha.kubernetes.io/ttl": "60"
             "external-dns.alpha.kubernetes.io/aws-weight": "100"
             "external-dns.alpha.kubernetes.io/set-identifier": "traefik-blue"
         EOT
