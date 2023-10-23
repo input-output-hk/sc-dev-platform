@@ -9,7 +9,7 @@ locals {
   profile   = local.account_vars.locals.aws_profile
  
   # Hosted Zone ARN for scdev-test.aws.iohkdev.io
-  hostedzone_arn = "arn:aws:route53:::hostedzone//hostedzone/Z10147571DRRDCJXSER5Y"
+  hostedzone_arn = "arn:aws:route53:::hostedzone/Z10147571DRRDCJXSER5Y"
 }
 
 include {
@@ -52,7 +52,7 @@ inputs = {
         env:
           # Don't change anything, useful for debugging purposes.
           - name: EXTERNAL_DNS_DRY_RUN
-            value: "1"
+            value: "0"
         txtOwnerId: "${dependency.eks.outputs.cluster_name}"
         EOT
       ]
@@ -85,10 +85,13 @@ inputs = {
         experimental:
           kubernetesGateway:
             enabled: true
+            namespacePolicy: All
 
         ports:
           web:
-            redirectTo: websecure
+            redirectTo:
+              port: websecure
+              priority: 10
 
         service:
           annotations:
@@ -99,6 +102,7 @@ inputs = {
             "external-dns.alpha.kubernetes.io/hostname": "${join(",", local.hostnames)}"
             "external-dns.alpha.kubernetes.io/ttl": "60"
             "external-dns.alpha.kubernetes.io/aws-weight": "100"
+            "external-dns.alpha.kubernetes.io/set-identifier": "traefik-blue"
         EOT
       ]
     }
