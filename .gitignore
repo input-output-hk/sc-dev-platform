@@ -18,3 +18,10 @@ config.tf.json
 
 # Terragrunt
 .terragrunt-cache
+
+# Kubernetes
+*kubeconfig*
+
+# others
+*.pem
+*.key
