@@ -137,7 +137,7 @@ inputs = {
     tags                = local.asg_tags
     desired_size        = 3
     min_size            = 3
-    max_size            = 20
+    max_size            = 12
     capacity_type       = "ON_DEMAND"
     platform            = "bottlerocket"
     ami_release_version = "1.15.1-264e294c"
@@ -174,6 +174,16 @@ inputs = {
     "worker" = {
       ami_type       = "BOTTLEROCKET_x86_64"
       instance_types = ["t3a.xlarge"]
+      subnet_ids     = dependency.vpc.outputs.private_subnets
+      labels = {
+        network = "private"
+      }
+    }
+    "worker-memory" = {
+      ami_type       = "BOTTLEROCKET_x86_64"
+      min_size       = 3
+      max_size       = 6
+      instance_types = ["t3a.2xlarge"]
       subnet_ids     = dependency.vpc.outputs.private_subnets
       labels = {
         network = "private"
