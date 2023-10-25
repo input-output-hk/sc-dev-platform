@@ -65,6 +65,32 @@ inputs = {
 
   ca_cert_identifier = "rds-ca-rsa2048-g1"
 
+  parameters = [
+  # https://github.com/input-output-hk/marlowe-cardano/blob/main/marlowe-runtime/doc/resources.md#sync-times
+    {
+      name         = "max_locks_per_transaction"
+      value        = "256"
+      apply_method = "pending-reboot"
+    },
+    {
+      name         = "max_pred_locks_per_transaction"
+      value        = "256"
+      apply_method = "pending-reboot"
+    },
+    {
+      name  = "max_wal_size"
+      value = "6144"
+    },
+    {
+      name = "work_mem"
+      value = "32768"
+    },
+    { 
+      name = "maintenance_work_mem"
+      value = "262144"
+    }
+  ]
+
   auto_minor_version_upgrade = false
   apply_immediately          = true
   deletion_protection        = true
