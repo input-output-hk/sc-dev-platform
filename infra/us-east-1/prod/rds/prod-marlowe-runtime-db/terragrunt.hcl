@@ -69,5 +69,35 @@ inputs = {
   apply_immediately          = true
   deletion_protection        = true
 
+  parameters = [
+    {
+      name = "maintenance_work_mem"
+      value = "262144"
+    },
+    {
+      name = "max_wal_size"
+      value = "6192"
+    },
+    {
+      name = "work_mem"
+      value = "32768"
+    },
+    {
+      apply_method = "pending-reboot"
+      name = "autovacuum_max_workers"
+      value = "6"
+    },
+    {
+      apply_method = "pending-reboot"
+      name = "max_locks_per_transaction"
+      value = "256"
+    },
+    {
+      apply_method = "pending-reboot"
+      name = "max_pred_locks_per_transaction"
+      value = "256"
+    }
+  ]
+
   tags = local.tags
 }
