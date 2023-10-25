@@ -1,5 +1,5 @@
 include "root" {
-  path = "${find_in_parent_folders()}"
+  path = find_in_parent_folders()
 }
 
 locals {
@@ -16,7 +16,7 @@ locals {
 generate = merge(local.k8s.generate, local.helm.generate, local.kubectl.generate)
 
 terraform {
-  source = "../../../modules/kubevela"
+  source = "../../../modules/kubevela-addons"
 }
 
 dependency "eks" {
@@ -29,8 +29,7 @@ dependency "eks" {
 }
 
 inputs = {
-  # cluster-name = local.cluster
-  cluster-name = dependency.eks.outputs.cluster_id
+  cluster-name     = dependency.eks.outputs.cluster_id
   k8s-cluster-name = dependency.eks.outputs.cluster_id # for provider block
-  namespace    = "vela-system"
+  namespace        = "vela-system"
 }
