@@ -1,0 +1,246 @@
+apiVersion: core.oam.dev/v1beta1
+kind: Application
+metadata:
+  creationTimestamp: null
+  labels:
+    addons.oam.dev/name: vela-prism
+    addons.oam.dev/registry: KubeVela
+    addons.oam.dev/version: v1.5.0
+  name: addon-vela-prism
+  namespace: vela-system
+spec:
+  components:
+  - name: vela-prism
+    properties:
+      image: oamdev/vela-prism:v1.5.0
+      imagePullPolicy: IfNotPresent
+    traits:
+    - properties:
+        port:
+        - 9443
+      type: expose
+    - properties:
+        create: true
+        name: vela-prism
+        privileges:
+        - apiGroups:
+          - ""
+          resources:
+          - namespaces
+          scope: cluster
+          verbs:
+          - get
+          - watch
+          - list
+        - apiGroups:
+          - core.oam.dev
+          resources:
+          - resourcetrackers
+          scope: cluster
+          verbs:
+          - get
+          - watch
+          - list
+        - apiGroups:
+          - admissionregistration.k8s.io
+          resources:
+          - mutatingwebhookconfigurations
+          - validatingwebhookconfigurations
+          scope: cluster
+          verbs:
+          - get
+          - list
+          - watch
+        - apiGroups:
+          - flowcontrol.apiserver.k8s.io
+          resources:
+          - prioritylevelconfigurations
+          - flowschemas
+          scope: cluster
+          verbs:
+          - get
+          - list
+          - watch
+        - apiGroups:
+          - authorization.k8s.io
+          resources:
+          - subjectaccessreviews
+          scope: cluster
+          verbs:
+          - '*'
+        - apiGroups:
+          - ""
+          resources:
+          - secrets
+          scope: cluster
+          verbs:
+          - get
+          - watch
+          - list
+          - create
+          - update
+          - delete
+          - patch
+        - apiGroups:
+          - cluster.open-cluster-management.io
+          resources:
+          - managedclusters
+          scope: cluster
+          verbs:
+          - get
+          - watch
+          - list
+        - apiGroups:
+          - apiregistration.k8s.io
+          resourceNames:
+          - v1alpha1.prism.oam.dev
+          - v1alpha1.o11y.prism.oam.dev
+          resources:
+          - apiservices
+          scope: cluster
+          verbs:
+          - patch
+      type: service-account
+    - properties:
+        command:
+        - vela-prism
+        - --secure-port=9443
+        - --feature-gates=APIPriorityAndFairness=false
+        - --cert-dir=/etc/k8s-apiserver-certs
+        - --storage-namespace=vela-system
+      type: command
+    - properties:
+        appMountPath: /etc/k8s-apiserver-certs
+        cmd:
+        - sh
+        - -c
+        - "cd /etc/k8s-apiserver-certs;\necho \"authorityKeyIdentifier=keyid,issuer\nbasicConstraints=CA:FALSE\nsubjectAltName
+          = @alt_names\n[alt_names]\nDNS.1 = vela-prism\nDNS.2 = vela-prism.vela-system.svc\"
+          > domain.ext \\\n&& openssl req -x509 -sha256 -days 3650 -newkey rsa:2048
+          -keyout ca.key -out ca -nodes -subj '/O=kubevela' \\\n&& openssl ecparam
+          -name prime256v1 -genkey -noout -out apiserver.key \\\n&& openssl req -new
+          -key apiserver.key -out apiserver.csr -subj '/O=vela-prism' \\\n&& openssl
+          x509 -req -in apiserver.csr -CA ca -CAkey ca.key -CAcreateserial -extfile
+          domain.ext -out apiserver.crt -days 3650 -sha256 \\\n&& echo \"apiserver.crt\"
+          \\\n&& cat apiserver.crt \\\n&& export KUBE_TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+          \\\n&& export CA=$(cat ca | base64 | tr -d \\\\n) \\\n&& echo \"caBundle:
+          $CA\" \\\n&& export PATCH_DATA='[{\"op\":\"replace\",\"path\":\"/spec/caBundle\",\"value\":\"'$CA'\"}]'
+          \\\n&& echo \"patchData: $PATCH_DATA\" \\\n&& curl --request PATCH -sSk
+          -H \"Authorization: Bearer $KUBE_TOKEN\" -H \"Content-Type: application/json-patch+json\"
+          \\\n\thttps://kubernetes.default/apis/apiregistration.k8s.io/v1/apiservices/v1alpha1.prism.oam.dev
+          \\\n\t--data $PATCH_DATA \\\n&& curl --request PATCH -sSk -H \"Authorization:
+          Bearer $KUBE_TOKEN\" -H \"Content-Type: application/json-patch+json\" \\\n\thttps://kubernetes.default/apis/apiregistration.k8s.io/v1/apiservices/v1alpha1.o11y.prism.oam.dev
+          \\\n\t--data $PATCH_DATA"
+        image: oamdev/openssl-curl:0.1.0
+        initMountPath: /etc/k8s-apiserver-certs
+        mountName: k8s-apiserver-certs
+        name: init-config
+      type: init-container
+    - properties:
+        cpu: 0.1
+        memory: 200Mi
+      type: resource
+    type: webservice
+  - name: vela-prism-additional-privileges
+    properties:
+      objects:
+      - apiVersion: rbac.authorization.k8s.io/v1
+        kind: ClusterRole
+        metadata:
+          name: vela-prism:prism-cluster-access-role
+        rules:
+        - apiGroups:
+          - prism.oam.dev
+          resources:
+          - clusters
+          verbs:
+          - get
+          - list
+          - watch
+      - apiVersion: rbac.authorization.k8s.io/v1
+        kind: ClusterRoleBinding
+        metadata:
+          name: vela-prism:prism-cluster-access-rolebinding
+        roleRef:
+          apiGroup: rbac.authorization.k8s.io
+          kind: ClusterRole
+          name: vela-prism:prism-cluster-access-role
+        subjects:
+        - apiGroup: rbac.authorization.k8s.io
+          kind: Group
+          name: kubevela:client
+      - apiVersion: rbac.authorization.k8s.io/v1
+        kind: RoleBinding
+        metadata:
+          name: vela-prism
+          namespace: kube-system
+        roleRef:
+          apiGroup: rbac.authorization.k8s.io
+          kind: Role
+          name: extension-apiserver-authentication-reader
+        subjects:
+        - kind: ServiceAccount
+          name: vela-prism
+          namespace: vela-system
+    type: k8s-objects
+  - name: vela-prism-apiservices
+    properties:
+      objects:
+      - apiVersion: apiregistration.k8s.io/v1
+        kind: APIService
+        metadata:
+          name: v1alpha1.prism.oam.dev
+        spec:
+          group: prism.oam.dev
+          groupPriorityMinimum: 2000
+          service:
+            name: vela-prism
+            namespace: vela-system
+            port: 9443
+          version: v1alpha1
+          versionPriority: 10
+      - apiVersion: apiregistration.k8s.io/v1
+        kind: APIService
+        metadata:
+          name: v1alpha1.o11y.prism.oam.dev
+        spec:
+          group: o11y.prism.oam.dev
+          groupPriorityMinimum: 2000
+          service:
+            name: vela-prism
+            namespace: vela-system
+            port: 9443
+          version: v1alpha1
+          versionPriority: 10
+    type: k8s-objects
+  policies:
+  - name: topology
+    properties:
+      clusters:
+      - local
+    type: topology
+  - name: override-core
+    properties:
+      selector:
+      - vela-prism
+    type: override
+  - name: override-prehook
+    properties:
+      selector:
+      - vela-prism-apiservices
+      - vela-prism-additional-privileges
+    type: override
+  workflow:
+    steps:
+    - name: deploy-prehook
+      properties:
+        policies:
+        - topology
+        - override-prehook
+      type: deploy
+    - name: deploy-core
+      properties:
+        policies:
+        - topology
+        - override-core
+      type: deploy
