@@ -172,7 +172,7 @@ module "eks_addon_traefik_load_balancer" {
 }
 
 module "eks_addon_otel_operator" {
-  count   = try(var.eks_addons.enable_addon_otel_operator, false) ? 1 : 0
+  count   = try(var.eks_addons.enable_otel_operator, false) ? 1 : 0
   source  = "aws-ia/eks-blueprints-addon/aws"
   version = "1.1.1"
 
