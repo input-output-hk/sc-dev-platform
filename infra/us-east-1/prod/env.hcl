@@ -5,6 +5,6 @@ locals {
   environment = "prod"
   project     = "scde"
   # This will generate A records for these domains pointing to Traefik's ELB
-  hostnames   = ["*.test.scdev.aws.iohkdev.io"]
+  hostnames   = ["*.test.scdev.aws.iohkdev.io", "*.marlowe.iohk.io"]
   cidr_prefix = "10.30"
 }
