@@ -69,5 +69,14 @@ locals {
       values        = []
       set           = []
     }
+    otel_operator = {
+      chart         = "opentelemetry-operator"
+      chart_version = "0.41.0"
+      repository    = "https://open-telemetry.github.io/opentelemetry-helm-charts"
+      description   = "OpenTelemetry Operator Helm chart for Kubernetes"
+      namespace     = "opentelemetry-operator"
+      values        = []
+      set           = []
+    }
   }
 }

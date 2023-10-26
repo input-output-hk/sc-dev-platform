@@ -140,12 +140,12 @@ data "kubectl_file_documents" "gateway_system" {
 }
 
 resource "kubectl_manifest" "gateway_crds" {
-  for_each  = try(var.eks_addons.enable_traefik_load_balancer, false) ? data.kubectl_file_documents.gateway_crds.manifests : {}
+  for_each  = try(var.eks_addons.enable_gateway_system, true) ? data.kubectl_file_documents.gateway_crds.manifests : {}
   yaml_body = each.value
 }
 
 resource "kubectl_manifest" "gateway_system" {
-  for_each  = try(var.eks_addons.enable_traefik_load_balancer, false) ? data.kubectl_file_documents.gateway_system.manifests : {}
+  for_each  = try(var.eks_addons.enable_gateway_system, true) ? data.kubectl_file_documents.gateway_system.manifests : {}
   yaml_body = each.value
 }
 
@@ -168,6 +168,26 @@ module "eks_addon_traefik_load_balancer" {
     module.eks_addons,
     kubectl_manifest.gateway_crds,
     kubectl_manifest.gateway_system
+  ]
+}
+
+module "eks_addon_otel_operator" {
+  count   = try(var.eks_addons.enable_addon_otel_operator, false) ? 1 : 0
+  source  = "aws-ia/eks-blueprints-addon/aws"
+  version = "1.1.1"
+
+  chart            = local.eks_addons.otel_operator.chart
+  chart_version    = try(var.eks_addons.otel_operator.chart_version, local.eks_addons.otel_operator.chart_version)
+  repository       = try(var.eks_addons.otel_operator.repository, local.eks_addons.otel_operator.repository)
+  description      = try(var.eks_addons.otel_operator.description, local.eks_addons.otel_operator.description)
+  namespace        = try(var.eks_addons.otel_operator.namespace, local.eks_addons.otel_operator.namespace)
+  create_namespace = try(var.eks_addons.otel_operator.create_namespace, local.helm_create_namespace)
+  values           = try(var.eks_addons.otel_operator.values, local.eks_addons.otel_operator.values)
+  set              = try(var.eks_addons.otel_operator.set, local.eks_addons.otel_operator.set)
+  wait             = try(var.eks_addons.otel_operator.wait, local.helm_wait)
+
+  depends_on = [
+    module.eks_addons
   ]
 }
 
