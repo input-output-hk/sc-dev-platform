@@ -31,11 +31,12 @@ dependency "eks" {
 }
 
 inputs = {
-  # cluster-name = local.cluster
-  cluster-name = dependency.eks.outputs.cluster_id
+  cluster-name     = dependency.eks.outputs.cluster_id
   k8s-cluster-name = dependency.eks.outputs.cluster_id # for provider block
-  namespace    = "grafana-agent"
-  grafana-username = "379443"
-  grafana-k8s-username = "382930"
-  grafana-password = local.grafana-password
+  namespace        = "grafana-agent"
+
+  grafana-tempo-username = "379443"
+  grafana-loki-username  = "382930"
+  grafana-prom-username  = "767922"
+  grafana-password       = local.grafana-password
 }

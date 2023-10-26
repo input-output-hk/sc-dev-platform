@@ -32,7 +32,7 @@ resource "helm_release" "grafana_agent" {
               remote_write:
                 - endpoint: tempo-us-central1.grafana.net:443
                   basic_auth:
-                    username: ${var.grafana-username}
+                    username: ${var.grafana-tempo-username}
                     password: $${GRAFANA_PASSWORD}
               receivers:
                 otlp:
@@ -67,29 +67,44 @@ resource "helm_release" "grafana-k8s-monitoring" {
     cluster:
       name: dapps-prod-us-east-1
     externalServices:
+      prometheus:
+        host: https://prometheus-us-central1.grafana.net
+        basicAuth:
+          username: ${var.grafana-prom-username}
+          password: ${data.kubernetes_secret.api_key_secret.data["GRAFANA_PASSWORD"]}
       loki:
         host: https://logs-prod-017.grafana.net
         basicAuth:
-          username: ${var.grafana-k8s-username}
+          username: ${var.grafana-loki-username}
           password: ${data.kubernetes_secret.api_key_secret.data["GRAFANA_PASSWORD"]}
     metrics:
-      enabled: false
-    kube-state-metrics:
-      enabled: false
-    prometheus-node-exporter:
-      enabled: false
-    prometheus-operator-crds:
-      enabled: false
+      cost:
+        enabled: false
+      podMonitors:
+        namespaces:
+          - "marlowe-staging"
+          - "dapps-certification-staging"
+      probes:
+        namespaces:
+          - "marlowe-staging"
+          - "dapps-certification-staging"
+      serviceMonitors:
+        namespaces:
+          - "marlowe-staging"
+          - "dapps-certification-staging"
     opencost:
       enabled: false 
     crds:
       create: false
     logs:
       pod_logs:
-        enabled: false
-
         namespaces:
-          - marlowe-staging
+          - "marlowe-staging"
+          - "dapps-certification-staging"
+      cluster_events:
+        namespaces:
+          - "marlowe-staging"
+          - "dapps-certification-staging"
   VALUES
   ]
 }
