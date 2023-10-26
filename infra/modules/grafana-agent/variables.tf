@@ -22,13 +22,17 @@ variable "grafana-password" {
   sensitive = true
 }
 
-variable "grafana-username" {
+variable "grafana-tempo-username" {
   description = "username to grafana cloud"
   type = string
 }
 
-variable "grafana-k8s-username" {
+variable "grafana-loki-username" {
   description = "username to grafana cloud for k8s monitoring"
   type = string
 }
 
+variable "grafana-prom-username" {
+  description = "username to grafana cloud for k8s monitoring"
+  type = string
+}
