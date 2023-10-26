@@ -6,10 +6,11 @@ locals {
   env       = local.environment_vars.locals.environment
   region    = local.environment_vars.locals.aws_region
   hostnames = local.environment_vars.locals.hostnames
+  zone_id   = local.environment_vars.locals.zone_id
   profile   = local.account_vars.locals.aws_profile
  
   # Hosted Zone ARN for scdev-test.aws.iohkdev.io
-  hostedzone_arn = "arn:aws:route53:::hostedzone/Z10147571DRRDCJXSER5Y"
+  hostedzone_arn = "arn:aws:route53:::hostedzone/${local.zone_id}"
 }
 
 include {
@@ -17,11 +18,15 @@ include {
 }
 
 terraform {
-  source = "github.com/input-output-hk/sc-dev-platform.git//infra/modules/eks/addons?ref=2e8c2caa6e500cf8077e04c5d99355512284ccad"
+  source = "github.com/input-output-hk/sc-dev-platform.git//infra/modules/eks/addons?ref=d12b6a69b4b0a95392eed1052c7fde653fbfbb71"
 }
 
 dependency "eks" {
   config_path = "../eks"
+}
+
+dependency "acm" {
+  config_path = "../../../acm"
 }
 
 inputs = {
@@ -100,6 +105,10 @@ inputs = {
             "service.beta.kubernetes.io/aws-load-balancer-nlb-target-type": "instance"
             "service.beta.kubernetes.io/aws-load-balancer-name": "traefik"
             "service.beta.kubernetes.io/aws-load-balancer-scheme": "internet-facing"
+            "service.beta.kubernetes.io/aws-load-balancer-backend-protocol": "ssl"
+            "service.beta.kubernetes.io/aws-load-balancer-ssl-cert": "${dependency.acm.outputs.acm_certificate_arn}"
+            "service.beta.kubernetes.io/aws-load-balancer-ssl-ports": "websecure"
+            "service.beta.kubernetes.io/aws-load-balancer-ssl-negotiation-policy": "ELBSecurityPolicy-TLS13-1-2-2021-06"
             "external-dns.alpha.kubernetes.io/hostname": "${join(",", local.hostnames)}"
             "external-dns.alpha.kubernetes.io/aws-weight": "100"
             "external-dns.alpha.kubernetes.io/set-identifier": "traefik-blue"
@@ -107,7 +116,11 @@ inputs = {
       ]
     }
 
+    # Open-Telemetry Operator
+    enable_otel_operator = true
+
     # KubeVela Controller
     enable_kubevela_controller = true
+
   }
 }
