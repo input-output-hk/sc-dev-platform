@@ -1,24 +1,30 @@
 variable "aws_profile" {
+  description = "AWS profile to use for deployment"
   type = string
 }
 
 variable "cluster_name" {
+  description = "Name of the Kubernetes cluster"
   type = string
 }
 
 variable "cluster_version" {
+  description = "Version of the Kubernetes cluster"
   type = string
 }
 
 variable "cluster_endpoint" {
+  description = "Endpoint of the Kubernetes cluster"
   type = string
 }
 
 variable "cluster_certificate_authority_data" {
+  description = "Certificate authority data for the Kubernetes cluster"
   type = string
 }
 
 variable "oidc_provider_arn" {
+  description = "ARN of the OIDC provider for the Kubernetes cluster"
   type = string
 }
 
