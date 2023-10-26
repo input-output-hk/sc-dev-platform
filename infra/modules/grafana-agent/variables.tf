@@ -23,16 +23,16 @@ variable "grafana-password" {
 }
 
 variable "grafana-tempo-username" {
-  description = "username to grafana cloud"
+  description = "username to grafana cloud for Tempo service"
   type = string
 }
 
 variable "grafana-loki-username" {
-  description = "username to grafana cloud for k8s monitoring"
+  description = "username to grafana cloud for Loki service in k8s monitoring"
   type = string
 }
 
 variable "grafana-prom-username" {
-  description = "username to grafana cloud for k8s monitoring"
+  description = "username to grafana cloud for Prometheus service in k8s monitoring"
   type = string
 }
