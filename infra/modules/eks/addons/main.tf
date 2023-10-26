@@ -191,6 +191,15 @@ module "eks_addon_otel_operator" {
   ]
 }
 
+data "kubectl_file_documents" "otel_operator" {
+  content = file("${path.module}/manifests/otel_traits.yaml")
+}
+
+resource "kubectl_manifest" "otel_operator" {
+  for_each  = try(var.eks_addons.enable_otel_operator, false) ? data.kubectl_file_documents.otel_operator.manifests : {}
+  yaml_body = each.value
+}
+
 module "eks_addon_kubevela_controller" {
   count   = try(var.eks_addons.enable_kubevela_controller, false) ? 1 : 0
   source  = "aws-ia/eks-blueprints-addon/aws"
