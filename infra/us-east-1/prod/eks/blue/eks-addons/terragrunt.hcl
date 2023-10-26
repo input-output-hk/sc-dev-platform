@@ -7,7 +7,7 @@ locals {
   region    = local.environment_vars.locals.aws_region
   hostnames = local.environment_vars.locals.hostnames
   profile   = local.account_vars.locals.aws_profile
- 
+
   # Hosted Zone ARN for scdev-test.aws.iohkdev.io
   hostedzone_arn = "arn:aws:route53:::hostedzone/Z10147571DRRDCJXSER5Y"
 }
@@ -17,7 +17,7 @@ include {
 }
 
 terraform {
-  source = "github.com/input-output-hk/sc-dev-platform.git//infra/modules/eks/addons?ref=2e8c2caa6e500cf8077e04c5d99355512284ccad"
+  source = "github.com/input-output-hk/sc-dev-platform.git//infra/modules/eks/addons?ref=6dba636a0679a5ef9d68314368fa5b8137d23ede"
 }
 
 dependency "eks" {
@@ -44,7 +44,7 @@ inputs = {
     }
 
     # External-DNS
-    enable_external_dns = true
+    enable_external_dns            = true
     external_dns_route53_zone_arns = [local.hostedzone_arn]
     external_dns = {
       values = [
@@ -73,7 +73,7 @@ inputs = {
           - --feature-gates=ExperimentalGatewayAPISupport=true
         EOT
       ]
-    }      
+    }
 
     # Traefik Load Balancer
     enable_traefik_load_balancer = true
@@ -106,6 +106,9 @@ inputs = {
         EOT
       ]
     }
+
+    # Open-Telemetry Operator
+    enable_otel_operator = true
 
     # KubeVela Controller
     enable_kubevela_controller = true
