@@ -1,13 +1,13 @@
 resource "kubernetes_namespace" "grafana-agent" {
   metadata {
-    name = "grafana-agent"
+    name = var.namespace
   }
 }
 
 resource "kubernetes_secret" "grafana-password" {
   metadata {
     name = "grafana-password"
-    namespace = kubernetes_namespace.grafana-agent.metadata[0].name
+    namespace = var.namespace
   }
 
   data = {
@@ -19,7 +19,7 @@ resource "helm_release" "grafana_agent" {
   repository = "https://grafana.github.io/helm-charts"
   name = "grafana-agent"
   chart = "grafana-agent"
-  namespace = kubernetes_namespace.grafana-agent.metadata[0].name
+  namespace = var.namespace
   values = [ <<-VALUES
     agent:
       mode: 'static'
@@ -61,7 +61,7 @@ resource "helm_release" "grafana-k8s-monitoring" {
   repository = "https://grafana.github.io/helm-charts"
   chart      = "k8s-monitoring"
   version    = "0.1.4"
-  namespace  = kubernetes_namespace.grafana-agent.metadata[0].name
+  namespace  = var.namespace 
 
   values = [ <<-VALUES
     cluster:
@@ -83,15 +83,21 @@ resource "helm_release" "grafana-k8s-monitoring" {
       podMonitors:
         namespaces:
           - "marlowe-staging"
+          - "marlowe-production"
           - "dapps-certification-staging"
+          - "dapps-certification"
       probes:
         namespaces:
           - "marlowe-staging"
+          - "marlowe-production"
           - "dapps-certification-staging"
+          - "dapps-certification"
       serviceMonitors:
         namespaces:
           - "marlowe-staging"
+          - "marlowe-production"
           - "dapps-certification-staging"
+          - "dapps-certification"
     opencost:
       enabled: false 
     crds:
@@ -100,11 +106,15 @@ resource "helm_release" "grafana-k8s-monitoring" {
       pod_logs:
         namespaces:
           - "marlowe-staging"
+          - "marlowe-production"
           - "dapps-certification-staging"
+          - "dapps-certification"
       cluster_events:
         namespaces:
           - "marlowe-staging"
+          - "marlowe-production"
           - "dapps-certification-staging"
+          - "dapps-certification"
   VALUES
   ]
 }
@@ -112,7 +122,7 @@ resource "helm_release" "grafana-k8s-monitoring" {
 data "kubernetes_secret" "api_key_secret" {
   metadata {
     name      = "grafana-k8s-password"
-    namespace = "grafana-agent"
+    namespace = var.namespace
   }
 }
 
