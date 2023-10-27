@@ -116,9 +116,6 @@ inputs = {
       ]
     }
 
-    # Open-Telemetry Operator
-    enable_otel_operator = true
-
     # KubeVela Controller
     enable_kubevela_controller = true
 
