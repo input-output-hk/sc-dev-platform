@@ -3,13 +3,13 @@ locals {
   environment_vars = read_terragrunt_config(find_in_parent_folders("env.hcl"))
   account_vars     = read_terragrunt_config(find_in_parent_folders("account.hcl"))
   # Extract out common variables for reuse
-  env     = local.environment_vars.locals.environment
-  region  = local.environment_vars.locals.aws_region
-  domains = local.environment_vars.locals.route53_config
-  profile = local.account_vars.locals.aws_profile
-
-  route53_zone_arns = [for zone_id in values(local.domains) : "arn:aws:route53:::hostedzone/${zone_id}"]
-  traefik_hostnames = [for domain in keys(local.domains) : "*.${domain}"]
+  env       = local.environment_vars.locals.environment
+  region    = local.environment_vars.locals.aws_region
+  hostnames = local.environment_vars.locals.hostnames
+  profile   = local.account_vars.locals.aws_profile
+ 
+  # Hosted Zone ARN for scdev-test.aws.iohkdev.io
+  hostedzone_arn = "arn:aws:route53:::hostedzone/Z10147571DRRDCJXSER5Y"
 }
 
 include {
@@ -17,15 +17,11 @@ include {
 }
 
 terraform {
-  source = "github.com/input-output-hk/sc-dev-platform.git//infra/modules/eks/addons?ref=8461d7876cb82ca9c4971b53415a0f60863f0b48"
+  source = "github.com/input-output-hk/sc-dev-platform.git//infra/modules/eks/addons?ref=2e8c2caa6e500cf8077e04c5d99355512284ccad"
 }
 
 dependency "eks" {
   config_path = "../eks"
-}
-
-dependency "acm" {
-  config_path = "../../../acm"
 }
 
 inputs = {
@@ -48,8 +44,8 @@ inputs = {
     }
 
     # External-DNS
-    enable_external_dns            = true
-    external_dns_route53_zone_arns = local.route53_zone_arns
+    enable_external_dns = true
+    external_dns_route53_zone_arns = [local.hostedzone_arn]
     external_dns = {
       values = [
         <<-EOT
@@ -77,7 +73,7 @@ inputs = {
           - --feature-gates=ExperimentalGatewayAPISupport=true
         EOT
       ]
-    }
+    }      
 
     # Traefik Load Balancer
     enable_traefik_load_balancer = true
@@ -104,11 +100,7 @@ inputs = {
             "service.beta.kubernetes.io/aws-load-balancer-nlb-target-type": "instance"
             "service.beta.kubernetes.io/aws-load-balancer-name": "traefik"
             "service.beta.kubernetes.io/aws-load-balancer-scheme": "internet-facing"
-            "service.beta.kubernetes.io/aws-load-balancer-backend-protocol": "ssl"
-            "service.beta.kubernetes.io/aws-load-balancer-ssl-cert": "${join(",", dependency.acm.outputs.acm_certificate_arns)}"
-            "service.beta.kubernetes.io/aws-load-balancer-ssl-ports": "websecure"
-            "service.beta.kubernetes.io/aws-load-balancer-ssl-negotiation-policy": "ELBSecurityPolicy-TLS13-1-2-2021-06"
-            "external-dns.alpha.kubernetes.io/hostname": "${join(",", local.traefik_hostnames)}"
+            "external-dns.alpha.kubernetes.io/hostname": "${join(",", local.hostnames)}"
             "external-dns.alpha.kubernetes.io/aws-weight": "100"
             "external-dns.alpha.kubernetes.io/set-identifier": "traefik-blue"
         EOT
@@ -117,6 +109,5 @@ inputs = {
 
     # KubeVela Controller
     enable_kubevela_controller = true
-
   }
 }
