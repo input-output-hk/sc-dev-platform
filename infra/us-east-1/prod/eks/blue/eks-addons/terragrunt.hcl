@@ -5,12 +5,11 @@ locals {
   # Extract out common variables for reuse
   env       = local.environment_vars.locals.environment
   region    = local.environment_vars.locals.aws_region
-  hostnames = local.environment_vars.locals.hostnames
-  zone_id   = local.environment_vars.locals.zone_id
+  domains   = local.environment_vars.locals.route53_config
   profile   = local.account_vars.locals.aws_profile
- 
-  # Hosted Zone ARN for scdev-test.aws.iohkdev.io
-  hostedzone_arn = "arn:aws:route53:::hostedzone/${local.zone_id}"
+
+  route53_zone_arns = [for zone_id in values(local.domains): "arn:aws:route53:::hostedzone/${zone_id}"]
+  traefik_hostnames = [for domain in keys(local.domains): "*.${domain}"]
 }
 
 include {
@@ -50,7 +49,7 @@ inputs = {
 
     # External-DNS
     enable_external_dns = true
-    external_dns_route53_zone_arns = [local.hostedzone_arn]
+    external_dns_route53_zone_arns = local.route53_zone_arns
     external_dns = {
       values = [
         <<-EOT
@@ -106,10 +105,10 @@ inputs = {
             "service.beta.kubernetes.io/aws-load-balancer-name": "traefik"
             "service.beta.kubernetes.io/aws-load-balancer-scheme": "internet-facing"
             "service.beta.kubernetes.io/aws-load-balancer-backend-protocol": "ssl"
-            "service.beta.kubernetes.io/aws-load-balancer-ssl-cert": "${dependency.acm.outputs.acm_certificate_arn}"
+            "service.beta.kubernetes.io/aws-load-balancer-ssl-cert": "${join(",", dependency.acm.outputs.acm_certificate_arns)}"
             "service.beta.kubernetes.io/aws-load-balancer-ssl-ports": "websecure"
             "service.beta.kubernetes.io/aws-load-balancer-ssl-negotiation-policy": "ELBSecurityPolicy-TLS13-1-2-2021-06"
-            "external-dns.alpha.kubernetes.io/hostname": "${join(",", local.hostnames)}"
+            "external-dns.alpha.kubernetes.io/hostname": "${join(",", local.traefik_hostnames)}"
             "external-dns.alpha.kubernetes.io/aws-weight": "100"
             "external-dns.alpha.kubernetes.io/set-identifier": "traefik-blue"
         EOT
