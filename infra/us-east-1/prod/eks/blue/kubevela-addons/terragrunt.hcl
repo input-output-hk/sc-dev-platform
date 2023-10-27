@@ -17,7 +17,7 @@ include "root" {
 }
 
 terraform {
-  source = "github.com/input-output-hk/sc-dev-platform.git//infra/modules/kubevela-addons?ref=19b438710a48073a9637e9cb2250666d29d7048f"
+  source = "github.com/input-output-hk/sc-dev-platform.git//infra/modules/kubevela-addons?ref=4397a72703c0cdf3d10626cbaabdd7b1fd5b3052"
 }
 
 dependency "eks" {
