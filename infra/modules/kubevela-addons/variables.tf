@@ -29,6 +29,7 @@ variable "oidc_provider_arn" {
 }
 
 variable "namespace" {
+  description = "Set the namespace that kubevela is deployed to"
   type    = string
   default = "vela-system"
 }
