@@ -3,13 +3,13 @@ locals {
   environment_vars = read_terragrunt_config(find_in_parent_folders("env.hcl"))
   account_vars     = read_terragrunt_config(find_in_parent_folders("account.hcl"))
   # Extract out common variables for reuse
-  env       = local.environment_vars.locals.environment
-  region    = local.environment_vars.locals.aws_region
-  domains   = local.environment_vars.locals.route53_config
-  profile   = local.account_vars.locals.aws_profile
+  env     = local.environment_vars.locals.environment
+  region  = local.environment_vars.locals.aws_region
+  domains = local.environment_vars.locals.route53_config
+  profile = local.account_vars.locals.aws_profile
 
-  route53_zone_arns = [for zone_id in values(local.domains): "arn:aws:route53:::hostedzone/${zone_id}"]
-  traefik_hostnames = [for domain in keys(local.domains): "*.${domain}"]
+  route53_zone_arns = [for zone_id in values(local.domains) : "arn:aws:route53:::hostedzone/${zone_id}"]
+  traefik_hostnames = [for domain in keys(local.domains) : "*.${domain}"]
 }
 
 include {
@@ -48,7 +48,7 @@ inputs = {
     }
 
     # External-DNS
-    enable_external_dns = true
+    enable_external_dns            = true
     external_dns_route53_zone_arns = local.route53_zone_arns
     external_dns = {
       values = [
@@ -77,7 +77,7 @@ inputs = {
           - --feature-gates=ExperimentalGatewayAPISupport=true
         EOT
       ]
-    }      
+    }
 
     # Traefik Load Balancer
     enable_traefik_load_balancer = true
