@@ -37,8 +37,8 @@ inputs = {
   multi_az              = true
   storage_type          = "gp3"
   allocated_storage     = 1500
-  iops                  = 12000
   max_allocated_storage = 3000
+  iops                  = 12000
   storage_throughput    = 3000
   domain                = ""
   publicly_accessible   = false
@@ -64,32 +64,6 @@ inputs = {
   performance_insights_retention_period = 31
 
   ca_cert_identifier = "rds-ca-rsa2048-g1"
-
-  parameters = [
-    # https://github.com/input-output-hk/marlowe-cardano/blob/main/marlowe-runtime/doc/resources.md#sync-times
-    {
-      name         = "max_locks_per_transaction"
-      value        = "256"
-      apply_method = "pending-reboot"
-    },
-    {
-      name         = "max_pred_locks_per_transaction"
-      value        = "256"
-      apply_method = "pending-reboot"
-    },
-    {
-      name  = "max_wal_size"
-      value = "6144"
-    },
-    {
-      name  = "work_mem"
-      value = "32768"
-    },
-    {
-      name  = "maintenance_work_mem"
-      value = "262144"
-    }
-  ]
 
   auto_minor_version_upgrade = false
   apply_immediately          = true
