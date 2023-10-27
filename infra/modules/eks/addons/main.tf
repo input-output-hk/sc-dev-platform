@@ -140,12 +140,12 @@ data "kubectl_file_documents" "gateway_system" {
 }
 
 resource "kubectl_manifest" "gateway_crds" {
-  for_each  = try(var.eks_addons.enable_traefik_load_balancer, false) ? data.kubectl_file_documents.gateway_crds.manifests : {}
+  for_each  = try(var.eks_addons.enable_gateway_system, true) ? data.kubectl_file_documents.gateway_crds.manifests : {}
   yaml_body = each.value
 }
 
 resource "kubectl_manifest" "gateway_system" {
-  for_each  = try(var.eks_addons.enable_traefik_load_balancer, false) ? data.kubectl_file_documents.gateway_system.manifests : {}
+  for_each  = try(var.eks_addons.enable_gateway_system, true) ? data.kubectl_file_documents.gateway_system.manifests : {}
   yaml_body = each.value
 }
 
