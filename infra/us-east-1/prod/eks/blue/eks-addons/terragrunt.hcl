@@ -17,7 +17,7 @@ include {
 }
 
 terraform {
-  source = "github.com/input-output-hk/sc-dev-platform.git//infra/modules/eks/addons?ref=19b438710a48073a9637e9cb2250666d29d7048f"
+  source = "github.com/input-output-hk/sc-dev-platform.git//infra/modules/eks/addons?ref=4397a72703c0cdf3d10626cbaabdd7b1fd5b3052"
 }
 
 dependency "eks" {
@@ -61,24 +61,7 @@ inputs = {
         EOT
       ]
     }
-
-    # Cert-Manager
-    enable_cert_manager = true
-    cert_manager = {
-      chart_version = "v1.9.1" #FIXME
-      values = [
-        <<-EOT
-        ingressShim:
-          defaultIssuerName: letsencrypt
-          defaultIssuerKind: ClusterIssuer
-          defaultIssuerGroup: cert-manager.io
-      
-        extraArgs:
-          - --feature-gates=ExperimentalGatewayAPISupport=true
-        EOT
-      ]
-    }
-
+    
     # Traefik Load Balancer
     enable_traefik_load_balancer = true
     traefik_load_balancer = {
@@ -114,9 +97,6 @@ inputs = {
         EOT
       ]
     }
-
-    # Open-Telemetry Operator
-    # enable_otel_operator = true
 
     # KubeVela Controller
     enable_kubevela_controller = true
