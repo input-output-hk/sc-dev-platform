@@ -34,7 +34,7 @@ locals {
 # Terragrunt will copy the Terraform configurations specified by the source parameter, along with any files in the
 # working directory, into a temporary folder, and execute your Terraform commands in that folder.
 terraform {
-  source = "github.com/input-output-hk/sc-dev-platform.git//infra/modules/eks?ref=8461d7876cb82ca9c4971b53415a0f60863f0b48"
+  source = "github.com/input-output-hk/sc-dev-platform.git//infra/modules/eks?ref=1048ab55b5ba72be1d9811b7d058509947edd95d"
 }
 
 # Include all settings from the root terragrunt.hcl file

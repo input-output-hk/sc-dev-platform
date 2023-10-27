@@ -1,40 +1,37 @@
+locals {
+  # Automatically load environment-level variables
+  environment_vars = read_terragrunt_config(find_in_parent_folders("env.hcl"))
+  account_vars     = read_terragrunt_config(find_in_parent_folders("account.hcl"))
+  secret_vars      = yamldecode(sops_decrypt_file(find_in_parent_folders("secrets.yaml")))
+
+  # Extract out common variables for reuse
+  env               = local.environment_vars.locals.environment
+  region            = local.environment_vars.locals.aws_region
+  profile           = local.account_vars.locals.aws_profile
+  dex_client_id     = local.secret_vars.dex.clientID
+  dex_client_secret = local.secret_vars.dex.clientSecret
+}
+
 include "root" {
   path = find_in_parent_folders()
 }
 
-locals {
-  # Get provider configs
-  k8s     = read_terragrunt_config("${get_parent_terragrunt_dir()}/provider-configs/k8s.hcl")
-  helm    = read_terragrunt_config("${get_parent_terragrunt_dir()}/provider-configs/helm.hcl")
-  kubectl = read_terragrunt_config("${get_parent_terragrunt_dir()}/provider-configs/kubectl.hcl")
-
-  environment_vars = read_terragrunt_config(find_in_parent_folders("env.hcl"))
-  dapps_namespaces = local.environment_vars.locals.namespaces
-}
-
-# Generate provider blocks
-generate = merge(local.k8s.generate, local.helm.generate, local.kubectl.generate)
-
 terraform {
-  source = "../../../modules/kubevela-addons"
+  source = "github.com/input-output-hk/sc-dev-platform.git//infra/modules/kubevela-addons?ref=1048ab55b5ba72be1d9811b7d058509947edd95d"
 }
 
 dependency "eks" {
   config_path = "../eks"
-
-  mock_outputs = {
-    cluster_id              = "cluster-name"
-    cluster_oidc_issuer_url = "https://oidc.eks.eu-west-3.amazonaws.com/id/0000000000000000"
-  }
-}
-
-dependency "kubevela" {
-  config_path = "../kubevela"
 }
 
 inputs = {
-  # cluster-name = local.cluster
-  cluster-name     = dependency.eks.outputs.cluster_name
-  k8s-cluster-name = dependency.eks.outputs.cluster_name # for provider block
-  namespace        = dependency.kubevela.outputs.namespace
+  aws_profile                        = local.profile
+  cluster_name                       = dependency.eks.outputs.cluster_name
+  cluster_version                    = dependency.eks.outputs.cluster_version
+  cluster_endpoint                   = dependency.eks.outputs.cluster_endpoint
+  cluster_certificate_authority_data = dependency.eks.outputs.cluster_certificate_authority_data
+  oidc_provider_arn                  = dependency.eks.outputs.oidc_provider_arn
+  velaux_domain                      = "vela.test.scdev.iohk.io"
+  dex_client_id                      = local.dex_client_id
+  dex_client_secret                  = local.dex_client_secret
 }
