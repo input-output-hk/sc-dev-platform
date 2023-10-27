@@ -17,7 +17,7 @@ include {
 }
 
 terraform {
-  source = "github.com/input-output-hk/sc-dev-platform.git//infra/modules/eks/addons?ref=d12b6a69b4b0a95392eed1052c7fde653fbfbb71"
+  source = "github.com/input-output-hk/sc-dev-platform.git//infra/modules/eks/addons?ref=25ec51bd66eed7ccb9e8435553b028d7daa4f52c"
 }
 
 dependency "eks" {
@@ -108,7 +108,7 @@ inputs = {
     }
 
     # Open-Telemetry Operator
-    enable_otel_operator = true
+    # enable_otel_operator = true
 
     # KubeVela Controller
     enable_kubevela_controller = true
