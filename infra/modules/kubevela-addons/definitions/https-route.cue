@@ -19,7 +19,7 @@ outputs: {
 					sectionName: parameter.listenerName
 				}
 				if parameter.listenerName == _|_ {
-					sectionName: "web"
+					sectionName: "websecure"
 				}
 			}]
 			hostnames: parameter.domains
@@ -75,5 +75,5 @@ parameter: {
 	// +usage=Specify the gateway name
 	gatewayName?: *"traefik-gateway" | string
 	// +usage=Specify the listner name of the gateway
-	listenerName?: *"web" | string
+	listenerName?: *"websecure" | string
 }
