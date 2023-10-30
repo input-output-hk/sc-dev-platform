@@ -4,6 +4,9 @@ locals {
   account_vars     = read_terragrunt_config(find_in_parent_folders("account.hcl"))
   secret_vars      = yamldecode(sops_decrypt_file(find_in_parent_folders("secrets.yaml")))
 
+  # Generators
+  providers = read_terragrunt_config(find_in_parent_folders("${get_parent_terragrunt_dir()}/provider-configs/providers.hcl"))
+
   # Extract out common variables for reuse
   env               = local.environment_vars.locals.environment
   region            = local.environment_vars.locals.aws_region
@@ -16,8 +19,10 @@ include "root" {
   path = find_in_parent_folders()
 }
 
+generate = local.providers.generate
+
 terraform {
-  source = "github.com/input-output-hk/sc-dev-platform.git//infra/modules/kubevela-addons?ref=464f65bea1f574f26d58456701547a2aee31fa8c"
+  source = "github.com/input-output-hk/sc-dev-platform.git//infra/modules/kubevela-addons?ref=5d2f55141b239e9c842121c707d24a53be496acc"
 }
 
 dependency "eks" {

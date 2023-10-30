@@ -2,7 +2,7 @@ locals {
   # Automatically load environment-level variables
   environment_vars = read_terragrunt_config(find_in_parent_folders("env.hcl"))
   account_vars     = read_terragrunt_config(find_in_parent_folders("account.hcl"))
-  cluster_vars = read_terragrunt_config(find_in_parent_folders("cluster.hcl"))
+  cluster_vars     = read_terragrunt_config(find_in_parent_folders("cluster.hcl"))
 
   # Extract out common variables for reuse
   env            = local.environment_vars.locals.environment
@@ -36,7 +36,7 @@ locals {
 # Terragrunt will copy the Terraform configurations specified by the source parameter, along with any files in the
 # working directory, into a temporary folder, and execute your Terraform commands in that folder.
 terraform {
-  source = "github.com/input-output-hk/sc-dev-platform.git//infra/modules/eks?ref=464f65bea1f574f26d58456701547a2aee31fa8c"
+  source = "github.com/input-output-hk/sc-dev-platform.git//infra/modules/eks?ref=5d2f55141b239e9c842121c707d24a53be496acc"
 }
 
 # Include all settings from the root terragrunt.hcl file
