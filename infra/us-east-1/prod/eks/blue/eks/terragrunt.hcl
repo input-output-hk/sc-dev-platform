@@ -2,6 +2,7 @@ locals {
   # Automatically load environment-level variables
   environment_vars = read_terragrunt_config(find_in_parent_folders("env.hcl"))
   account_vars     = read_terragrunt_config(find_in_parent_folders("account.hcl"))
+  cluster_vars = read_terragrunt_config(find_in_parent_folders("cluster.hcl"))
 
   # Extract out common variables for reuse
   env            = local.environment_vars.locals.environment
@@ -11,7 +12,8 @@ locals {
   users          = local.account_vars.locals.users
   tribe          = local.account_vars.locals.tribe
   project        = local.account_vars.locals.project
-  name           = "${local.project}-${local.env}-${local.region}-blue"
+  name           = local.cluster_vars.locals.cluster_name
+  version        = local.cluster_vars.locals.version
 
   list_users = [for user in local.users :
     "arn:aws:iam::${local.aws_account_id}:user/${user}"
@@ -50,7 +52,7 @@ dependency "vpc" {
 # These are the variables we have to pass in to use the module specified in the terragrunt configuration above
 inputs = {
   cluster_name    = local.name
-  cluster_version = "1.26"
+  cluster_version = local.version
 
   cluster_endpoint_private_access = true
   cluster_endpoint_public_access  = true
