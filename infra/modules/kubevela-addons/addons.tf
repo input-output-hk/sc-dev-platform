@@ -1,8 +1,8 @@
 data "kubectl_filename_list" "manifests" {
-    pattern = "./addons/*.yaml"
+  pattern = "${var.addons_dir}/*.yaml"
 }
 
 resource "kubectl_manifest" "addons" {
-    count     = length(data.kubectl_filename_list.manifests.matches)
-    yaml_body = file(element(data.kubectl_filename_list.manifests.matches, count.index))
+  for_each  = toset(data.kubectl_filename_list.manifests.matches)
+  yaml_body = file(each.value)
 }

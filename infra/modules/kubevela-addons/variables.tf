@@ -1,37 +1,37 @@
 variable "aws_profile" {
   description = "AWS profile to use for deployment"
-  type = string
+  type        = string
 }
 
 variable "cluster_name" {
   description = "Name of the Kubernetes cluster"
-  type = string
+  type        = string
 }
 
 variable "cluster_version" {
   description = "Version of the Kubernetes cluster"
-  type = string
+  type        = string
 }
 
 variable "cluster_endpoint" {
   description = "Endpoint of the Kubernetes cluster"
-  type = string
+  type        = string
 }
 
 variable "cluster_certificate_authority_data" {
   description = "Certificate authority data for the Kubernetes cluster"
-  type = string
+  type        = string
 }
 
 variable "oidc_provider_arn" {
   description = "ARN of the OIDC provider for the Kubernetes cluster"
-  type = string
+  type        = string
 }
 
 variable "namespace" {
   description = "Set the namespace that kubevela is deployed to"
-  type    = string
-  default = "vela-system"
+  type        = string
+  default     = "vela-system"
 }
 
 variable "helm_defaults" {
@@ -55,4 +55,10 @@ variable "dex_client_secret" {
   description = "client secret for dex provider"
   type        = string
   sensitive   = true
+}
+
+variable "addons_dir" {
+  description = "Directory containing the addons manifests"
+  type        = string
+  default     = "./addons"
 }
