@@ -24,14 +24,12 @@ locals {
     username = user
     groups   = ["system:masters"]
   }]
-
-  tags = {}
 }
 
 # Terragrunt will copy the Terraform configurations specified by the source parameter, along with any files in the
 # working directory, into a temporary folder, and execute your Terraform commands in that folder.
 terraform {
-  source = "github.com/input-output-hk/sc-dev-platform.git//infra/modules/eks?ref=bb091f5eabc0f24fcc7dc4a3710a4b17a646ff61"
+  source = "github.com/input-output-hk/sc-dev-platform.git//infra/modules/eks?ref=1e0e7c68c1ac37c7d848f55b67e9b1dfee26ab0b"
 }
 
 # Include all settings from the root terragrunt.hcl file
@@ -49,7 +47,7 @@ inputs = {
   cluster_name    = local.name
   cluster_version = local.version
 
-  cluster_endpoint_public_access = "true"
+  cluster_endpoint_public_access = true
 
   vpc_id                   = dependency.vpc.outputs.vpc_id
   subnet_ids               = concat(dependency.vpc.outputs.private_subnets, dependency.vpc.outputs.public_subnets)
@@ -83,7 +81,4 @@ inputs = {
 
   kms_key_owners         = local.list_users
   kms_key_administrators = local.list_users
-
-  tags = local.tags
-
 }
