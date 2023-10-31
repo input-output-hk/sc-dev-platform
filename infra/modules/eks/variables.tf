@@ -11,7 +11,8 @@ variable "cluster_version" {
 }
 
 variable "cluster_endpoint_private_access" {
-  type = bool
+  type    = bool
+  default = true
 }
 
 variable "cluster_endpoint_public_access" {
@@ -31,11 +32,13 @@ variable "control_plane_subnet_ids" {
 }
 
 variable "node_security_group_additional_rules" {
-  type = any
+  type    = any
+  default = {}
 }
 
 variable "eks_managed_node_group_defaults" {
-  type = any
+  type    = any
+  default = {}
 }
 
 variable "eks_managed_node_groups" {
@@ -43,7 +46,8 @@ variable "eks_managed_node_groups" {
 }
 
 variable "manage_aws_auth_configmap" {
-  type = bool
+  type    = bool
+  default = true
 }
 
 variable "aws_auth_users" {
@@ -51,7 +55,8 @@ variable "aws_auth_users" {
 }
 
 variable "aws_auth_roles" {
-  type = any
+  type    = any
+  default = []
 }
 
 variable "kms_key_owners" {
