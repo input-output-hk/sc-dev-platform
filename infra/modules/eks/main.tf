@@ -21,11 +21,11 @@ module "eks" {
   subnet_ids               = var.subnet_ids
   control_plane_subnet_ids = var.control_plane_subnet_ids
 
-  node_security_group_additional_rules = var.node_security_group_additional_rules
+  node_security_group_additional_rules = merge(local.node_security_group_additional_rules, var.node_security_group_additional_rules)
 
   cluster_addons = local.cluster_addons
 
-  eks_managed_node_group_defaults = var.eks_managed_node_group_defaults
+  eks_managed_node_group_defaults = merge(local.eks_managed_node_group_defaults, var.eks_managed_node_group_defaults)
   eks_managed_node_groups         = var.eks_managed_node_groups
 
   manage_aws_auth_configmap = var.manage_aws_auth_configmap
