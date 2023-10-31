@@ -36,7 +36,7 @@ locals {
 # Terragrunt will copy the Terraform configurations specified by the source parameter, along with any files in the
 # working directory, into a temporary folder, and execute your Terraform commands in that folder.
 terraform {
-  source = "github.com/input-output-hk/sc-dev-platform.git//infra/modules/eks?ref=5d2f55141b239e9c842121c707d24a53be496acc"
+  source = "github.com/input-output-hk/sc-dev-platform.git//infra/modules/eks"
 }
 
 # Include all settings from the root terragrunt.hcl file
@@ -75,54 +75,6 @@ inputs = {
       protocol                      = "-1"
       type                          = "ingress"
       source_cluster_security_group = true
-    }
-    ingress_node_port_tcp_1 = {
-      from_port        = 1025
-      to_port          = 5472 # Exclude calico-typha port 5473
-      protocol         = "tcp"
-      type             = "ingress"
-      cidr_blocks      = ["0.0.0.0/0"]
-      ipv6_cidr_blocks = ["::/0"]
-    }
-    ingress_node_port_tcp_2 = {
-      from_port        = 5474
-      to_port          = 10249 # Exclude kubelet port 10250
-      protocol         = "tcp"
-      type             = "ingress"
-      cidr_blocks      = ["0.0.0.0/0"]
-      ipv6_cidr_blocks = ["::/0"]
-    }
-    ingress_node_port_tcp_3 = {
-      from_port        = 10251
-      to_port          = 10255 # Exclude kube-proxy HCHK port 10256
-      protocol         = "tcp"
-      type             = "ingress"
-      cidr_blocks      = ["0.0.0.0/0"]
-      ipv6_cidr_blocks = ["::/0"]
-    }
-    ingress_node_port_tcp_4 = {
-      from_port        = 10257
-      to_port          = 61677 # Exclude aws-node port 61678
-      protocol         = "tcp"
-      type             = "ingress"
-      cidr_blocks      = ["0.0.0.0/0"]
-      ipv6_cidr_blocks = ["::/0"]
-    }
-    ingress_node_port_tcp_5 = {
-      from_port        = 61679
-      to_port          = 65535
-      protocol         = "tcp"
-      type             = "ingress"
-      cidr_blocks      = ["0.0.0.0/0"]
-      ipv6_cidr_blocks = ["::/0"]
-    }
-    ingress_node_port_udp = {
-      from_port        = 1025
-      to_port          = 65535
-      protocol         = "udp"
-      type             = "ingress"
-      cidr_blocks      = ["0.0.0.0/0"]
-      ipv6_cidr_blocks = ["::/0"]
     }
     egress_all = {
       from_port        = 0
