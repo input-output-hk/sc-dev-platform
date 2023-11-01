@@ -43,7 +43,7 @@ locals {
 # Terragrunt will copy the Terraform configurations specified by the source parameter, along with any files in the
 # working directory, into a temporary folder, and execute your Terraform commands in that folder.
 terraform {
-  source = "github.com/terraform-aws-modules/terraform-aws-eks//.?ref=v18.29.0"
+  source = "github.com/input-output-hk/sc-dev-platform.git//infra/modules/eks?ref=499c85e175c0985795b9aa9b0f6ec9148619bc19"
 
   after_hook "kubeconfig" {
     commands = ["apply"]
