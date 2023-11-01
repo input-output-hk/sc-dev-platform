@@ -1,6 +1,6 @@
 locals {
   # Set kubernetes provider
-  k8s = read_terragrunt_config("${get_parent_terragrunt_dir()}/provider-configs/k8s.hcl")
+  providers = read_terragrunt_config("${get_parent_terragrunt_dir()}/provider-configs/providers.hcl")
 
   # Automatically load environment-level variables
   environment_vars = read_terragrunt_config(find_in_parent_folders("env.hcl"))
@@ -67,7 +67,7 @@ dependency "encryption_config" {
 }
 
 # Generate k8s provider block
-generate = local.k8s.generate
+generate = local.providers.generate
 
 # These are the variables we have to pass in to use the module specified in the terragrunt configuration above
 inputs = {
