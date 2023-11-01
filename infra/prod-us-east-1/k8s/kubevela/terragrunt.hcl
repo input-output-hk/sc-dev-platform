@@ -4,9 +4,7 @@ include "root" {
 
 locals {
   # Get provider configs
-  k8s     = read_terragrunt_config("${get_parent_terragrunt_dir()}/provider-configs/k8s.hcl")
-  helm    = read_terragrunt_config("${get_parent_terragrunt_dir()}/provider-configs/helm.hcl")
-  kubectl = read_terragrunt_config("${get_parent_terragrunt_dir()}/provider-configs/kubectl.hcl")
+  providers = read_terragrunt_config("${get_parent_terragrunt_dir()}/provider-configs/providers.hcl")
 
   environment_vars = read_terragrunt_config(find_in_parent_folders("env.hcl"))
   dapps_namespaces = local.environment_vars.locals.namespaces
@@ -14,7 +12,7 @@ locals {
 }
 
 # Generate provider blocks
-generate = merge(local.k8s.generate, local.helm.generate, local.kubectl.generate)
+generate = local.providers.generate
 
 terraform {
   source = "../../../modules/kubevela"
