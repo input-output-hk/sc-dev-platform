@@ -22,7 +22,7 @@ include "root" {
 generate = local.providers.generate
 
 terraform {
-  source = "github.com/input-output-hk/sc-dev-platform.git//infra/modules/kubevela-addons?ref=5d2f55141b239e9c842121c707d24a53be496acc"
+  source = "github.com/input-output-hk/sc-dev-platform.git//infra/modules/kubevela-addons"
 }
 
 dependency "eks" {
