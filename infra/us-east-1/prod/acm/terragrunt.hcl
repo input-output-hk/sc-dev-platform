@@ -15,7 +15,7 @@ include {
 }
 
 terraform {
-  source = "github.com/input-output-hk/sc-dev-platform.git//infra/modules/acm?ref=205be46cf8fc5f93f4dffaaab35fb783dfd811dc"
+  source = "../../../modules/acm"
 }
 
 inputs = {
