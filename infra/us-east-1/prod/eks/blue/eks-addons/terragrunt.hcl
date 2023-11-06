@@ -21,7 +21,7 @@ include {
 }
 
 terraform {
-  source = "github.com/input-output-hk/sc-dev-platform.git//infra/modules/eks/addons?ref=5d2f55141b239e9c842121c707d24a53be496acc"
+  source = "github.com/input-output-hk/sc-dev-platform.git//infra/modules/eks/addons"
 }
 
 dependency "eks" {
@@ -75,46 +75,31 @@ inputs = {
         <<-EOT
         image:
           tag: "v3.0"
-
         experimental:
           kubernetesGateway:
             enabled: true
             namespacePolicy: All
-            certificate:
-              group: "core"
-              kind: "Secret"
-              name: "self-signed-tls"
-
         ports:
           web:
             redirectTo:
               port: websecure
               priority: 10
-
+          websecure:
+            tls:
+              enabled: false
         service:
           annotations:
             "service.beta.kubernetes.io/aws-load-balancer-type": "external"
             "service.beta.kubernetes.io/aws-load-balancer-nlb-target-type": "instance"
             "service.beta.kubernetes.io/aws-load-balancer-name": "traefik"
             "service.beta.kubernetes.io/aws-load-balancer-scheme": "internet-facing"
-            "service.beta.kubernetes.io/aws-load-balancer-backend-protocol": "ssl"
+            "service.beta.kubernetes.io/aws-load-balancer-backend-protocol": "tcp"
             "service.beta.kubernetes.io/aws-load-balancer-ssl-cert": "${join(",", dependency.acm.outputs.acm_certificate_arns)}"
             "service.beta.kubernetes.io/aws-load-balancer-ssl-ports": "websecure"
             "service.beta.kubernetes.io/aws-load-balancer-ssl-negotiation-policy": "ELBSecurityPolicy-TLS13-1-2-2021-06"
             "external-dns.alpha.kubernetes.io/hostname": "${join(",", local.traefik_hostnames)}"
             "external-dns.alpha.kubernetes.io/aws-weight": "100"
             "external-dns.alpha.kubernetes.io/set-identifier": "traefik-blue"
-
-        extraObjects:
-          - apiVersion: v1
-            data:
-              tls.crt: ${local.secret_vars.traefik.tls_crt}
-              tls.key: ${local.secret_vars.traefik.tls_key}
-            kind: Secret
-            metadata:
-              name: self-signed-tls
-              namespace: traefik
-            type: kubernetes.io/tls 
         EOT
       ]
     }
