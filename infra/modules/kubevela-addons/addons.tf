@@ -4,5 +4,5 @@ data "kubectl_filename_list" "manifests" {
 
 resource "kubectl_manifest" "addons" {
   for_each  = toset(data.kubectl_filename_list.manifests.matches)
-  yaml_body = file(each.value)
+  yaml_body = try(file(each.value), null)
 }
