@@ -2,7 +2,7 @@ locals {
   # Automatically load environment-level variables
   environment_vars = read_terragrunt_config(find_in_parent_folders("env.hcl"))
   account_vars     = read_terragrunt_config(find_in_parent_folders("account.hcl"))
-#  cluster_vars     = read_terragrunt_config(find_in_parent_folders("cluster.hcl"))
+  #  cluster_vars     = read_terragrunt_config(find_in_parent_folders("cluster.hcl"))
 
   # Extract out common variables for reuse
   env            = local.environment_vars.locals.environment
@@ -54,16 +54,17 @@ inputs = {
   control_plane_subnet_ids = dependency.vpc.outputs.intra_subnets
 
   eks_managed_node_group_defaults = {
-    # aws ssm get-parameters-by-path --path /aws/service/bottlerocket/aws-k8s-1.26/x86_64/latest/ --region us-east-1 --recursive | jq -r '.Parameters[1].Value'
+    # aws ssm get-parameters-by-path --path /aws/service/bottlerocket/aws-k8s-1.26/x86_64/latest/ --region us-east-1 \
+    # --recursive | jq -r '.Parameters[1].Value'
     ami_release_version = "1.16.0-d2d9cf87"
   }
 
   eks_managed_node_groups = {
     "worker" = {
       instance_types = ["t3.medium", "t3a.medium"]
-      min_size = 3
-      max_size = 6
-      desired_size = 3
+      min_size       = 3
+      max_size       = 6
+      desired_size   = 3
       subnet_ids     = dependency.vpc.outputs.private_subnets
       labels = {
         network = "private"
