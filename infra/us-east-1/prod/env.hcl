@@ -11,6 +11,7 @@ locals {
   route53_config = {
     "scdev.aws.iohkdev.io"      = "Z10147571DRRDCJXSER5Y"
     "test.scdev.aws.iohkdev.io" = "Z10147571DRRDCJXSER5Y"
+    "demo.scdev.aws.iohkdev.io" = "Z10147571DRRDCJXSER5Y"
     "marlowe.iohk.io"           = "Z0440193WFXP2UUTHQ1S"
   }
   cidr_prefix = "10.30"
