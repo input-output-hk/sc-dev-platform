@@ -9,6 +9,6 @@
     kubernetes-helm
   ];
   env = {
-    KUBECONFIG = "${self}/infra/kubeconfig-dapps-prod-us-east-1:${self}/infra/kubeconfig-scde-prod-us-east-1-blue";
+    KUBECONFIG = "${self}/infra/kube.config;
   };
 }
