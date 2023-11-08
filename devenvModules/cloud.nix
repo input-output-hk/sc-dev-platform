@@ -9,6 +9,6 @@
     kubernetes-helm
   ];
   env = {
-    KUBECONFIG = "${self}/infra/kubeconfig;
+    KUBECONFIG = "${self}/infra/kube.config;
   };
 }
