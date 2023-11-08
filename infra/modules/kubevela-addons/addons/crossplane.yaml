@@ -1,0 +1,71 @@
+apiVersion: core.oam.dev/v1beta1
+kind: Application
+metadata:
+  annotations:
+    oam.dev/kubevela-version: v1.9.7
+  finalizers:
+  - app.oam.dev/resource-tracker-finalizer
+  generation: 2
+  labels:
+    addons.oam.dev/name: crossplane
+    addons.oam.dev/registry: KubeVela
+    addons.oam.dev/version: 1.14.0
+  name: addon-crossplane
+  namespace: vela-system
+spec:
+  components:
+  - name: crossplane
+    properties:
+      chart: crossplane
+      repoType: helm
+      url: https://charts.crossplane.io/stable
+      values:
+        extraObjects:
+        - apiVersion: pkg.crossplane.io/v1alpha1
+          kind: ControllerConfig
+          metadata:
+            annotations:
+              eks.amazonaws.com/role-arn: arn:aws:iam::677160962006:role/CrossPlaneAdministratorAccessRole
+              helm.sh/hook: post-install
+            name: aws-config
+          spec:
+            podSecurityContext:
+              fsGroup: 2000
+        - apiVersion: pkg.crossplane.io/v1
+          kind: Provider
+          metadata:
+            annotations:
+              helm.sh/hook: post-install
+            name: provider-aws
+          spec:
+            controllerConfigRef:
+              name: aws-config
+            package: xpkg.upbound.io/crossplane-contrib/provider-aws:v0.44.2
+        replicas: 1
+      version: 1.14.0
+    type: helm
+  - name: crossplane-provider-config
+    properties:
+      objects:
+      - apiVersion: aws.crossplane.io/v1beta1
+        kind: ProviderConfig
+        metadata:
+          name: aws-provider
+        spec:
+          credentials:
+            source: InjectedIdentity
+    type: k8s-objects
+  workflow:
+    steps:
+    - name: apply-crossplane
+      properties:
+        component: crossplane
+      type: apply-component
+    - name: wait-crds
+      properties:
+        duration: 3m
+      type: suspend
+    - name: apply-crossplane-config
+      properties:
+        component: crossplane-provider-config
+      type: apply-component
