@@ -70,6 +70,14 @@ spec:
         - vela.scdev.aws.iohkdev.io
         rules:
         - port: 8000
+      type: http-route
+    - properties:
+        domains:
+        - vela.scdev.aws.iohkdev.io
+        rules:
+        - port: 8000
+        secrets:
+        - name: test
       type: https-route
     type: webservice
 ---

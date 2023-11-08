@@ -1,7 +1,3 @@
-locals {
-  dex_connector_data = "{\"clientID\":${var.dex_client_id},\"clientSecret\":${var.dex_client_secret},\"hostedDomains\":[\"iohk.io\"],\"redirectURI\":\"https://${var.velaux_domain}/callback\"}"
-}
-
 resource "kubernetes_secret" "dex-config" {
   metadata {
     name      = "dex-config"
@@ -57,31 +53,5 @@ resource "kubernetes_secret" "dex-config" {
         tlsKey         = ""
       }
     })
-  }
-}
-
-resource "kubernetes_secret" "dex-connector" {
-  metadata {
-    name      = "google"
-    namespace = var.namespace
-
-    annotations = {
-      "config.oam.dev/alias"              = ""
-      "config.oam.dev/description"        = ""
-      "config.oam.dev/sensitive"          = "false"
-      "config.oam.dev/template-namespace" = "vela-system"
-    }
-
-    labels = {
-      "config.oam.dev/catalog"  = "velacore-config"
-      "config.oam.dev/scope"    = "system"
-      "config.oam.dev/sub-type" = "google"
-      "config.oam.dev/type"     = "dex-connector"
-    }
-  }
-
-  data = {
-    "google" : local.dex_connector_data
-    "input-properties" : local.dex_connector_data
   }
 }
