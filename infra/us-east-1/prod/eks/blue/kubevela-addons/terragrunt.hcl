@@ -36,7 +36,7 @@ inputs = {
   cluster_endpoint                   = dependency.eks.outputs.cluster_endpoint
   cluster_certificate_authority_data = dependency.eks.outputs.cluster_certificate_authority_data
   oidc_provider_arn                  = dependency.eks.outputs.oidc_provider_arn
-  velaux_domain                      = "vela.test.scdev.iohk.io"
+  velaux_domain                      = "vela.scdev.aws.iohkdev.io"
   dex_client_id                      = local.dex_client_id
   dex_client_secret                  = local.dex_client_secret
 }
