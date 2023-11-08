@@ -55,3 +55,29 @@ resource "kubernetes_secret" "dex-config" {
     })
   }
 }
+
+resource "kubernetes_secret" "dex-connector" {
+  metadata {
+    name      = "google"
+    namespace = var.namespace
+
+    annotations = {
+      "config.oam.dev/alias" = ""
+      "config.oam.dev/description" = ""
+      "config.oam.dev/sensitive" = "false"
+      "config.oam.dev/template-namespace" = "vela-system"
+    }
+
+    labels = {
+     "config.oam.dev/catalog" = "velacore-config"
+     "config.oam.dev/scope" = "system"
+     "config.oam.dev/sub-type" = "google"
+     "config.oam.dev/type" = "dex-connector"
+    }
+  }
+
+ data = {
+   "google": "{\"clientID\":${var.dex_client_id},\"clientSecret\":${var.dex_client_secret},\"hostedDomains\":[\"iohk.io\"],\"redirectURI\":\"https://${var.velaux_domain}/callback\"}"
+   "input-properties": "{\"clientID\":${var.dex_client_id},\"clientSecret\":${var.dex_client_secret},\"hostedDomains\":[\"iohk.io\"],\"redirectURI\":\"https://${var.velaux_domain}/callback\"}"
+ }
+}
