@@ -17,4 +17,10 @@ locals {
     "runner.marlowe.iohk.io"    = "Z0440193WFXP2UUTHQ1S"
   }
   cidr_prefix = "10.30"
+  # New VPC configuration
+  new_vpc_cidr = "10.100.0.0/16"
+  new_vpc_public_subnets = [
+    "10.100.0.0/20",
+    "10.100.16.0/20",
+    ]
 }
