@@ -50,7 +50,7 @@ resource "kubernetes_secret" "dex-config" {
         http = "",
       }
       web = {
-        allowedOrigins = "null",
+        allowedOrigins = [],
         http           = "0.0.0.0:5556",
         https          = "",
         tlsCert        = "",
