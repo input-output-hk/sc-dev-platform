@@ -34,11 +34,7 @@ inputs = {
   private_subnets = ["${local.cidr_prefix}.48.0/20", "${local.cidr_prefix}.64.0/20", "${local.cidr_prefix}.80.0/20"]   # /20 will allow 4096 ips per subnet
   public_subnets  = ["${local.cidr_prefix}.0.0/20", "${local.cidr_prefix}.16.0/20", "${local.cidr_prefix}.32.0/20"]    # /20 will allow 4096 ips per subnet
   intra_subnets   = ["${local.cidr_prefix}.96.0/22", "${local.cidr_prefix}.100.0/22", "${local.cidr_prefix}.104.0/22"] # /22 will allow 1024 ips per subnet
-  
-  # New VPC configuration
-  new_vpc_cidr = local.new_vpc_cidr
-  new_vpc_public_subnets = local.new_vpc_public_subnets
-  
+
   enable_nat_gateway     = true
   single_nat_gateway     = false
   one_nat_gateway_per_az = true
