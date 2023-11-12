@@ -11,6 +11,7 @@
     self'.packages.kubevela
     cue
     kubernetes-helm
+    kustomize
   ];
   env = {
     KUBECONFIG = "${self}/infra/kube.config";

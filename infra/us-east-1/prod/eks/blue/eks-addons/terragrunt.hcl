@@ -21,7 +21,7 @@ include {
 }
 
 terraform {
-  source = "github.com/input-output-hk/sc-dev-platform.git//infra/modules/eks/addons"
+  source = "../../../../../modules/eks/addons"
 }
 
 dependency "eks" {
