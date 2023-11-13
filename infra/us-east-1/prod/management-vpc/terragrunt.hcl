@@ -1,75 +1,52 @@
-# terraform.tf
-
-provider "aws" {
-  region = "us-east-1"
+locals {
+  # Automatically load environment-level variables
+  environment_vars = read_terragrunt_config(find_in_parent_folders("env.hcl"))
+  account_vars     = read_terragrunt_config(find_in_parent_folders("account.hcl"))
+  # Extract out common variables for reuse
+  env         = local.environment_vars.locals.environment
+  region      = local.environment_vars.locals.aws_region
+  project     = local.environment_vars.locals.project
+  tribe       = local.account_vars.locals.tribe
+  name        = "Management-vpc"
+  # New VPC configuration
+  new_vpc_cidr = "10.100"
 }
 
-resource "aws_vpc" "management_vpc" {
-  cidr_block           = "10.100.0.0/16"
-  enable_dns_support   = true
+# Terragrunt will copy the Terraform configurations specified by the source parameter, along with any files in the
+# working directory, into a temporary folder, and execute your Terraform commands in that folder.
+terraform {
+  source = "git::https://github.com/terraform-aws-modules/terraform-aws-vpc.git//.?ref=v5.1.1"
+}
+
+# Include all settings from the root terragrunt.hcl file
+include {
+  path = find_in_parent_folders()
+}
+
+# These are the variables we have to pass in to use the module specified in the terragrunt configuration above
+inputs = {
+  name = local.name
+  cidr = "${local.new_vpc_cidr}.0.0/16"
+
+  azs             = ["${local.region}a", "${local.region}b"]
+  public_subnets  = ["${local.new_vpc_cidr}.0.0/20", "${local.new_vpc_cidr}.16.0/20"]    # /20 will allow 4096 ips per subnet
+
+
+  enable_nat_gateway     = false
+  single_nat_gateway     = false
+  one_nat_gateway_per_az = true
+
   enable_dns_hostnames = true
+  enable_dns_support   = true
 
-  tags = {
-    Name = "Management-vpc"
+  public_subnet_tags = {
+    "Name"  = "${local.name}.PublicSubnet"
   }
-}
 
-resource "aws_subnet" "public_subnet" {
-  count               = 2
-  vpc_id              = aws_vpc.management_vpc.id
-  cidr_block          = cidrsubnet(aws_vpc.management_vpc.cidr_block, 4, count.index * 4)
-  availability_zone   = element(["us-east-1a", "us-east-1b"], count.index)
-  map_public_ip_on_launch = true
 
-  tags = {
-    Name = "management-public-subnet-${count.index + 1}"
-  }
-}
+  map_public_ip_on_launch       = true
+  manage_default_network_acl    = false
+  manage_default_route_table    = false
+  manage_default_security_group = false
 
-resource "aws_internet_gateway" "management_igw" {
-  vpc_id = aws_vpc.management_vpc.id
-}
-
-resource "aws_route_table" "public_route_table" {
-  count = 2
-  vpc_id = aws_vpc.management_vpc.id
-}
-
-resource "aws_route" "public_route" {
-  count                 = 2
-  route_table_id        = aws_route_table.public_route_table[count.index].id
-  destination_cidr_block = "0.0.0.0/0"
-  gateway_id            = aws_internet_gateway.management_igw.id
-}
-
-resource "aws_subnet_route_table_association" "public_route_association" {
-  count          = 2
-  subnet_id      = aws_subnet.public_subnet[count.index].id
-  route_table_id = aws_route_table.public_route_table[count.index].id
-}
-
-# VPC Peering Configuration
-#resource "aws_vpc_peering_connection" "peering" {
-#  peer_vpc_id = "vpc-099d582f5470a11f3" # Existing VPC ID which is EKS VPC
-#  vpc_id      = aws_vpc.management_vpc.id
-#}
-
-#resource "aws_vpc_peering_connection_accepter" "accepter" {
-#  vpc_peering_connection_id = aws_vpc_peering_connection.peering.id
-# auto_accept              = true
-#}
-
-# New route for VPC peering connection
-#resource "aws_route" "eks_vpc_route" {
-#  route_table_id            = aws_route_table.public_route_table[0].id # Use the desired route table ID
-# destination_cidr_block    = "10.30.0.0/16"
-# vpc_peering_connection_id = aws_vpc_peering_connection.peering.id
-#}
-
-output "vpc_id" {
-  value = aws_vpc.management_vpc.id
-}
-
-output "public_subnet_ids" {
-  value = aws_subnet.public_subnet[*].id
 }
