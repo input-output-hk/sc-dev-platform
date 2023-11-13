@@ -49,22 +49,22 @@ resource "aws_subnet_route_table_association" "public_route_association" {
 }
 
 # VPC Peering Configuration
-resource "aws_vpc_peering_connection" "peering" {
-  peer_vpc_id = "vpc-099d582f5470a11f3" # Existing VPC ID which is EKS VPC
-  vpc_id      = aws_vpc.management_vpc.id
-}
+#resource "aws_vpc_peering_connection" "peering" {
+#  peer_vpc_id = "vpc-099d582f5470a11f3" # Existing VPC ID which is EKS VPC
+#  vpc_id      = aws_vpc.management_vpc.id
+#}
 
-resource "aws_vpc_peering_connection_accepter" "accepter" {
-  vpc_peering_connection_id = aws_vpc_peering_connection.peering.id
-  auto_accept              = true
-}
+#resource "aws_vpc_peering_connection_accepter" "accepter" {
+#  vpc_peering_connection_id = aws_vpc_peering_connection.peering.id
+# auto_accept              = true
+#}
 
 # New route for VPC peering connection
-resource "aws_route" "eks_vpc_route" {
-  route_table_id            = aws_route_table.public_route_table[0].id # Use the desired route table ID
-  destination_cidr_block    = "10.30.0.0/16"
-  vpc_peering_connection_id = aws_vpc_peering_connection.peering.id
-}
+#resource "aws_route" "eks_vpc_route" {
+#  route_table_id            = aws_route_table.public_route_table[0].id # Use the desired route table ID
+# destination_cidr_block    = "10.30.0.0/16"
+# vpc_peering_connection_id = aws_vpc_peering_connection.peering.id
+#}
 
 output "vpc_id" {
   value = aws_vpc.management_vpc.id
