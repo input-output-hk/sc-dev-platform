@@ -10,7 +10,7 @@ spec:
       type: kustomize
       properties:
         git:
-          branch: master
+          branch: main
           provider: GitHub
         path: infra/kube-objects
         prune: true
