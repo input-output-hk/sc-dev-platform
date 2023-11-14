@@ -5,7 +5,6 @@ metadata:
     oam.dev/kubevela-version: v1.9.7
   finalizers:
   - app.oam.dev/resource-tracker-finalizer
-  generation: 2
   labels:
     addons.oam.dev/name: crossplane
     addons.oam.dev/registry: KubeVela
