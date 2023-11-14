@@ -25,7 +25,7 @@ spec:
           kind: ControllerConfig
           metadata:
             annotations:
-              eks.amazonaws.com/role-arn: arn:aws:iam::677160962006:role/CrossPlaneAdministratorAccessRole
+              eks.amazonaws.com/role-arn: arn:aws:iam::677160962006:role/CrossPlaneAddonRole
               helm.sh/hook: post-install
             name: aws-config
           spec:
