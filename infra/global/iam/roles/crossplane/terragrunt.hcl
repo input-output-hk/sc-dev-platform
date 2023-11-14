@@ -31,5 +31,6 @@ inputs = {
   role_policy_arns = {
     AmazonS3FullAccess  = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
     AmazonRDSFullAccess = "arn:aws:iam::aws:policy/AmazonRDSFullAccess"
+    AmazonIAMFullAccess = "arn:aws:iam::aws:policy/IAMFullAccess"
   }
 }
