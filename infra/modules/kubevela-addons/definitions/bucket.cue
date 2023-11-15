@@ -76,7 +76,7 @@ template: {
 				}
 				forProvider: {
 					description: "Allow application access to S3 bucket"
-					name:        "policy-\( parameter.bucketName )"
+					name:        parameter.bucketName
 					document:    """
 						{
 							"Version": "2012-10-17",
@@ -90,6 +90,11 @@ template: {
 										"arn:aws:s3:::\( parameter.bucketName )/*",
 										"arn:aws:s3:::\( parameter.bucketName )"
 									]
+								},
+								{
+									"Effect": "Allow",
+									"Action": "s3:ListAllMyBuckets",
+									"Resource": "*"
 								}
 							]
 						}
@@ -155,8 +160,8 @@ template: {
 					deletionPolicy: parameter.deletionPolicy
 				}
 				forProvider: {
-					policyArnRef: name: "policy-\( parameter.bucketName )"
-					roleNameRef: name:  "role-\( parameter.bucketName )"
+					policyArnRef: name: parameter.bucketName
+					roleNameRef: name: parameter.bucketName
 				}
 				providerConfigRef: name: "aws-provider"
 			}
