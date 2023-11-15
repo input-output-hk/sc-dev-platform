@@ -1,7 +1,7 @@
 variable "namespace" {
-  description = "Set the namespace that grafana-agent is deployed to"
+  description = "Set the namespace that grafana_agent is deployed to"
   type        = string
-  default     = "grafana-agent"
+  default     = "grafana_agent"
 }
 
 variable "helm_defaults" {
@@ -10,29 +10,29 @@ variable "helm_defaults" {
   default     = {}
 }
 
-variable "cluster-name" {
+variable "cluster_name" {
   description = "Name of the Kubernetes cluster"
-  default     = "sample-cluster"
+  default     = "sample_cluster"
   type        = string
 }
 
-variable "grafana-password" {
+variable "grafana_password" {
   description = "password to grafana cloud"
-  type = string
-  sensitive = true
+  type        = string
+  sensitive   = true
 }
 
-variable "grafana-tempo-username" {
+variable "grafana_tempo_username" {
   description = "username to grafana cloud for Tempo service"
-  type = string
+  type        = string
 }
 
-variable "grafana-loki-username" {
+variable "grafana_loki_username" {
   description = "username to grafana cloud for Loki service in k8s monitoring"
-  type = string
+  type        = string
 }
 
-variable "grafana-prom-username" {
+variable "grafana_prom_username" {
   description = "username to grafana cloud for Prometheus service in k8s monitoring"
-  type = string
+  type        = string
 }
