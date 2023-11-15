@@ -1,40 +1,34 @@
+locals {
+  # Get provider configs
+  providers = read_terragrunt_config("${get_parent_terragrunt_dir()}/provider-configs/providers.hcl")
+
+  environment_vars = read_terragrunt_config(find_in_parent_folders("env.hcl"))
+  secret_vars      = yamldecode(sops_decrypt_file(find_in_parent_folders("secrets.yaml")))
+
+  grafana-password = local.secret_vars.grafana-api-key.secret
+}
+
 include "root" {
   path = find_in_parent_folders()
 }
 
-locals {
-  # Get provider configs
-  k8s  = read_terragrunt_config("${get_parent_terragrunt_dir()}/provider-configs/k8s.hcl")
-  helm = read_terragrunt_config("${get_parent_terragrunt_dir()}/provider-configs/helm.hcl")
-
-  environment_vars = read_terragrunt_config(find_in_parent_folders("env.hcl"))
-  dapps_namespaces = local.environment_vars.locals.namespaces
-
-  secret_vars      = yamldecode(sops_decrypt_file(find_in_parent_folders("secrets.yaml")))
-  grafana-password = local.secret_vars.grafana-api-key.secret
-}
-
 # Generate provider blocks
-generate = merge(local.k8s.generate, local.helm.generate)
+generate = local.providers.generate
 
 terraform {
-  source = "../../../modules/grafana-agent"
+  source = "../../../../../modules/grafana-agent"
 }
 
 dependency "eks" {
   config_path = "../eks"
-
-  mock_outputs = {
-    cluster_name            = "cluster-name"
-    cluster_oidc_issuer_url = "https://oidc.eks.eu-west-3.amazonaws.com/id/0000000000000000"
-  }
 }
 
 inputs = {
-  # cluster-name = local.cluster
-  cluster-name     = dependency.eks.outputs.cluster_name
-  k8s-cluster-name = dependency.eks.outputs.cluster_name # for provider block
-  namespace        = "grafana-agent"
-  grafana-username = "379443"
-  grafana-password = local.grafana-password
+  cluster_name           = dependency.eks.outputs.cluster_name
+  namespace              = "grafana-agent"
+  grafana_username       = "379443"
+  grafana_loki_username  = "382930"
+  grafana_prom_username  = "767922"
+  grafana_tempo_username = "379443"
+  grafana_password       = local.grafana-password
 }

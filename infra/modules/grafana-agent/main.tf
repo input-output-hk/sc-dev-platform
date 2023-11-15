@@ -6,21 +6,21 @@ resource "kubernetes_namespace" "grafana-agent" {
 
 resource "kubernetes_secret" "grafana-password" {
   metadata {
-    name = "grafana-password"
+    name      = "grafana-password"
     namespace = var.namespace
   }
 
   data = {
-    GRAFANA_PASSWORD = var.grafana-password
+    GRAFANA_PASSWORD = var.grafana_password
   }
 }
 
 resource "helm_release" "grafana_agent" {
   repository = "https://grafana.github.io/helm-charts"
-  name = "grafana-agent"
-  chart = "grafana-agent"
-  namespace = var.namespace
-  values = [ <<-VALUES
+  name       = "grafana-agent"
+  chart      = "grafana-agent"
+  namespace  = var.namespace
+  values = [<<-VALUES
     agent:
       mode: 'static'
       configMap:
@@ -32,7 +32,7 @@ resource "helm_release" "grafana_agent" {
               remote_write:
                 - endpoint: tempo-us-central1.grafana.net:443
                   basic_auth:
-                    username: ${var.grafana-tempo-username}
+                    username: ${var.grafana_tempo_username}
                     password: $${GRAFANA_PASSWORD}
               receivers:
                 otlp:
@@ -61,21 +61,21 @@ resource "helm_release" "grafana-k8s-monitoring" {
   repository = "https://grafana.github.io/helm-charts"
   chart      = "k8s-monitoring"
   version    = "0.1.4"
-  namespace  = var.namespace 
+  namespace  = var.namespace
 
-  values = [ <<-VALUES
+  values = [<<-VALUES
     cluster:
-      name: dapps-prod-us-east-1
+      name: ${var.cluster_name}
     externalServices:
       prometheus:
         host: https://prometheus-us-central1.grafana.net
         basicAuth:
-          username: ${var.grafana-prom-username}
+          username: ${var.grafana_prom_username}
           password: ${data.kubernetes_secret.api_key_secret.data["GRAFANA_PASSWORD"]}
       loki:
         host: https://logs-prod-017.grafana.net
         basicAuth:
-          username: ${var.grafana-loki-username}
+          username: ${var.grafana_loki_username}
           password: ${data.kubernetes_secret.api_key_secret.data["GRAFANA_PASSWORD"]}
     metrics:
       cost:
@@ -121,7 +121,7 @@ resource "helm_release" "grafana-k8s-monitoring" {
 
 data "kubernetes_secret" "api_key_secret" {
   metadata {
-    name      = "grafana-k8s-password"
+    name      = "grafana-password"
     namespace = var.namespace
   }
 }
