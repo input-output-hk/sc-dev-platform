@@ -38,7 +38,7 @@ template: {
 										"s3:Get*",
 										"s3:List*",
 										"s3:DeleteObject*",
-										"s3:PutOBject*",
+										"s3:PutObject*",
 									],
 									"Resource": [
 										"arn:aws:s3:::sc-*/*",
