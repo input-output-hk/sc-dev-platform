@@ -4,17 +4,6 @@ resource "kubernetes_namespace" "grafana-agent" {
   }
 }
 
-resource "kubernetes_secret" "grafana-password" {
-  metadata {
-    name      = "grafana-password"
-    namespace = var.namespace
-  }
-
-  data = {
-    GRAFANA_PASSWORD = var.grafana_password
-  }
-}
-
 resource "helm_release" "grafana_agent" {
   repository = "https://grafana.github.io/helm-charts"
   name       = "grafana-agent"
@@ -30,10 +19,10 @@ resource "helm_release" "grafana_agent" {
             configs:
             - name: default
               remote_write:
-                - endpoint: tempo-us-central1.grafana.net:443
+                - endpoint: ${var.grafana_tempo_host}
                   basic_auth:
                     username: ${var.grafana_tempo_username}
-                    password: $${GRAFANA_PASSWORD}
+                    password: ${var.grafana_tempo_api_key}
               receivers:
                 otlp:
                   protocols:
@@ -44,9 +33,6 @@ resource "helm_release" "grafana_agent" {
                           - "https://*"
       extraArgs:
         - -config.expand-env
-      envFrom:
-        - secretRef:
-            name: grafana-password
       extraPorts:
         - name: otelhttp
           port: 4318
@@ -68,15 +54,15 @@ resource "helm_release" "grafana-k8s-monitoring" {
       name: ${var.cluster_name}
     externalServices:
       prometheus:
-        host: https://prometheus-us-central1.grafana.net
+        host: ${var.grafana_prom_host} 
         basicAuth:
           username: ${var.grafana_prom_username}
-          password: ${data.kubernetes_secret.api_key_secret.data["GRAFANA_PASSWORD"]}
+          password: ${var.grafana_k8s_monitoring_api_key}
       loki:
-        host: https://logs-prod-017.grafana.net
+        host: ${var.grafana_loki_host} 
         basicAuth:
           username: ${var.grafana_loki_username}
-          password: ${data.kubernetes_secret.api_key_secret.data["GRAFANA_PASSWORD"]}
+          password: ${var.grafana_k8s_monitoring_api_key}
     metrics:
       cost:
         enabled: false
@@ -117,12 +103,5 @@ resource "helm_release" "grafana-k8s-monitoring" {
           - "dapps-certification"
   VALUES
   ]
-}
-
-data "kubernetes_secret" "api_key_secret" {
-  metadata {
-    name      = "grafana-password"
-    namespace = var.namespace
-  }
 }
 

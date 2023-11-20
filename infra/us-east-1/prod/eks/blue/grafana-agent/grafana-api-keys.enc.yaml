@@ -1,0 +1,19 @@
+grafana-tempo-api-key:
+    secret: ENC[AES256_GCM,data:7Pa6QHkGIk2VJZdZxFgqmQQhnzUzpUl5tHd86AhuxrGPkGftiT2g5HoeHtEB5K2sQvEUWNdNb0egw7LVRI8LJaeWTTsCDEHVvbaWw8hQFPiMB5fLEFcOJCZyA2P0LOYhPXZQqN2tKP+WRaEGFQBLEig5o3E8UWRDp769wi3SDUmB2Ki+GNCYpDvkmRyb4f35WG/4bRxn/RIRfzIC+xkepg==,iv:u5uJT67QWLzbjGGQp0IE8sewfdvI1+PSJKFSSZ1Lhmk=,tag:OKVk9YMmXdYa3ILTUM2PIQ==,type:str]
+grafana-k8s-monitoring-api-key:
+    secret: ENC[AES256_GCM,data:6Pt5y3fENEIXuMupKz5Umwqua224D9MfjALhimSSemI/bBFwVgWEPGPigCEDwuoobn4EP0HrHEvok254SYz55Q6ZCFhGVAzrR529RKeiuC7Y4wvpLvxF9ThG3HYTNKgv98YTC9Gahh9DgReMw77U4uUm8Ya3a3/UBcnIqa4MANv3bHFD,iv:hL3r7ri4Tpfo798NGVKob0d8npXHo1MH5Bp6a7n8Sc8=,tag:q1NB+509BjH/E6RbJSBUzg==,type:str]
+sops:
+    kms:
+        - arn: arn:aws:kms:us-east-1:677160962006:key/fa4d1d08-ad00-4014-97d2-5ff14e00e1b1
+          created_at: "2023-11-20T09:52:37Z"
+          enc: AQICAHgpALcUCbJ6IXIyoNVBg1oTqujiOETypdzUT4DiWJC8RwHKRrZaMNvaQRHVehIcyhuVAAAAfjB8BgkqhkiG9w0BBwagbzBtAgEAMGgGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMi49qY7cx9xVxp6LxAgEQgDtIyoNj2f673p5AlMKK0yOUHFqQZ1FlTgeuc1EKV0kXOPyU6WBoatcasPyWwvobN6dLpTRAX7Zl/iwZbA==
+          aws_profile: ""
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age: []
+    lastmodified: "2023-11-20T09:52:37Z"
+    mac: ENC[AES256_GCM,data:8TQfExJe/GdGKRFaEpA8Ug01kiUcVda3K5zQCJwMB8Z5Dmdt1+nNR56qjayjmCWc2pYK+8bHTic2ZXSATMxbPeN2TMdMpKULiq4Jb/2Y+FvR+RemBL1H1LVZWAo9cm5DQYt58lnRKY6V5Nhc4DapWGV2Pgmy9O4+05qO5dEOffI=,iv:ify91zY6NRDLeWsJOqJzvWRwdDTpkn/2Sr8X8kT1dRo=,tag:TDxZz7a8D2MWfD2qjGAdnw==,type:str]
+    pgp: []
+    unencrypted_suffix: _unencrypted
+    version: 3.7.3
