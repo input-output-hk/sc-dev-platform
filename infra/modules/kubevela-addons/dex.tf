@@ -1,4 +1,5 @@
 resource "kubernetes_secret" "dex-config" {
+  count = var.enable_dex ? 1 : 0
   metadata {
     name      = "dex-config"
     namespace = var.namespace

@@ -1,3 +1,21 @@
+variable "enable_addons" {
+  description = "Feature flag to enable Addons"
+  type        = bool
+  default     = true
+}
+
+variable "enable_cardano_nodes" {
+  description = "Feature flag to enable Cardano Nodes"
+  type        = bool
+  default     = true
+}
+
+variable "enable_dex" {
+  description = "Feature flag to enable Dex"
+  type        = bool
+  default     = true
+}
+
 variable "aws_profile" {
   description = "AWS profile to use for deployment"
   type        = string
@@ -59,18 +77,21 @@ variable "helm_defaults" {
 variable "velaux_domain" {
   description = "domain where VelaUX will be hosted"
   type        = string
+  default     = ""
 }
 
 variable "dex_client_id" {
   description = "client ID for dex provider"
   type        = string
   sensitive   = true
+  default     = ""
 }
 
 variable "dex_client_secret" {
   description = "client secret for dex provider"
   type        = string
   sensitive   = true
+  default     = ""
 }
 
 variable "rds_security_groups" {

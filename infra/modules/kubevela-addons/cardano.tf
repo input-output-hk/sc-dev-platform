@@ -1,6 +1,6 @@
 resource "helm_release" "cardano" {
-  name = "cardano"
-
+  count     = var.enable_cardano_nodes ? 1 : 0
+  name      = "cardano"
   chart     = "./cardano"
   namespace = var.namespace
 }
