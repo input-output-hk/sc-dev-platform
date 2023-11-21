@@ -54,12 +54,8 @@ outputs: {
 				forProvider: {
 					allocatedStorage:    parameter.createDatabase.allocatedStorage
 					maxAllocatedStorage: parameter.createDatabase.allocatedStorage * 3
-					if parameter.createDatabase.applyModificationsImmediately != _|_ {
-						applyModificationsImmediately: parameter.createDatabase.applyModificationsImmediately
-					}
-					if parameter.createDatabase.autoMinorVersionUpgrade != _|_ {
-						autoMinorVersionUpgrade: parameter.createDatabase.autoMinorVersionUpgrade
-					}
+					applyModificationsImmediately: true
+					autoMinorVersionUpgrade: false
 					if parameter.createDatabase.backupRetentionPeriod != _|_ {
 						backupRetentionPeriod: parameter.createDatabase.backupRetentionPeriod
 					}
@@ -93,9 +89,7 @@ outputs: {
 					if parameter.createDatabase.preferredMaintenanceWindow != _|_ {
 						preferredMaintenanceWindow: parameter.createDatabase.preferredMaintenanceWindow
 					}
-					if parameter.createDatabase.publiclyAccessible != _|_ {
-						publiclyAccessible: parameter.createDatabase.publiclyAccessible
-					}
+					publiclyAccessible: false
 					region:                          "${aws_region}"
 					skipFinalSnapshotBeforeDeletion: true
 					storageEncrypted:                true
@@ -149,10 +143,6 @@ parameter: {
 		dbInstanceClass: *"db.t3.medium" | "db.t3.large" | "db.m7g.large" | "db.m7g.xlarge" | "db.m7g.2xlarge" | "db.m7g.4xlarge"
 		// +usage=Define the storage size
 		allocatedStorage: *500 | int
-		// +usage=Do we need to apply modifications immediately?
-		applyModificationsImmediately?: *true | bool
-		// +usage=Do we need to automatically upgrade minor versions?
-		autoMinorVersionUpgrade?: *false | bool
 		// +usage=Define a backup retention period. If will disable backups if is set to 0.
 		backupRetentionPeriod?: *0 | int
 		// +usage=Do we need to enable deletion protection?
@@ -163,8 +153,6 @@ parameter: {
 		preferredBackupWindow?: *"07:20-07:50" | string
 		// +usage=Define a preferred maintenance window
 		preferredMaintenanceWindow?: *"sun:03:13-sun:06:43" | string
-		// +usage=Do we need to enable public access?
-		publiclyAccessible?: *false | bool
 		// +usage=Set custom settings on DB Parameter Group
 		customParameters?: [...{
 			applyMethod: *"immediate" | "pending-reboot"
