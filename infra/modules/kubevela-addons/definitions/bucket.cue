@@ -3,7 +3,7 @@ import "encoding/json"
 output: {
 	apiVersion: "s3.aws.crossplane.io/v1beta1"
 	kind:       "Bucket"
-	metadata: name: parameter.bucketName
+	metadata: name: context.appName
 	spec: {
 		forProvider: {
 			locationConstraint: "${aws_region}"
@@ -44,11 +44,11 @@ outputs: {
 				"s3:Delete*",
 				"s3:Put*",
 			],
-			"Resource": "arn:aws:s3:::\( parameter.bucketName )"
+			"Resource": "arn:aws:s3:::\( context.appName )"
 		}, {
 			"Effect": "Allow", 
 			"Action": "s3:List*",
-			"Resource": "arn:aws:s3:::\( parameter.bucketName )"
+			"Resource": "arn:aws:s3:::\( context.appName )"
 		}]
 	}
 
@@ -68,11 +68,11 @@ outputs: {
 	policy: {
 		apiVersion: "iam.aws.crossplane.io/v1beta1"
 		kind:       "Policy"
-		metadata: name: "pol-\( parameter.bucketName )"
+		metadata: name: "pol-\( context.appName )"
 		spec: {
 			forProvider: {
 				description: "Allow application access to S3 buckets"
-				name:        context.name
+				name:        context.appName
 				document: json.Marshal(_bucketPolicyDocument)
 			}
 			providerConfigRef: name: "aws-provider"
@@ -81,7 +81,7 @@ outputs: {
 	role: {
 		apiVersion: "iam.aws.crossplane.io/v1beta1"
 		kind:       "Role"
-		metadata: name: "role-\( parameter.bucketName )"
+		metadata: name: "role-\( context.appName )"
 		spec: {
 			forProvider: {
 				assumeRolePolicyDocument: json.Marshal(_rolePolicyDocument)
@@ -99,7 +99,7 @@ outputs: {
 					value: "kubeVela"
 				}, {
 					key:   "applicationName"
-					value: context.name
+					value: context.appName
 				}, {
 					key:   "Env"
 					value: "${env}"
@@ -111,17 +111,14 @@ outputs: {
 	rolePolicyAttachment: {
 		apiVersion: "iam.aws.crossplane.io/v1beta1"
 		kind:       "RolePolicyAttachment"
-		metadata: name: "role-pol-\( parameter.bucketName )"
+		metadata: name: "role-pol-\( context.appName )"
 		spec: {
 			forProvider: {
-				policyArnRef: name: "pol-\( parameter.bucketName )"
-				roleNameRef: name:  "role-\( parameter.bucketName )"
+				policyArnRef: name: "pol-\( context.appName )"
+				roleNameRef: name:  "role-\( context.appName )"
 			}
 			providerConfigRef: name: "aws-provider"
 		}}
 }
 
-parameter: {
-	// +usage=Specify a bucket name
-	bucketName: string
-}
+parameter: {}
