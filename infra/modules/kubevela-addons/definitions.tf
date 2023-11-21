@@ -51,6 +51,38 @@ resource "kubectl_manifest" "traitdefinition_resource" {
   })
 }
 
+resource "kubectl_manifest" "traitdefinition_database" {
+  force_new = true
+  yaml_body = yamlencode({
+    "apiVersion" = "core.oam.dev/v1beta1"
+    "kind"       = "TraitDefinition"
+    "metadata" = {
+      "annotations" = {
+        "definition.oam.dev/description" = "Allow an Application to manage (or just use) a Postgres RDS instance"
+      }
+      "name"      = "database"
+      "namespace" = var.namespace
+    }
+    "spec" = {
+      "appliesToWorkloads" = [
+        "deployments.apps", "statefulsets.apps", "daemonsets.apps", "jobs.batch"
+      ]
+      "conflictsWith" = []
+      "podDisruptive" = true
+      "schematic" = {
+        "cue" = {
+          "template" = templatefile("${path.module}/definitions/rds-instance.cue", {
+            aws_region      = var.aws_region
+            account_id      = var.account_id
+            env             = var.env
+            security_groups = var.rds_security_groups
+          })
+        }
+      }
+    }
+  })
+}
+
 resource "kubectl_manifest" "workflowtdefinition_build_nix_image" {
   force_new = true
   yaml_body = yamlencode({
@@ -75,36 +107,8 @@ resource "kubectl_manifest" "workflowtdefinition_build_nix_image" {
   })
 }
 
-
 resource "kubectl_manifest" "componentdefinition_helmrelease" {
   force_new          = true
   yaml_body          = file("${path.module}/definitions/helm.yaml")
   override_namespace = var.namespace
 }
-
-/*
-resource "kubectl_manifest" "componentdefinition_postgresql" {
-  force_new = true
-  yaml_body = yamlencode({
-    "apiVersion" = "core.oam.dev/v1beta1"
-    "kind" = "ComponentDefinition"
-    "metadata" = {
-      "annotations" = {
-        "definition.oam.dev/alias" = ""
-        "definition.oam.dev/description" = "postgres cluster component"
-      }
-      "name" = "postgres-cluster"
-      "namespace" = var.namespace
-    }
-    "spec" = {
-      workload = {
-        type = "autodetects.core.oam.dev"
-      }
-      "schematic" = {
-        "cue" = {
-          "template" = file("${path.module}/definitions/postgres.cue")
-        }
-      }
-    }
-  })
-}*/
