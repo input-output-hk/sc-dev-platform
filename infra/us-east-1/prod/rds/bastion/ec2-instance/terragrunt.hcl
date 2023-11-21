@@ -16,7 +16,6 @@ locals {
     tribe        = "smart-contracts"
     environment  = "prod"
     function     = "bastion"
-    Environment  = "prod"
     Terraform    = "true"
     Project      = local.project
     Resource     = local.bastion_name
@@ -25,7 +24,7 @@ locals {
 }
 
 terraform {
-  source = "github.com/terraform-aws-modules/terraform-aws-ec2-instance//.?ref=v5.3.1"
+  source = "github.com/terraform-aws-modules/terraform-aws-ec2-instance?ref=v5.3.1"
 }
 
 # Include all settings from the root terragrunt.hcl file
