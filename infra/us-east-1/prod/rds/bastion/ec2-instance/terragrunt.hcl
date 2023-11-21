@@ -38,7 +38,7 @@ dependency "key_pair" {
 }
 
 dependency "vpc" {
-  config_path = "../../vpc"
+  config_path = "../../../vpc"
 }
 
 dependency "security_group" {
@@ -46,7 +46,7 @@ dependency "security_group" {
 }
 
 dependency "eks" {
-  config_path = "../../eks/blue/eks"
+  config_path = "../../../eks/blue/eks"
 }
 
 inputs = {
