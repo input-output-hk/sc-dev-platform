@@ -157,7 +157,7 @@ parameter: {
 		backupRetentionPeriod?: *0 | int
 		// +usage=Do we need to enable deletion protection?
 		deletionProtection?: *false | bool
-		// +usage=Define how much IOPS this database will support. 
+		// +usage=Define an IOPS configuration 
 		iops?: *12000 | int
 		// +usage=Define a preferred backup window 
 		preferredBackupWindow?: *"07:20-07:50" | string
