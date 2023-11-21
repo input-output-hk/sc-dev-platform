@@ -105,7 +105,6 @@ resource "kubectl_manifest" "traitdefinition_bucket_user" {
         "cue" = {
           "template" = templatefile("${path.module}/definitions/bucket-user.cue", {
             account_id = var.account_id
-            env        = var.env
           })
         }
       }
@@ -154,6 +153,7 @@ resource "kubectl_manifest" "componentdefinition_bucket" {
         "cue" = {
           "template" = templatefile("${path.module}/definitions/bucket.cue", {
             aws_region = var.aws_region
+            account_id = var.account_id
             env        = var.env
           })
         }
