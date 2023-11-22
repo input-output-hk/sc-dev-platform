@@ -88,20 +88,22 @@ resource "kubectl_manifest" "letsencrypt_issuer" {
 }
 
 data "kubectl_file_documents" "gateway_crds" {
+  count   = try(var.eks_addons.enable_gateway_system, true) ? 1 : 0
   content = file("${path.module}/manifests/gateway_crds.yaml")
 }
 
 data "kubectl_file_documents" "gateway_system" {
+  count   = try(var.eks_addons.enable_gateway_system, true) ? 1 : 0
   content = file("${path.module}/manifests/gateway_system.yaml")
 }
 
 resource "kubectl_manifest" "gateway_crds" {
-  for_each  = try(var.eks_addons.enable_gateway_system, true) ? data.kubectl_file_documents.gateway_crds.manifests : {}
+  for_each  = try(var.eks_addons.enable_gateway_system, true) ? data.kubectl_file_documents.gateway_crds.0.manifests : {}
   yaml_body = each.value
 }
 
 resource "kubectl_manifest" "gateway_system" {
-  for_each  = try(var.eks_addons.enable_gateway_system, true) ? data.kubectl_file_documents.gateway_system.manifests : {}
+  for_each  = try(var.eks_addons.enable_gateway_system, true) ? data.kubectl_file_documents.gateway_system.0.manifests : {}
   yaml_body = each.value
 }
 
