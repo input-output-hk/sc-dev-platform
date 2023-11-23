@@ -75,8 +75,9 @@ spec:
       volumeMounts:
         emptyDir:
         - name: disposable
+        # emptyDir medium is "Disk" by default, the other possible value is "Memory"
+        # medium: Memory
           mountPath: /mnt
-      ####
     traits:
     - type: scaler
       properties:
