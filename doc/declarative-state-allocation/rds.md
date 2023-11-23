@@ -116,5 +116,3 @@ spec:
         name: chainsync-qa-mainnet
       type: webservice
 ```
-
-
