@@ -46,14 +46,6 @@ inputs = {
 
     traces:
       enabled: true
-      
-    metrics:
-      extraMetricRelabelingRules: |-
-        rule {
-          source_labels = ["namespace"]
-          regex = "^$|marlowe|dapps-certification"
-          action = "keep"
-        }
 
     logs:
       pod_logs:
@@ -77,5 +69,4 @@ inputs = {
     EOT
     ]
   }
-
 }
