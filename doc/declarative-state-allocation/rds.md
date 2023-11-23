@@ -51,7 +51,7 @@ chainsync-qa-mainnet   True    True     available   postgres   15.4      11h
 # Everything is Okay!
 ```
 
-Some relevant notes about the new instances:
+Usually it takes up to 30 minutes to complete. Some relevant notes about the new instances:
 
 1. We are using a "Security by default" approach:<br>
     1.1. Databases are not publicly available.<br>
@@ -115,4 +115,27 @@ spec:
       # To use an existent RDS instance
         name: chainsync-qa-mainnet
       type: webservice
+```
+The updated deployment environment variables will look like this:
+
+```yaml
+      containers:
+      - env:
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              key: username
+              name: conn-chainsync-qa-mainnet
+        - name: DB_PASS
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: conn-chainsync-qa-mainnet
+        - name: DB_HOST
+          valueFrom:
+            secretKeyRef:
+              key: endpoint
+              name: conn-chainsync-qa-mainnet
+        - name: DB_NAME
+          value: scdedb
 ```
