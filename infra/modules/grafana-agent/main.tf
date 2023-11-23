@@ -1,61 +1,4 @@
-resource "kubernetes_namespace" "grafana-agent" {
-  metadata {
-    name = var.namespace
-  }
-}
-
-resource "kubernetes_secret" "grafana-password" {
-  metadata {
-    name      = "grafana-password"
-    namespace = var.namespace
-  }
-
-  data = {
-    GRAFANA_PASSWORD = var.grafana_password
-  }
-}
-
-resource "helm_release" "grafana_agent" {
-  repository = "https://grafana.github.io/helm-charts"
-  name       = "grafana-agent"
-  chart      = "grafana-agent"
-  namespace  = var.namespace
-  values = [<<-VALUES
-    agent:
-      mode: 'static'
-      configMap:
-        create: true
-        content: |
-          traces:
-            configs:
-            - name: default
-              remote_write:
-                - endpoint: tempo-us-central1.grafana.net:443
-                  basic_auth:
-                    username: ${var.grafana_tempo_username}
-                    password: $${GRAFANA_PASSWORD}
-              receivers:
-                otlp:
-                  protocols:
-                    http:
-                      cors:
-                        allowed_origins:
-                          - "http://*"
-                          - "https://*"
-      extraArgs:
-        - -config.expand-env
-      envFrom:
-        - secretRef:
-            name: grafana-password
-      extraPorts:
-        - name: otelhttp
-          port: 4318
-          targetPort: 4318
-          protocol: "TCP"
-  VALUES
-  ]
-}
-
+/*
 resource "helm_release" "grafana-k8s-monitoring" {
   name       = "grafana-k8s-monitoring"
   repository = "https://grafana.github.io/helm-charts"
@@ -118,11 +61,21 @@ resource "helm_release" "grafana-k8s-monitoring" {
   VALUES
   ]
 }
+*/
 
-data "kubernetes_secret" "api_key_secret" {
-  metadata {
-    name      = "grafana-password"
-    namespace = var.namespace
-  }
+module "grafana_agent" {
+
+  source  = "aws-ia/eks-blueprints-addon/aws"
+  version = "1.1.1"
+
+  chart            = local.grafana_agent.chart
+  chart_version    = try(var.grafana_agent.chart_version, local.grafana_agent.chart_version)
+  repository       = try(var.grafana_agent.repository, local.grafana_agent.repository)
+  description      = try(var.grafana_agent.description, local.grafana_agent.description)
+  namespace        = try(var.grafana_agent.namespace, local.grafana_agent.namespace)
+  create_namespace = try(var.grafana_agent.create_namespace, local.grafana_agent.create_namespace)
+  values           = try(var.grafana_agent.values, local.grafana_agent.values)
+  set              = try(var.grafana_agent.set, local.grafana_agent.set)
+  wait             = try(var.grafana_agent.wait, local.grafana_agent.wait)
+
 }
-

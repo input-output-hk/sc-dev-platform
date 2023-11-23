@@ -1,11 +1,8 @@
 locals {
   # Get provider configs
-  providers = read_terragrunt_config("${get_parent_terragrunt_dir()}/provider-configs/providers.hcl")
-
+  providers        = read_terragrunt_config("${get_parent_terragrunt_dir()}/provider-configs/providers.hcl")
   environment_vars = read_terragrunt_config(find_in_parent_folders("env.hcl"))
-  secret_vars      = yamldecode(sops_decrypt_file(find_in_parent_folders("secrets.yaml")))
-
-  grafana-password = local.secret_vars.grafana-api-key.secret
+  secret_vars      = yamldecode(sops_decrypt_file("grafana-api-keys.enc.yaml"))
 }
 
 include "root" {
@@ -24,11 +21,61 @@ dependency "eks" {
 }
 
 inputs = {
-  cluster_name           = dependency.eks.outputs.cluster_name
-  namespace              = "grafana-agent"
-  grafana_username       = "379443"
-  grafana_loki_username  = "382930"
-  grafana_prom_username  = "767922"
-  grafana_tempo_username = "379443"
-  grafana_password       = local.grafana-password
+  cluster_name = dependency.eks.outputs.cluster_name
+  grafana_agent = {
+    values = [
+      <<-EOT
+    externalServices:
+      prometheus:
+        host: "https://prometheus-prod-13-prod-us-east-0.grafana.net/api/prom"
+        basicAuth:
+          username: "1296367"
+          password: "somethingelse"
+
+      loki:
+        host: "https://logs-prod-006.grafana.net"
+        basicAuth:
+          username: "747229"
+          password: "somethingelse"
+
+      tempo:
+        host: "https://tempo-prod-04-prod-us-east-0.grafana.net/tempo"
+        basicAuth:
+          username: "746333"
+          password: "somethingelse"
+
+    traces:
+      enabled: true
+      
+    metrics:
+      extraMetricRelabelingRules: |-
+        rule {
+          source_labels = ["namespace"]
+          regex = "^$|marlowe|dapps-certification"
+          action = "keep"
+        }
+
+    logs:
+      pod_logs:
+        namespaces: [
+          - "marlowe-staging"
+          - "marlowe-production"
+          - "dapps-certification"
+          - "dapps-certification-staging
+
+    grafana-agent:
+      agent:
+        extraPorts:
+          - name: "otlp-grpc"
+            port: 4317
+            targetPort: 4317
+            protocol: "TCP"
+          - name: "otlp-http"
+            port: 4318
+            targetPort: 4318
+            protocol: "TCP"
+    EOT
+    ]
+  }
+
 }
