@@ -10,12 +10,6 @@ locals {
   bastion_name          = "${local.project}-${local.app}-bastion"
   bastion_key_pair_name = "${local.project}-${local.app}-db-bastion-kp"
 
-  tags = {
-    Owner        = "Terraform"
-    tribe        = "smart-contracts"
-    App          = "marlowe-runtime"
-  }
-
 }
 
 terraform {
@@ -36,5 +30,4 @@ inputs = {
 
   computed_ingress_cidr_blocks = ["0.0.0.0/0"]
   ingress_cidr_blocks          = ["0.0.0.0/0"]
-  tags = local.tags
 }

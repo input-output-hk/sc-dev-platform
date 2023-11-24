@@ -10,18 +10,6 @@ locals {
   bastion_name          = "${local.project}-${local.app}-bastion"
   bastion_key_pair_name = "${local.project}-${local.app}-db-bastion-kp"
 
-  tags = {
-    organization = "iog"
-    tribe        = "smart-contracts"
-    environment  = "prod"
-    function     = "bastion-key-pair"
-    App          = "marlowe-runtime"
-    Environment  = "prod"
-    Terraform    = "true"
-    Project      = local.project
-    Resource     = local.bastion_name
-  }
-
 }
 
 terraform {
@@ -36,6 +24,4 @@ include {
 inputs = {
   key_name           = local.bastion_key_pair_name
   create_private_key = true
-
-  tags = local.tags
 }

@@ -9,18 +9,6 @@ locals {
 
   bastion_name       = "${local.project}-${local.app}-database-bastion"
 
-  subnet_id              = "subnet-087617570cd189b3e"
-
-  tags = {
-    organization = "iog"
-    tribe        = "smart-contracts"
-    environment  = "prod"
-    function     = "bastion"
-    Terraform    = "true"
-    Project      = local.project
-    Resource     = local.bastion_name
-  }
-
 }
 
 terraform {
@@ -55,6 +43,4 @@ inputs = {
 
   subnet_id              = dependency.vpc.outputs.public_subnets[0]
   vpc_security_group_ids = [dependency.security_group.outputs.security_group_id, dependency.eks.outputs.node_security_group_id]
-
-  tags = local.tags
 }

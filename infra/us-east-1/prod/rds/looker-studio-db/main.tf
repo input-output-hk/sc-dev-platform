@@ -1,3 +1,10 @@
+# ======================================================================================================= #
+#
+#  THIS CONIFIGURATION IS AUTOMATED TO RUN DAILY FROM A CRON JOB ON THE BASTION HOST. PLEASE DON'T EDIT 
+#  UNLESS YOU KNOW WHAT YOU ARE DOING I.E. YOU HAVE READ THIS DOC: <TO BE UPDATED>
+#
+# ======================================================================================================= #
+
 # Configure Terragrunt to automatically store tfstate files in an S3 bucket
 terraform {
   required_providers {
@@ -54,9 +61,10 @@ module "db" {
   # DB option group
   major_engine_version = "15"
 
+  performance_insights_enabled = true
+
   skip_final_snapshot = true
 
   # Database Deletion Protection
   deletion_protection = false
 }
-
