@@ -3,6 +3,17 @@ locals {
   providers        = read_terragrunt_config("${get_parent_terragrunt_dir()}/provider-configs/providers.hcl")
   environment_vars = read_terragrunt_config(find_in_parent_folders("env.hcl"))
   secret_vars      = yamldecode(sops_decrypt_file("grafana-api-keys.enc.yaml"))
+
+  # Setting externalServices hosts
+  prometheus_url = "https://prometheus-prod-13-prod-us-east-0.grafana.net/api/prom"
+  loki_url       = "https://logs-prod-006.grafana.net"
+  tempo_url      = "https://tempo-prod-04-prod-us-east-0.grafana.net/tempo"
+
+  # Extracting secrets from SOPS
+  grafana_api_key     = local.secret_vars.grafana-api-key
+  prometheus_username = local.secret_vars.prometheus.username
+  tempo_username      = local.secret_vars.tempo.username
+  loki_username       = local.secret_vars.loki.username
 }
 
 include "root" {
@@ -27,22 +38,22 @@ inputs = {
       <<-EOT
     externalServices:
       prometheus:
-        host: "https://prometheus-prod-13-prod-us-east-0.grafana.net/api/prom"
+        host: "${local.prometheus_url}"
         basicAuth:
-          username: "1296367"
-          password: "somethingelse"
+          username: "${local.prometheus_username}"
+          password: "${local.grafana_api_key}"
 
       loki:
-        host: "https://logs-prod-006.grafana.net"
+        host: "${local.loki_url}"
         basicAuth:
-          username: "747229"
-          password: "somethingelse"
+          username: "${local.loki_username}"
+          password: "${local.grafana_api_key}"
 
       tempo:
-        host: "https://tempo-prod-04-prod-us-east-0.grafana.net/tempo"
+        host: "${local.tempo_url}"
         basicAuth:
-          username: "746333"
-          password: "somethingelse"
+          username: "${local.tempo_username}"
+          password: "${local.grafana_api_key}"
 
     traces:
       enabled: true
