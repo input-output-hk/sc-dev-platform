@@ -1,11 +1,19 @@
 locals {
   # Get provider configs
-  providers = read_terragrunt_config("${get_parent_terragrunt_dir()}/provider-configs/providers.hcl")
-
+  providers        = read_terragrunt_config("${get_parent_terragrunt_dir()}/provider-configs/providers.hcl")
   environment_vars = read_terragrunt_config(find_in_parent_folders("env.hcl"))
-  secret_vars      = yamldecode(sops_decrypt_file(find_in_parent_folders("secrets.yaml")))
+  secret_vars      = yamldecode(sops_decrypt_file("grafana-api-keys.enc.yaml"))
 
-  grafana-password = local.secret_vars.grafana-api-key.secret
+  # Setting externalServices hosts
+  prometheus_url = "https://prometheus-prod-13-prod-us-east-0.grafana.net"
+  loki_url       = "https://logs-prod-006.grafana.net"
+  tempo_url      = "tempo-prod-04-prod-us-east-0.grafana.net:443"
+
+  # Extracting secrets from SOPS
+  grafana_api_key     = local.secret_vars.grafana-api-key
+  prometheus_username = local.secret_vars.prometheus.username
+  tempo_username      = local.secret_vars.tempo.username
+  loki_username       = local.secret_vars.loki.username
 }
 
 include "root" {
@@ -16,7 +24,7 @@ include "root" {
 generate = local.providers.generate
 
 terraform {
-  source = "../../../../../modules/grafana-agent"
+  source = "${get_repo_root()}/infra/modules/grafana-agent"
 }
 
 dependency "eks" {
@@ -24,11 +32,67 @@ dependency "eks" {
 }
 
 inputs = {
-  cluster_name           = dependency.eks.outputs.cluster_name
-  namespace              = "grafana-agent"
-  grafana_username       = "379443"
-  grafana_loki_username  = "382930"
-  grafana_prom_username  = "767922"
-  grafana_tempo_username = "379443"
-  grafana_password       = local.grafana-password
+  cluster_name = dependency.eks.outputs.cluster_name
+  grafana_agent = {
+    values = [<<-EOT
+    externalServices:
+      prometheus:
+        host: "${local.prometheus_url}"
+        basicAuth:
+          username: "${local.prometheus_username}"
+          password: "${local.grafana_api_key}"
+
+      loki:
+        host: "${local.loki_url}"
+        basicAuth:
+          username: "${local.loki_username}"
+          password: "${local.grafana_api_key}"
+
+      tempo:
+        host: "${local.tempo_url}"
+        basicAuth:
+          username: "${local.tempo_username}"
+          password: "${local.grafana_api_key}"
+
+    metrics:
+      scrapeInterval: 60s
+      kube-state-metrics:
+        scrapeInterval: 60s
+      node-exporter:
+        scrapeInterval: 60s
+      cost:
+        enabled: false
+
+    traces:
+      enabled: true
+
+    opencost:
+      enabled: false
+
+    logs:
+      pod_logs:
+        namespaces:
+          - "marlowe-staging"
+          - "marlowe-production"
+          - "dapps-certification"
+          - "dapps-certification-staging"
+
+    grafana-agent:
+      agent:
+        extraPorts:
+          - name: "otlp-grpc"
+            port: 4317
+            targetPort: 4317
+            protocol: "TCP"
+          - name: "otlp-http"
+            port: 4318
+            targetPort: 4318
+            protocol: "TCP"
+          - name: "zipkin"
+            port: 9411
+            targetPort: 9411
+            protocol: "TCP"
+    EOT
+    ]
+  }
 }

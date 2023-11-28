@@ -1,0 +1,22 @@
+grafana-api-key: ENC[AES256_GCM,data:LEDbDc0GbTZhJIOfabvMeah5VZaqZBLeZoaPQBfqC/f1U2w8UVM2iNRQC60fpkR4PWNQykPrRKv8O5k+VCpLUSvPQfeH4QjAm9lXqmvK2lkcSs71w9zcSZCtQJCbQiA3Bnmu4NGyL/ijhlLdY6nVsdBABVhAxsKNMM+qc7aXF0LyiwyIYc7Hn1KWMiFWessfEB3St8riLn5fhBi92L6zoQ==,iv:Gj8rINEsOzHq7iLK5ZPYHbsMKHsvEOFtEqo78KtWcsE=,tag:tSql7bgxuKbkQGEVnqsZSQ==,type:str]
+prometheus:
+    username: ENC[AES256_GCM,data:BF/yKAaUsQ==,iv:KacImfJQaaPJa/V/TXa6thLzAKUuewbgNCX+t15Fou8=,tag:hagrr2v610BObizql4iR1w==,type:str]
+loki:
+    username: ENC[AES256_GCM,data:oC6o+5gY,iv:5bGW4qTbtXMqJdqQSxGlUHFGzpIpdgefkDeh7ug0wDk=,tag:gjgUpYtA5EVMe4VTAD1PYw==,type:str]
+tempo:
+    username: ENC[AES256_GCM,data:XviWJCSq,iv:WRVv4iR6VufEzfk/gfUylIzOye03UdHwOSXvA7L3PDY=,tag:g5OVHDArRbgSCfPfsRLyqw==,type:str]
+sops:
+    kms:
+        - arn: arn:aws:kms:us-east-1:677160962006:key/fa4d1d08-ad00-4014-97d2-5ff14e00e1b1
+          created_at: "2023-11-24T18:29:32Z"
+          enc: AQICAHgpALcUCbJ6IXIyoNVBg1oTqujiOETypdzUT4DiWJC8RwGJdUmbqclk3FfDc6GOeoDFAAAAfjB8BgkqhkiG9w0BBwagbzBtAgEAMGgGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMtK3GdFoWmeX8bjztAgEQgDvYXONQFlu6mYI0CtpnlRhU/Eyy+7pztu28vTla/FcH2pCJ9R7gBH9kUjEgRT0B0dFk2po0sOocVeFmtg==
+          aws_profile: "dapps-world"
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age: []
+    lastmodified: "2023-11-24T18:31:16Z"
+    mac: ENC[AES256_GCM,data:rsg6LlxrYRtjJnX9E0y63FliOgEr8+eTIniQQUMIf4lSrN8eX+nh7Um32iF4aoaujaBk7aHPkiGhzOi9TU0BseeRsjfa9mbQlQJ5R34cDrAOBvAqiUx+FeeIcKh7WO/FKuJn/zreCs0fNvvchnXIrAc9IwT7c/38nzwYuXia7iU=,iv:7mlqH+gN7rrqJ5u8mmvBVfOSnJewFYPMbYT6cR/fCbw=,tag:9LmHSkSCofCiMutlxjdXMA==,type:str]
+    pgp: []
+    unencrypted_suffix: _unencrypted
+    version: 3.8.1
