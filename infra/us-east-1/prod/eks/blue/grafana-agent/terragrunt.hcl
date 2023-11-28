@@ -35,9 +35,6 @@ inputs = {
   cluster_name = dependency.eks.outputs.cluster_name
   grafana_agent = {
     values = [<<-EOT
-    cluster:
-      name: "${dependency.eks.outputs.cluster_name}"
-      
     externalServices:
       prometheus:
         host: "${local.prometheus_url}"
