@@ -21,7 +21,7 @@ include {
 }
 
 terraform {
-  source = "../../../../../modules/eks/addons"
+  source = "${get_repo_root()}/infra/modules/eks/addons"
 }
 
 dependency "eks" {
