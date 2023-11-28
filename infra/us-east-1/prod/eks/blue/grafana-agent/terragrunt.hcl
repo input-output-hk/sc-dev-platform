@@ -5,9 +5,9 @@ locals {
   secret_vars      = yamldecode(sops_decrypt_file("grafana-api-keys.enc.yaml"))
 
   # Setting externalServices hosts
-  prometheus_url = "https://prometheus-prod-13-prod-us-east-0.grafana.net/api/prom"
+  prometheus_url = "https://prometheus-prod-13-prod-us-east-0.grafana.net"
   loki_url       = "https://logs-prod-006.grafana.net"
-  tempo_url      = "https://tempo-prod-04-prod-us-east-0.grafana.net/tempo"
+  tempo_url      = "tempo-prod-04-prod-us-east-0.grafana.net:443"
 
   # Extracting secrets from SOPS
   grafana_api_key     = local.secret_vars.grafana-api-key
@@ -24,7 +24,7 @@ include "root" {
 generate = local.providers.generate
 
 terraform {
-  source = "../../../../../modules/grafana-agent"
+  source = "${get_repo_root()}/infra/modules/grafana-agent"
 }
 
 dependency "eks" {
@@ -34,8 +34,10 @@ dependency "eks" {
 inputs = {
   cluster_name = dependency.eks.outputs.cluster_name
   grafana_agent = {
-    values = [
-      <<-EOT
+    values = [<<-EOT
+    cluster:
+      name: "${dependency.eks.outputs.cluster_name}"
+      
     externalServices:
       prometheus:
         host: "${local.prometheus_url}"
@@ -55,16 +57,28 @@ inputs = {
           username: "${local.tempo_username}"
           password: "${local.grafana_api_key}"
 
+    metrics:
+      scrapeInterval: 60s
+      kube-state-metrics:
+        scrapeInterval: 60s
+      node-exporter:
+        scrapeInterval: 60s
+      cost:
+        enabled: false
+
     traces:
       enabled: true
 
+    opencost:
+      enabled: false
+
     logs:
       pod_logs:
-        namespaces: [
+        namespaces:
           - "marlowe-staging"
           - "marlowe-production"
           - "dapps-certification"
-          - "dapps-certification-staging
+          - "dapps-certification-staging"
 
     grafana-agent:
       agent:
@@ -76,6 +90,10 @@ inputs = {
           - name: "otlp-http"
             port: 4318
             targetPort: 4318
+            protocol: "TCP"
+          - name: "zipkin"
+            port: 9411
+            targetPort: 9411
             protocol: "TCP"
     EOT
     ]
