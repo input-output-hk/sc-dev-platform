@@ -115,5 +115,4 @@ remote_state {
 inputs = merge(
   local.account_vars.locals,
   local.environment_vars.locals,
-  local.environment_vars.locals,
 )
