@@ -25,3 +25,7 @@ config.tf.json
 # others
 *.pem
 *.key
+
+# platform portal
+
+./platform-portal/.env
