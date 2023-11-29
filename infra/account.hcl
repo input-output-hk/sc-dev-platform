@@ -16,6 +16,8 @@ locals {
     "daniel.thagard",
     "rene.barbosa",
     "oguzhan.boran",
+    "alexsander.falcucci",
+    "fenton.haslam",
   ]
   domain = "dapps.aws.iohkdev.io"
 }
