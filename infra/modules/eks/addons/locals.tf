@@ -60,15 +60,6 @@ locals {
       values        = []
       set           = []
     }
-    # traefik_internal_load_balancer = {
-    #   chart         = "traefik"
-    #   chart_version = "25.0.0"
-    #   repository    = "https://traefik.github.io/charts"
-    #   description   = "A Traefik based internal Kubernetes ingress controller"
-    #   namespace     = "traefik"
-    #   values        = []
-    #   set           = []
-    # }
 
     nginx_ingress_load_balancer = {
       chart         = "ingress-nginx"
