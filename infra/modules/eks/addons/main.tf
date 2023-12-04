@@ -135,25 +135,45 @@ module "eks_addon_traefik_load_balancer" {
   ]
 }
 
-module "eks_addon_traefik_internal_load_balancer" {
-  count   = try(var.eks_addons.enable_traefik_internal_load_balancer, false) ? 1 : 0
+module "eks_addon_nginx_ingress_load_balancer" {
+  count   = try(var.eks_addons.enable_nginx_ingress_load_balancer, false) ? 1 : 0
   source  = "aws-ia/eks-blueprints-addon/aws"
   version = "1.1.1"
 
-  chart            = local.eks_addons.traefik_internal_load_balancer.chart
-  chart_version    = try(var.eks_addons.traefik_internal_load_balancer.chart_version, local.eks_addons.traefik_internal_load_balancer.chart_version)
-  repository       = try(var.eks_addons.traefik_internal_load_balancer.repository, local.eks_addons.traefik_internal_load_balancer.repository)
-  description      = try(var.eks_addons.traefik_internal_load_balancer.description, local.eks_addons.traefik_internal_load_balancer.description)
-  namespace        = try(var.eks_addons.traefik_internal_load_balancer.namespace, local.eks_addons.traefik_internal_load_balancer.namespace)
-  create_namespace = try(var.eks_addons.traefik_internal_load_balancer.create_namespace, local.helm_create_namespace)
-  values           = try(var.eks_addons.traefik_internal_load_balancer.values, local.eks_addons.traefik_internal_load_balancer.values)
-  set              = try(var.eks_addons.traefik_internal_load_balancer.set, local.eks_addons.traefik_internal_load_balancer.set)
-  wait             = try(var.eks_addons.traefik_internal_load_balancer.wait, local.helm_wait)
+  chart            = local.eks_addons.nginx_ingress_load_balancer.chart
+  chart_version    = local.eks_addons.nginx_ingress_load_balancer.chart_version
+  repository       = try(var.eks_addons.nginx_ingress_load_balancer.repository, local.eks_addons.nginx_ingress_load_balancer.repository)
+  description      = try(var.eks_addons.nginx_ingress_load_balancer.description, local.eks_addons.nginx_ingress_load_balancer.description)
+  namespace        = try(var.eks_addons.nginx_ingress_load_balancer.namespace, local.eks_addons.nginx_ingress_load_balancer.namespace)
+  create_namespace = try(var.eks_addons.nginx_ingress_load_balancer.create_namespace, local.helm_create_namespace)
+  values           = try(var.eks_addons.nginx_ingress_load_balancer.values, local.eks_addons.nginx_ingress_load_balancer.values)
+  set              = try(var.eks_addons.nginx_ingress_load_balancer.set, local.eks_addons.nginx_ingress_load_balancer.set)
+  wait             = try(var.eks_addons.nginx_ingress_load_balancer.wait, local.helm_wait)
+  name             = try(var.eks_addons.nginx_ingress_load_balancer.name, local.eks_addons.nginx_ingress_load_balancer.name)
 
   depends_on = [
-    module.eks_addons,
-    kubectl_manifest.gateway_crds,
-    kubectl_manifest.gateway_system
+    module.eks_addons
+  ]
+}
+
+module "eks_addon_internal_nginx_ingress_load_balancer" {
+  count   = try(var.eks_addons.enable_internal_nginx_ingress_load_balancer, false) ? 1 : 0
+  source  = "aws-ia/eks-blueprints-addon/aws"
+  version = "1.1.1"
+
+  chart            = local.eks_addons.internal_nginx_ingress_load_balancer.chart
+  chart_version    = local.eks_addons.internal_nginx_ingress_load_balancer.chart_version
+  repository       = try(var.eks_addons.internal_nginx_ingress_load_balancer.repository, local.eks_addons.internal_nginx_ingress_load_balancer.repository)
+  description      = try(var.eks_addons.internal_nginx_ingress_load_balancer.description, local.eks_addons.internal_nginx_ingress_load_balancer.description)
+  namespace        = try(var.eks_addons.internal_nginx_ingress_load_balancer.namespace, local.eks_addons.internal_nginx_ingress_load_balancer.namespace)
+  create_namespace = try(var.eks_addons.internal_nginx_ingress_load_balancer.create_namespace, local.helm_create_namespace)
+  values           = try(var.eks_addons.internal_nginx_ingress_load_balancer.values, local.eks_addons.internal_nginx_ingress_load_balancer.values)
+  set              = try(var.eks_addons.internal_nginx_ingress_load_balancer.set, local.eks_addons.internal_nginx_ingress_load_balancer.set)
+  wait             = try(var.eks_addons.internal_nginx_ingress_load_balancer.wait, local.helm_wait)
+  name             = try(var.eks_addons.internal_nginx_ingress_load_balancer.name, local.eks_addons.internal_nginx_ingress_load_balancer.name)
+
+  depends_on = [
+    module.eks_addons
   ]
 }
 

@@ -103,7 +103,7 @@ inputs = {
         EOT
       ]
     }
-
+    enable_traefik_internal_load_balancer = true
     traefik_internal_load_balancer = {
       values = [
         <<-EOT
