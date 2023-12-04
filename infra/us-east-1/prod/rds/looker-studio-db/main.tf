@@ -41,7 +41,7 @@ module "db" {
 
   engine            = "postgres"
   engine_version    = "15"
-  instance_class    = "db.m7g.2xlarge"
+  instance_class    = "db.m7g.xlarge"
 
   db_subnet_group_name  = "default-vpc-069bcddaa7f85475c"
   vpc_security_group_ids = ["sg-09f5cd27a8e66ff32"]
