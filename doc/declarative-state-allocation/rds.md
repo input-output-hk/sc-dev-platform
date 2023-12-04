@@ -68,16 +68,21 @@ This trait also has support for setting some optional properties:
 
 | Property  |  Description  |
 |---|---|
-| backupRetentionPeriod | Defines a backup retention period (Number of days)<br>*Disable backups setting this property to 0*|
-| preferredBackupWindow | Defines backup window schedule |
-| preferredMaintenanceWindow | Defines maintenance window schedule |
-| iops | Overrides IOPS settings |
-| deletionProtection | Enable deletion protection feature |
-| customParameters | Update RDS [parameter group](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Appendix.PostgreSQL.CommonDBATasks.Parameters.html)<br>*A list of all available parameters can be found [here](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Appendix.PostgreSQL.CommonDBATasks.Parameters.html#Appendix.PostgreSQL.CommonDBATasks.Parameters.parameters-list)* |
+| `backupRetentionPeriod` | Defines a backup retention period (Number of days)<br>|
+| `preferredBackupWindow` | Defines backup window schedule |
+| `preferredMaintenanceWindow` | Defines maintenance window schedule |
+| `iops` | Overrides IOPS settings |
+| `deletionProtection` | Enable deletion protection feature |
+| `customParameters` | Update RDS [parameter group](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Appendix.PostgreSQL.CommonDBATasks.Parameters.html)<br>*A list of all available parameters can be found [here](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Appendix.PostgreSQL.CommonDBATasks.Parameters.html#Appendix.PostgreSQL.CommonDBATasks.Parameters.parameters-list)* |
 
 **⚠️ IMPORTANT**!
 
-Without ***deletionProtection***, the RDS instance is tied to the parent Application lifecycle so if the Application is deleted (or just recycled through VelaUX, for example), the RDS instance is deleted as well.
+Without `deletionProtection`, the RDS instance is tied to the parent Application lifecycle so if the Application is deleted (or just recycled through VelaUX, for example), the RDS instance is deleted as well.
+
+A note about backups
+---------------
+
+As said above, the automated backups are enabled by default. If `backupRetentionPeriod` is not set up, we will assume a default value of 1, which means that all instances will keep exactly 1 snapshot updated. If `backupRetentionPeriod` is set to zero (0), no automated backup will be taken.
 
 
 Using the instance
