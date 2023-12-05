@@ -67,9 +67,7 @@ outputs: {
 					dbName:               "scdedb"
 					dbParameterGroupName: "dbpg-\( parameter.name )"
 					dbSubnetGroupName:    "${env}-subnet-group"
-					if parameter.allocateDatabase.deletionProtection != _|_ {
-						deletionProtection: parameter.allocateDatabase.deletionProtection
-					}
+					deletionProtection: false
 					enableIAMDatabaseAuthentication: false
 					enablePerformanceInsights:       true
 					engine:                          "postgres"
@@ -145,8 +143,6 @@ parameter: {
 		storage: *400 | int
 		// +usage=Define a backup retention period. Backup is disabled if it's set to 0.
 		backupRetentionPeriod?: *0 | int
-		// +usage=Do we need to enable deletion protection?
-		deletionProtection?: *false | bool
 		// +usage=Define an IOPS configuration 
 		iops?: *12000 | int
 		// +usage=Define a preferred backup window 

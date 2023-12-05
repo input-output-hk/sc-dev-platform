@@ -51,7 +51,7 @@ resource "kubectl_manifest" "traitdefinition_resource" {
   })
 }
 
-resource "kubectl_manifest" "traitdefinition_rds_instance" {
+resource "kubectl_manifest" "traitdefinition_postgres_instance" {
   force_new = true
   yaml_body = yamlencode({
     "apiVersion" = "core.oam.dev/v1beta1"
@@ -60,7 +60,7 @@ resource "kubectl_manifest" "traitdefinition_rds_instance" {
       "annotations" = {
         "definition.oam.dev/description" = "Allow an Application to manage (or just use) a Postgres RDS instance"
       }
-      "name"      = "rds-instance"
+      "name"      = "postgres-instance"
       "namespace" = var.namespace
     }
     "spec" = {
@@ -71,7 +71,7 @@ resource "kubectl_manifest" "traitdefinition_rds_instance" {
       "podDisruptive" = true
       "schematic" = {
         "cue" = {
-          "template" = templatefile("${path.module}/definitions/rds-instance.cue", {
+          "template" = templatefile("${path.module}/definitions/postgres-instance.cue", {
             aws_region      = var.aws_region
             account_id      = var.account_id
             env             = var.env
