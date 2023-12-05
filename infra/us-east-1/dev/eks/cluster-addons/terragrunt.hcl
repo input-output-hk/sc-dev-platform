@@ -43,36 +43,6 @@ inputs = {
         value = "0.7"
       }]
     }
-    # Traefik Load Balancer
-    enable_traefik_load_balancer = true
-    traefik_load_balancer = {
-      values = [
-        <<-EOT
-        image:
-          tag: "v3.0"
-        experimental:
-          kubernetesGateway:
-            enabled: true
-            namespacePolicy: All
-        ports:
-          web:
-            redirectTo:
-              port: websecure
-              priority: 10
-          websecure:
-            tls:
-              enabled: false
-        service:
-          annotations:
-            "service.beta.kubernetes.io/aws-load-balancer-type": "external"
-            "service.beta.kubernetes.io/aws-load-balancer-nlb-target-type": "instance"
-            "service.beta.kubernetes.io/aws-load-balancer-name": "dev-traefik"
-            "service.beta.kubernetes.io/aws-load-balancer-scheme": "internet-facing"
-            "service.beta.kubernetes.io/aws-load-balancer-backend-protocol": "tcp"
-            "service.beta.kubernetes.io/aws-load-balancer-ssl-ports": "websecure"
-        EOT
-      ]
-    }
 
     enable_nginx_ingress_load_balancer = true
     nginx_ingress_load_balancer = {
