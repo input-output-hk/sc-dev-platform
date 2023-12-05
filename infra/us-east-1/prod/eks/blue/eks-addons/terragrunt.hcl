@@ -103,39 +103,6 @@ inputs = {
         EOT
       ]
     }
-    enable_traefik_internal_load_balancer = true
-    traefik_internal_load_balancer = {
-      values = [
-        <<-EOT
-        image:
-          tag: "v3.0"
-        experimental:
-          kubernetesGateway:
-            enabled: true
-            namespacePolicy: All
-        ports:
-          web:
-            redirectTo:
-              port: websecure
-              priority: 10
-          websecure:
-            tls:
-              enabled: false
-        service:
-          annotations:
-            "service.beta.kubernetes.io/aws-load-balancer-type": "external"
-            "service.beta.kubernetes.io/aws-load-balancer-nlb-target-type": "instance"
-            "service.beta.kubernetes.io/aws-load-balancer-name": "traefik"
-            "service.beta.kubernetes.io/aws-load-balancer-backend-protocol": "tcp"
-            "service.beta.kubernetes.io/aws-load-balancer-ssl-cert": "${join(",", dependency.acm.outputs.acm_certificate_arns)}"
-            "service.beta.kubernetes.io/aws-load-balancer-ssl-ports": "websecure"
-            "service.beta.kubernetes.io/aws-load-balancer-ssl-negotiation-policy": "ELBSecurityPolicy-TLS13-1-2-2021-06"
-            "external-dns.alpha.kubernetes.io/hostname": "${join(",", local.traefik_hostnames)}"
-            "external-dns.alpha.kubernetes.io/aws-weight": "100"
-            "external-dns.alpha.kubernetes.io/set-identifier": "traefik-blue"
-        EOT
-      ]
-    }
 
     # KubeVela Controller
     enable_kubevela_controller = true
