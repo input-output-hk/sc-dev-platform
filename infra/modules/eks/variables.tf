@@ -68,6 +68,6 @@ variable "kms_key_administrators" {
 }
 
 variable "tags" {
-  type = any
+  type    = any
   default = {}
 }
