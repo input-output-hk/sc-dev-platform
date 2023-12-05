@@ -29,3 +29,5 @@ config.tf.json
 # platform portal
 
 ./platform-portal/.env
+./platform-portal/.env.local
+./platform-portal/node_modules

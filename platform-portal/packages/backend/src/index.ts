@@ -28,9 +28,11 @@ import scaffolder from './plugins/scaffolder';
 import proxy from './plugins/proxy';
 import techdocs from './plugins/techdocs';
 import search from './plugins/search';
+import events from './plugins/events';
 import { PluginEnvironment } from './types';
 import { ServerPermissionClient } from '@backstage/plugin-permission-node';
 import { DefaultIdentityClient } from '@backstage/plugin-auth-node';
+import { DefaultEventBroker } from '@backstage/plugin-events-backend';
 
 function makeCreateEnv(config: Config) {
   const root = getRootLogger();
@@ -40,7 +42,7 @@ function makeCreateEnv(config: Config) {
   const databaseManager = DatabaseManager.fromConfig(config, { logger: root });
   const tokenManager = ServerTokenManager.noop();
   const taskScheduler = TaskScheduler.fromConfig(config, { databaseManager });
-
+  const eventBroker = new DefaultEventBroker(root.child({ type: 'plugin' }));
   const identity = DefaultIdentityClient.create({
     discovery,
   });
@@ -56,6 +58,7 @@ function makeCreateEnv(config: Config) {
     const database = databaseManager.forPlugin(plugin);
     const cache = cacheManager.forPlugin(plugin);
     const scheduler = taskScheduler.forPlugin(plugin);
+    
     return {
       logger,
       database,
@@ -67,6 +70,7 @@ function makeCreateEnv(config: Config) {
       scheduler,
       permissions,
       identity,
+      eventBroker,
     };
   };
 }
@@ -85,6 +89,7 @@ async function main() {
   const techdocsEnv = useHotMemoize(module, () => createEnv('techdocs'));
   const searchEnv = useHotMemoize(module, () => createEnv('search'));
   const appEnv = useHotMemoize(module, () => createEnv('app'));
+  const eventsEnv = useHotMemoize(module, () => createEnv('events'));
 
   const apiRouter = Router();
   apiRouter.use('/catalog', await catalog(catalogEnv));
@@ -93,7 +98,7 @@ async function main() {
   apiRouter.use('/techdocs', await techdocs(techdocsEnv));
   apiRouter.use('/proxy', await proxy(proxyEnv));
   apiRouter.use('/search', await search(searchEnv));
-
+  apiRouter.use('/events', await events(eventsEnv));
   // Add backends ABOVE this line; this 404 handler is the catch-all fallback
   apiRouter.use(notFoundHandler());
 
