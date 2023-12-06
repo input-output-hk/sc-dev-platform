@@ -60,6 +60,27 @@ locals {
       values        = []
       set           = []
     }
+
+
+    nginx_ingress_load_balancer = {
+      chart         = "ingress-nginx"
+      chart_version = "4.8.4"
+      repository    = "https://kubernetes.github.io/ingress-nginx"
+      description   = "NGINX Ingress Controller for Kubernetes"
+      namespace     = "ingress-nginx"
+      values        = []
+      set           = []
+    }
+
+    internal_nginx_ingress_load_balancer = {
+      chart         = "ingress-nginx"
+      chart_version = "4.8.4"
+      repository    = "https://kubernetes.github.io/ingress-nginx"
+      description   = "Internal NGINX Ingress Controller for Kubernetes"
+      namespace     = "ingress-nginx"
+      values        = []
+      set           = []
+    }
     kubevela_controller = {
       chart         = "vela-core"
       chart_version = "1.9.6"
