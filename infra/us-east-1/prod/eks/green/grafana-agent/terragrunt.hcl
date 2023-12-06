@@ -41,6 +41,12 @@ inputs = {
         basicAuth:
           username: "${local.prometheus_username}"
           password: "${local.grafana_api_key}"
+        writeRelabelConfigRules: |-
+          write_relabel_config {
+            source_labels = ["__name__"]
+            regex = "traces_spanmetrics_latency_bucket|traces_service_graph_request_client_seconds_bucket|traces_service_graph_request_server_seconds_bucket"
+            action = "drop"
+          }
 
       loki:
         host: "${local.loki_url}"
