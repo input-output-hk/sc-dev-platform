@@ -2,7 +2,7 @@ locals {
   # Get provider configs
   providers        = read_terragrunt_config("${get_parent_terragrunt_dir()}/provider-configs/providers.hcl")
   environment_vars = read_terragrunt_config(find_in_parent_folders("env.hcl"))
-  secret_vars      = yamldecode(sops_decrypt_file("grafana-api-keys.enc.yaml"))
+  secret_vars      = yamldecode(sops_decrypt_file(find_in_parent_folders("secrets.yaml")))
 
   # Setting externalServices hosts
   prometheus_url = "https://prometheus-prod-13-prod-us-east-0.grafana.net"
@@ -10,10 +10,10 @@ locals {
   tempo_url      = "tempo-prod-04-prod-us-east-0.grafana.net:443"
 
   # Extracting secrets from SOPS
-  grafana_api_key     = local.secret_vars.grafana-api-key
-  prometheus_username = local.secret_vars.prometheus.username
-  tempo_username      = local.secret_vars.tempo.username
-  loki_username       = local.secret_vars.loki.username
+  grafana_api_key     = local.secret_vars.grafana_cloud.api_key
+  prometheus_username = local.secret_vars.grafana_cloud.prometheus_username
+  tempo_username      = local.secret_vars.grafana_cloud.tempo_username
+  loki_username       = local.secret_vars.grafana_cloud.loki_username
 }
 
 include "root" {
