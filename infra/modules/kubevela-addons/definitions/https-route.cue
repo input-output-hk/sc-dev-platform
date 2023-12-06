@@ -19,7 +19,6 @@ parameter: {
 output: {}
 
 outputs: {
-    _ingressName: context.name + "-ingress"
     ingress: {
         apiVersion: "networking.k8s.io/v1"
         kind:       "Ingress"
@@ -28,7 +27,7 @@ outputs: {
                 "external-dns.alpha.kubernetes.io/hostname": parameter.domains[0]
                 "nginx.ingress.kubernetes.io/force-ssl-redirect": "true"
             }
-            name: _ingressName
+            name: context.name
             namespace: context.namespace
         }
         spec: { 
