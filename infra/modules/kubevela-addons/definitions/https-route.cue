@@ -1,6 +1,6 @@
 parameter: {
 	// +usage=Specify the domain you want to expose
-	domain: string
+	domains: [...string]
 
 	// +usage=Specify some HTTP matchers, filters and actions.
 	rules: [...{
@@ -25,7 +25,7 @@ outputs: {
         kind:       "Ingress"
         metadata: {
             annotations: {
-                "external-dns.alpha.kubernetes.io/hostname": parameter.domain
+                "external-dns.alpha.kubernetes.io/hostname": parameter.domains[0]
                 "nginx.ingress.kubernetes.io/force-ssl-redirect": "true"
             }
             name: _ingressName
@@ -37,7 +37,7 @@ outputs: {
               "nginx-public",
             ][0]
             rules: [{
-                host: parameter.domain
+                host: parameter.domains[0]
 			    http: paths: [
 			    for rule in parameter.rules {
 				    path: [
