@@ -43,6 +43,49 @@ inputs = {
         value = "0.7"
       }]
     }
+      
+    enable_nginx_ingress_load_balancer = true
+    nginx_ingress_load_balancer = {
+      name       = "nginx-public"
+      values = [
+        <<-EOT
+        fullnameOverride: "nginx-public"
+        nameOverride: "nginx-public"
+        controller:
+          ingressClassResource:
+            enabled: true
+            name: "nginx-public"
+          service:
+            annotations:
+              "service.beta.kubernetes.io/aws-load-balancer-type": "external"
+              "service.beta.kubernetes.io/aws-load-balancer-nlb-target-type": "instance"
+              "service.beta.kubernetes.io/aws-load-balancer-name": "dev-nginx-public"
+              "service.beta.kubernetes.io/aws-load-balancer-backend-protocol": "tcp"
+              "service.beta.kubernetes.io/aws-load-balancer-scheme": "internet-facing"
+        EOT
+      ]
+    }
 
+    enable_internal_nginx_ingress_load_balancer = true
+    internal_nginx_ingress_load_balancer = {
+      name       = "nginx-internal"
+      values = [
+        <<-EOT
+        fullnameOverride: "nginx-internal"
+        nameOverride: "nginx-internal"
+        controller:
+          ingressClassResource:
+            enabled: true
+            name: "nginx-internal"
+          service:
+            annotations:
+              "meta.helm.sh/release-name": "nginx-internal"
+              "service.beta.kubernetes.io/aws-load-balancer-type": "external"
+              "service.beta.kubernetes.io/aws-load-balancer-nlb-target-type": "instance"
+              "service.beta.kubernetes.io/aws-load-balancer-name": "dev-nginx-internal"
+              "service.beta.kubernetes.io/aws-load-balancer-backend-protocol": "tcp"
+        EOT
+      ]
+    }
   }
 }
