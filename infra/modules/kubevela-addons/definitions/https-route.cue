@@ -12,8 +12,8 @@ parameter: {
         port: int
     }]
 
-	// +usage=Specify the class of ingress to use
-	ingressClass?: *"nginx-public" | "nginx-internal"
+	// +usage=Specify the ingress class to use
+	ingressClass?: *"public" | "internal"
 }
 
 output: {}
@@ -33,7 +33,7 @@ outputs: {
         }
         spec: { 
             ingressClassName: [
-              if parameter.ingressClass != _|_ { parameter.ingressClass },
+              if parameter.ingressClass != _|_ { "nginx-\( parameter.ingressClass )" },
               "nginx-public",
             ][0]
             rules: [{
