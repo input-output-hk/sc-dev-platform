@@ -26,6 +26,7 @@ outputs: {
         metadata: {
             annotations: {
                 "external-dns.alpha.kubernetes.io/hostname": parameter.domain
+                "nginx.ingress.kubernetes.io/force-ssl-redirect": "true"
             }
             name: _ingressName
             namespace: context.namespace
@@ -44,7 +45,7 @@ outputs: {
                         "/",
                     ][0]
                     pathType: [
-				        if rule.pathType != _|_ { rule.pathType},
+				        if rule.pathType != _|_ { rule.pathType },
                         "ImplementationSpecific",
                     ][0]
 			    	backend: service: {
