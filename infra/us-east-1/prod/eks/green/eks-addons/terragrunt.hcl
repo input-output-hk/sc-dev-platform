@@ -119,8 +119,5 @@ inputs = {
     }
     # KubeVela Controller
     enable_kubevela_controller = true
-    kubevela_controller = {
-        create_namespace = true
-    } 
   }
 }

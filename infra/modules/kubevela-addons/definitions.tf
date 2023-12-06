@@ -167,3 +167,9 @@ resource "kubectl_manifest" "componentdefinition_helmrelease" {
   yaml_body          = file("${path.module}/definitions/helm.yaml")
   override_namespace = var.namespace
 }
+
+resource "kubectl_manifest" "componentdefinition_kustomize" {
+  force_new          = true
+  yaml_body          = file("${path.module}/definitions/kustomize.yaml")
+  override_namespace = var.namespace
+}
