@@ -51,14 +51,6 @@ inputs = {
         <<-EOT
         fullnameOverride: "nginx-public"
         nameOverride: "nginx-public"
-        ports:
-          web:
-            redirectTo:
-              port: websecure
-              priority: 10
-          websecure:
-            tls:
-              enabled: false
         controller:
           ingressClassResource:
             enabled: true
@@ -81,14 +73,6 @@ inputs = {
         <<-EOT
         fullnameOverride: "nginx-internal"
         nameOverride: "nginx-internal"
-        ports:
-          web:
-            redirectTo:
-              port: websecure
-              priority: 10
-          websecure:
-            tls:
-              enabled: false
         controller:
           ingressClassResource:
             enabled: true
