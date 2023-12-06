@@ -44,7 +44,9 @@ inputs = {
   oidc_provider_arn                  = dependency.eks.outputs.oidc_provider_arn
 
   eks_addons = {
+    # Disable Gateway-API System 
     enable_gateway_system = false
+    
     # Cluster Autoscaler
     cluster_autoscaler = {
       set = [{
