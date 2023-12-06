@@ -91,7 +91,8 @@ resource "kubectl_manifest" "kube_objects" {
   yaml_body = file("${path.module}/manifests/kube-objects.yaml")
 
   depends_on = [
-    module.eks_addons
+    module.eks_addons,
+    module.eks_addon_kubevela_controller
   ]
 }
 
