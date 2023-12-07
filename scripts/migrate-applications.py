@@ -13,13 +13,15 @@ source_cluster = "scde-prod-blue"
 target_cluster = "scde-prod-green"
 
 for namespace in namespaces:
-    cmd = subprocess.check_output('kubectl --context ' + source_cluster + ' -n ' + namespace + ' get application | egrep "(helm|kustomize)" | awk \'{ print $2 }\'', shell=True).splitlines()
+    cmd = subprocess.check_output('kubectl --context ' + source_cluster + ' -n ' + 
+    namespace + ' get application | egrep "(helm|kustomize)" | awk \'{ print $2 }\'', shell=True).splitlines()
 
     for application in cmd:
         app_name = str(application, encoding="utf-8")
         
         # Extracting output from current applications
-        output = json.loads(subprocess.check_output('kubectl --context ' + source_cluster + ' -n ' + namespace + ' get application ' + app_name + ' -o json', shell=True))
+        output = json.loads(subprocess.check_output('kubectl --context ' + source_cluster + ' -n ' 
+        + namespace + ' get application ' + app_name + ' -o json', shell=True))
 
         # Deleting some fields that we don't need 
         del output['metadata']['annotations'] 
@@ -38,5 +40,5 @@ for namespace in namespaces:
 
         # Importing the outputs on the target cluster        
         print("Importing "+file_name) 
-        subprocess.check_output('kubectl --context ' + target_cluster + ' apply -f '+ file_name, shell=True)
-        time.sleep(5)
+ #       subprocess.check_output('kubectl --context ' + target_cluster + ' apply -f '+ file_name, shell=True)
+#        time.sleep(5)

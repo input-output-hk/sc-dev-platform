@@ -1,0 +1,67 @@
+{
+    "apiVersion": "core.oam.dev/v1beta1",
+    "kind": "Application",
+    "metadata": {
+        "name": "marlowe-runner-repo",
+        "namespace": "marlowe-production"
+    },
+    "spec": {
+        "components": [
+            {
+                "name": "marlowe-runner-repo",
+                "properties": {
+                    "chart": "deploy",
+                    "git": {
+                        "branch": "main"
+                    },
+                    "repoType": "git",
+                    "retries": 3,
+                    "secretRef": "",
+                    "url": "https://github.com/input-output-hk/marlowe-runner/"
+                },
+                "type": "helm"
+            }
+        ],
+        "policies": [
+            {
+                "name": "local-marlowe-production",
+                "properties": {
+                    "clusters": [
+                        "local"
+                    ],
+                    "namespace": "marlowe-production"
+                },
+                "type": "topology"
+            }
+        ],
+        "workflow": {
+            "mode": {
+                "steps": "DAG"
+            },
+            "steps": [
+                {
+                    "meta": {
+                        "alias": "Deploy To local-marlowe-production"
+                    },
+                    "name": "local-marlowe-production",
+                    "properties": {
+                        "policies": [
+                            "local-marlowe-production"
+                        ]
+                    },
+                    "type": "deploy"
+                },
+                {
+                    "meta": {
+                        "alias": "Deploy To local-marlowe-staging"
+                    },
+                    "name": "local-marlowe-staging",
+                    "properties": {
+                        "policies": []
+                    },
+                    "type": "deploy"
+                }
+            ]
+        }
+    }
+}
