@@ -5,7 +5,7 @@
     capsules.url = "github:input-output-hk/devshell-capsules";
     devenv.url = "github:cachix/devenv";
     disko.url = "github:nix-community/disko";
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
+    nixpkgs.url = "github:shlevy/nixpkgs/node-16-GHA-revert";
   };
   outputs = inputs@{ self, flake-parts, devenv, capsules, nixpkgs, ... }:
     flake-parts.lib.mkFlake { inherit inputs; } {
@@ -36,6 +36,11 @@
             }
             ({ pkgs, lib, ... }: {
               environment.systemPackages = [ pkgs.git ];
+              # Remove when GHA removes upstream
+              nixpkgs.config.permittedInsecurePackages = [
+                "nodejs-16.20.2"
+              ];
+
               nix.settings = {
                 max-jobs = 12;
                 cores = 0;
@@ -55,6 +60,7 @@
                 name = "plutus-benchmark";
                 tokenFile = "/root/runner-pat";
                 url = "https://github.com/input-output-hk/plutus";
+                nodeRuntimes = [ "node16" "node20" ];
               };
             })
           ];
