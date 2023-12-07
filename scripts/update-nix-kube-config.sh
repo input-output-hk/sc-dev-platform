@@ -10,6 +10,14 @@ echo "Updating KUBECONFIG for EKS cluster: $eks_cluster_name"
 
 kube_config_path="./infra/kube.config"
 
-aws eks --region us-east-1 update-kubeconfig --name "$eks_cluster_name" --kubeconfig "$kube_config_path"
+read -p "Do you want to delete the current context? (y/n): " delete_context
 
-echo "KUBECONFIG updated in the Nix expression for EKS cluster: $eks_cluster_name"
+if [[ $delete_context == "y" || $delete_context == "Y" ]]; then
+  # Delete the specified context
+  kubectl config delete-context "$eks_cluster_name"
+  echo "Context '$eks_cluster_name' deleted from kubeconfig."
+else
+  # Update or create kubeconfig
+  aws eks --region us-east-1 update-kubeconfig --name "$eks_cluster_name" --kubeconfig "$kube_config_path"
+  echo "KUBECONFIG updated in the Nix expression for EKS cluster: $eks_cluster_name"
+fi
