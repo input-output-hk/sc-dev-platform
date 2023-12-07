@@ -1,8 +1,12 @@
 #!/bin/bash
 
-# Prompt the user for the EKS cluster name
-read -p "Enter the EKS cluster name: " eks_cluster_name
+read -p "Which env is this for? (dev, prod): " env
+read -p "Which cluster is this for? (green, blue): " cluster
 
+cluster_location=$(pwd)/infra/us-east-1/$env/eks/$cluster/eks
+eks_cluster_name=$(basename $(cd $cluster_location && terragrunt output cluster_name) | sed 's/"//g')
+
+echo "Updating KUBECONFIG for EKS cluster: $eks_cluster_name"
 
 kube_config_path="./infra/kube.config"
 
