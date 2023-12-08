@@ -46,3 +46,16 @@ The mandatory parameters are:
 - **ingressClass**: The ingress class used for loadbalancer, toggle selection field with two choices (`public/public`)
 - **domain**: The desired domain.
 - **rules**: The specific http matches such as pathType which is an Exact or Prefix, and the port.
+
+VelaUX Guidance:
+
+To toggle the feature in VelaUX, follow these steps:
+
+Open VelaUX and navigate to the desired application.
+Add a trait in one of the added components. This is a plus sign.
+Select the type which is a https-route.
+Here a number of parameters needed to be filled, which are mandatory stated above.
+The toggle to select between public and private is at the bottom of this page.
+Choose between public and private for the ingressClass toggle field.
+Provide the desired domain and rules in the corresponding input fields.
+Deploy the changes to have the desired effect.
