@@ -81,6 +81,7 @@ inputs = {
           ingressClassResource:
             enabled: true
             name: "nginx-public"
+            controllerValue: "k8s.io/ingress-nginx-public"
           service:
             annotations:
               "service.beta.kubernetes.io/aws-load-balancer-type": "external"
@@ -106,6 +107,7 @@ inputs = {
           ingressClassResource:
             enabled: true
             name: "nginx-internal"
+            controllerValue: "k8s.io/ingress-nginx-internal"
           service:
             annotations:
               "meta.helm.sh/release-name": "nginx-internal"
