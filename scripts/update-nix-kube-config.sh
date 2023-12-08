@@ -1,7 +1,7 @@
 #!/bin/bash
 
-read -p "Which env is this for? (dev, prod): " env
-read -p "Which cluster is this for? (green, blue): " cluster
+env=$1
+cluster=$2
 
 cluster_location=$(pwd)/infra/us-east-1/$env/eks/$cluster/eks
 eks_cluster_name=$(basename $(cd $cluster_location && terragrunt output cluster_name) | sed 's/"//g')
