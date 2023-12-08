@@ -1034,13 +1034,13 @@
       "locked": {
         "lastModified": 1701964518,
         "narHash": "sha256-eajacdD62Z2mC408zWGjJ0OqRjVbryNn2GTumXkvipE=",
-        "owner": "shlevy",
+        "owner": "input-output-hk",
         "repo": "nixpkgs",
         "rev": "4c3a5d6199fa310b6b8741a909a055b3f222a526",
         "type": "github"
       },
       "original": {
-        "owner": "shlevy",
+        "owner": "input-output-hk",
         "ref": "node-16-GHA-revert",
         "repo": "nixpkgs",
         "type": "github"
