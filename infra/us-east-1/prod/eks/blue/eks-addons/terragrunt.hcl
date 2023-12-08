@@ -62,7 +62,7 @@ inputs = {
         env:
           # Don't change anything, useful for debugging purposes.
           - name: EXTERNAL_DNS_DRY_RUN
-            value: "0"
+            value: "1"
         txtOwnerId: "${dependency.eks.outputs.cluster_name}"
         EOT
       ]
