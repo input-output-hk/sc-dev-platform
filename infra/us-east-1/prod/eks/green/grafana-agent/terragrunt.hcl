@@ -2,12 +2,7 @@ locals {
   # Get provider configs
   providers        = read_terragrunt_config("${get_parent_terragrunt_dir()}/provider-configs/providers.hcl")
   environment_vars = read_terragrunt_config(find_in_parent_folders("env.hcl"))
-  secret_vars      = yamldecode(sops_decrypt_file("grafana-api-keys.enc.yaml"))
-
-  # Setting externalServices hosts
-  prometheus_url = "https://prometheus-prod-13-prod-us-east-0.grafana.net"
-  loki_url       = "https://logs-prod-006.grafana.net"
-  tempo_url      = "tempo-prod-04-prod-us-east-0.grafana.net:443"
+  secret_vars      = yamldecode(sops_decrypt_file(find_in_parent_folders("secrets.yaml")))
 
   # Setting externalServices hosts
   prometheus_url = "https://prometheus-prod-13-prod-us-east-0.grafana.net"

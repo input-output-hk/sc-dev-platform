@@ -1,14 +1,6 @@
 apiVersion: core.oam.dev/v1beta1
 kind: Application
 metadata:
-  annotations:
-    addon.oam.dev/componentDefinitions: kustomize,helm
-    addon.oam.dev/traitDefinitions: kustomize-patch,helm-labels,kustomize-strategy-merge,kustomize-json-patch
-  creationTimestamp: null
-  labels:
-    addons.oam.dev/name: fluxcd
-    addons.oam.dev/registry: KubeVela
-    addons.oam.dev/version: 2.3.4
   name: addon-fluxcd
   namespace: vela-system
 spec:
@@ -312,6 +304,7 @@ spec:
             served: true
             storage: false
             subresources:
+              status: {}
           - additionalPrinterColumns:
             - jsonPath: .spec.endpoint
               name: Endpoint
@@ -587,14 +580,7 @@ spec:
             served: true
             storage: true
             subresources:
-        status:
-          acceptedNames:
-            kind: Bucket
-            listKind: BucketList
-            plural: buckets
-            singular: bucket
-          conditions: []
-          storedVersions: []
+              status: {}
       - apiVersion: apiextensions.k8s.io/v1
         kind: CustomResourceDefinition
         metadata:
@@ -968,6 +954,7 @@ spec:
             served: true
             storage: false
             subresources:
+              status: {}
           - additionalPrinterColumns:
             - jsonPath: .spec.url
               name: URL
@@ -1415,16 +1402,7 @@ spec:
             served: true
             storage: true
             subresources:
-        status:
-          acceptedNames:
-            kind: GitRepository
-            listKind: GitRepositoryList
-            plural: gitrepositories
-            shortNames:
-            - gitrepo
-            singular: gitrepository
-          conditions: []
-          storedVersions: []
+              status: {}
       - apiVersion: apiextensions.k8s.io/v1
         kind: CustomResourceDefinition
         metadata:
@@ -1805,16 +1783,7 @@ spec:
             served: true
             storage: true
             subresources:
-        status:
-          acceptedNames:
-            kind: OCIRepository
-            listKind: OCIRepositoryList
-            plural: ocirepositories
-            shortNames:
-            - ocirepo
-            singular: ocirepository
-          conditions: []
-          storedVersions: []
+              status: {}
       - apiVersion: apiextensions.k8s.io/v1
         kind: CustomResourceDefinition
         metadata:
@@ -2111,6 +2080,7 @@ spec:
             served: true
             storage: false
             subresources:
+              status: {}
           - additionalPrinterColumns:
             - jsonPath: .spec.chart
               name: Chart
@@ -2440,16 +2410,7 @@ spec:
             served: true
             storage: true
             subresources:
-        status:
-          acceptedNames:
-            kind: HelmChart
-            listKind: HelmChartList
-            plural: helmcharts
-            shortNames:
-            - hc
-            singular: helmchart
-          conditions: []
-          storedVersions: []
+              status: {}
       - apiVersion: apiextensions.k8s.io/v1
         kind: CustomResourceDefinition
         metadata:
@@ -3384,16 +3345,7 @@ spec:
             served: true
             storage: true
             subresources:
-        status:
-          acceptedNames:
-            kind: HelmRelease
-            listKind: HelmReleaseList
-            plural: helmreleases
-            shortNames:
-            - hr
-            singular: helmrelease
-          conditions: []
-          storedVersions: []
+              status: {}
       - apiVersion: apiextensions.k8s.io/v1
         kind: CustomResourceDefinition
         metadata:
@@ -3654,6 +3606,7 @@ spec:
             served: true
             storage: false
             subresources:
+              status: {}
           - additionalPrinterColumns:
             - jsonPath: .spec.url
               name: URL
@@ -3932,16 +3885,7 @@ spec:
             served: true
             storage: true
             subresources:
-        status:
-          acceptedNames:
-            kind: HelmRepository
-            listKind: HelmRepositoryList
-            plural: helmrepositories
-            shortNames:
-            - helmrepo
-            singular: helmrepository
-          conditions: []
-          storedVersions: []
+              status: {}
       - apiVersion: apiextensions.k8s.io/v1
         kind: CustomResourceDefinition
         metadata:
@@ -4165,14 +4109,7 @@ spec:
             served: true
             storage: true
             subresources:
-        status:
-          acceptedNames:
-            kind: ImagePolicy
-            listKind: ImagePolicyList
-            plural: imagepolicies
-            singular: imagepolicy
-          conditions: []
-          storedVersions: []
+              status: {}
       - apiVersion: apiextensions.k8s.io/v1
         kind: CustomResourceDefinition
         metadata:
@@ -4427,14 +4364,7 @@ spec:
             served: true
             storage: true
             subresources:
-        status:
-          acceptedNames:
-            kind: ImageRepository
-            listKind: ImageRepositoryList
-            plural: imagerepositories
-            singular: imagerepository
-          conditions: []
-          storedVersions: []
+              status: {}
       - apiVersion: apiextensions.k8s.io/v1
         kind: CustomResourceDefinition
         metadata:
@@ -4758,14 +4688,7 @@ spec:
             served: true
             storage: true
             subresources:
-        status:
-          acceptedNames:
-            kind: ImageUpdateAutomation
-            listKind: ImageUpdateAutomationList
-            plural: imageupdateautomations
-            singular: imageupdateautomation
-          conditions: []
-          storedVersions: []
+              status: {}
       - apiVersion: apiextensions.k8s.io/v1
         kind: CustomResourceDefinition
         metadata:
@@ -5360,6 +5283,7 @@ spec:
             served: true
             storage: false
             subresources:
+              status: {}
           - additionalPrinterColumns:
             - jsonPath: .metadata.creationTimestamp
               name: Age
@@ -5958,16 +5882,7 @@ spec:
             served: true
             storage: true
             subresources:
-        status:
-          acceptedNames:
-            kind: Kustomization
-            listKind: KustomizationList
-            plural: kustomizations
-            shortNames:
-            - ks
-            singular: kustomization
-          conditions: []
-          storedVersions: []
+              status: {}
     type: k8s-objects
   - dependsOn:
     - fluxcd-ns
@@ -6661,430 +6576,3 @@ spec:
           path:
           - '*'
     type: apply-once
----
-apiVersion: core.oam.dev/v1beta1
-kind: TraitDefinition
-metadata:
-  annotations:
-    addon.oam.dev/ignore-without-component: fluxcd-kustomize-controller
-    definition.oam.dev/description: A list of StrategicMerge or JSON6902 patch to
-      selected target
-  labels:
-    custom.definition.oam.dev/ui-hidden: "true"
-  name: kustomize-patch
-  namespace: vela-system
-spec:
-  podDisruptive: false
-  schematic:
-    cue:
-      template: "patch: spec: patches: parameter.patches\nparameter: {\n\t// +usage=a
-        list of StrategicMerge or JSON6902 patch to selected target\n\tpatches: [...#patchItem]\n}\n//
-        +usage=Contains a strategicMerge or JSON6902 patch\n#patchItem: {\n\t// +usage=Inline
-        patch string, in yaml style\n\tpatch: string\n\t// +usage=Specify the target
-        the patch should be applied to\n\ttarget: #selector\n}\n\n// +usage=Selector
-        specifies a set of resources\n#selector: {\n\tgroup?:              string\n\tversion?:
-        \           string\n\tkind?:               string\n\tnamespace?:          string\n\tname?:
-        \              string\n\tannotationSelector?: string\n\tlabelSelector?:      string\n}\n"
----
-apiVersion: core.oam.dev/v1beta1
-kind: TraitDefinition
-metadata:
-  annotations:
-    definition.oam.dev/description: Patch labels of Pods created by workloads defined
-      in Helm Charts.
-  labels:
-    custom.definition.oam.dev/ui-hidden: "true"
-  name: helm-labels
-  namespace: vela-system
-spec:
-  appliesToWorkloads:
-  - HelmRelease.helm.toolkit.fluxcd.io
-  podDisruptive: false
-  schematic:
-    cue:
-      template: "patch: spec: postRenderers: [{\n\tkustomize: patchesStrategicMerge:
-        [{\n\t\tapiVersion: parameter.apiVersion\n\t\tkind:       parameter.kind\n\t\tmetadata:
-        {\n\t\t\tname:      parameter.name\n\t\t\tnamespace: parameter.namespace\n\t\t}\n\t\tspec:
-        template: metadata: labels: {\n\t\t\t\"app.oam.dev/component\": context.name\n\t\t\t\"app.oam.dev/name\":
-        \     context.appName\n\t\t\tfor k, v in parameter.labels {\n\t\t\t\t(k):
-        v\n\t\t\t}\n\t\t}\n\t}]\n}]\nparameter: {\n\tapiVersion: *\"apps/v1\" | string\n\tkind:
-        \      *\"Deployment\" | string\n\tname:       *context.name | string\n\tnamespace:
-        \ *context.namespace | string\n\tlabels?: [string]: string\n}\n"
----
-apiVersion: core.oam.dev/v1beta1
-kind: TraitDefinition
-metadata:
-  annotations:
-    addon.oam.dev/ignore-without-component: fluxcd-kustomize-controller
-    definition.oam.dev/description: A list of strategic merge to kustomize config
-  labels:
-    custom.definition.oam.dev/ui-hidden: "true"
-  name: kustomize-strategy-merge
-  namespace: vela-system
-spec:
-  podDisruptive: false
-  schematic:
-    cue:
-      template: "patch: spec: patches: parameter.patchesStrategicMerge\nparameter:
-        {\n\t// +usage=a list of strategicmerge, defined as inline yaml objects.\n\tpatchesStrategicMerge:
-        [...#nestedmap]\n}\n#nestedmap: {\n\t...\n}\n"
----
-apiVersion: core.oam.dev/v1beta1
-kind: ComponentDefinition
-metadata:
-  annotations:
-    addon.oam.dev/ignore-without-component: fluxcd-kustomize-controller
-    definition.oam.dev/description: kustomize can fetching, building, updating and
-      applying Kustomize manifests from Git repo or Bucket or OCI repo.
-  labels: {}
-  name: kustomize
-  namespace: vela-system
-spec:
-  schematic:
-    cue:
-      template: "output: {\n\tapiVersion: \"kustomize.toolkit.fluxcd.io/v1beta2\"\n\tkind:
-        \      \"Kustomization\"\n\tmetadata: {\n\t\tname:      context.name\n\t\tnamespace:
-        context.namespace\n\t}\n\tspec: {\n\t\tinterval: parameter.pullInterval\n\t\tsourceRef:
-        {\n\t\t\tif parameter.repoType == \"git\" {\n\t\t\t\tkind: \"GitRepository\"\n\t\t\t}\n\t\t\tif
-        parameter.repoType == \"oss\" {\n\t\t\t\tkind: \"Bucket\"\n\t\t\t}\n\t\t\tif
-        parameter.repoType == \"oci\" {\n\t\t\t\tkind: \"OCIRepository\"\n\t\t\t}\n\t\t\tif
-        parameter.sourceName == _|_ {\n\t\t\t\tname: context.name\n\t\t\t}\n\t\t\tif
-        parameter.sourceName != _|_ {\n\t\t\t\tname: parameter.sourceName\n\t\t\t}\n\t\t\tnamespace:
-        context.namespace\n\t\t}\n\t\tpath:    parameter.path\n\t\tsuspend: parameter.suspend\n\t\tprune:
-        \  parameter.prune\n\t\tforce:   parameter.force\n\t\tif parameter.targetNamespace
-        != _|_ {\n\t\t\ttargetNamespace: parameter.targetNamespace\n\t\t}\n\t}\n}\noutputs:
-        {\n\tif parameter.sourceName == _|_ {\n\t\trepo: {\n\t\t\tapiVersion: \"source.toolkit.fluxcd.io/v1beta2\"\n\t\t\tmetadata:
-        {\n\t\t\t\tname:      context.name\n\t\t\t\tnamespace: context.namespace\n\t\t\t}\n\t\t\tif
-        parameter.repoType == \"git\" {\n\t\t\t\tkind: \"GitRepository\"\n\t\t\t\tspec:
-        {\n\t\t\t\t\turl: parameter.url\n\t\t\t\t\tif parameter.git.branch != _|_
-        {\n\t\t\t\t\t\tref: branch: parameter.git.branch\n\t\t\t\t\t}\n\t\t\t\t\tif
-        parameter.git.provider != _|_ {\n\t\t\t\t\t\tif parameter.git.provider ==
-        \"GitHub\" {\n\t\t\t\t\t\t\tgitImplementation: \"go-git\"\n\t\t\t\t\t\t}\n\t\t\t\t\t\tif
-        parameter.git.provider == \"AzureDevOps\" {\n\t\t\t\t\t\t\tgitImplementation:
-        \"libgit2\"\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t\t_secret\n\t\t\t\t\t_sourceCommonArgs\n\t\t\t\t}\n\t\t\t}\n\t\t\tif
-        parameter.repoType == \"oss\" {\n\t\t\t\tkind: \"Bucket\"\n\t\t\t\tspec: {\n\t\t\t\t\tendpoint:
-        \  parameter.url\n\t\t\t\t\tbucketName: parameter.oss.bucketName\n\t\t\t\t\tprovider:
-        \  parameter.oss.provider\n\t\t\t\t\tif parameter.oss.region != _|_ {\n\t\t\t\t\t\tregion:
-        parameter.oss.region\n\t\t\t\t\t}\n\t\t\t\t\t_secret\n\t\t\t\t\t_sourceCommonArgs\n\t\t\t\t}\n\t\t\t}\n\t\t\tif
-        parameter.repoType == \"oci\" {\n\t\t\t\tkind: \"OCIRepository\"\n\t\t\t\tspec:
-        {\n\t\t\t\t\turl: parameter.url\n\t\t\t\t\tif parameter.oci.provider != _|_
-        {\n\t\t\t\t\t\tprovider: parameter.oci.provider\n\t\t\t\t\t}\n\t\t\t\t\tif
-        parameter.oci.tag != _|_ {\n\t\t\t\t\t\tref: tag: parameter.oci.tag\n\t\t\t\t\t}\n\t\t\t\t\t_secret\n\t\t\t\t\t_sourceCommonArgs\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n\n\tif
-        parameter.imageRepository != _|_ {\n\t\timageRepo: {\n\t\t\tapiVersion: \"image.toolkit.fluxcd.io/v1beta1\"\n\t\t\tkind:
-        \      \"ImageRepository\"\n\t\t\tmetadata: {\n\t\t\t\tname:      context.name\n\t\t\t\tnamespace:
-        context.namespace\n\t\t\t}\n\t\t\tspec: {\n\t\t\t\timage:    parameter.imageRepository.image\n\t\t\t\tinterval:
-        parameter.imageRepository.interval\n\t\t\t\tif parameter.imageRepository.secretRef
-        != _|_ {\n\t\t\t\t\tsecretRef: name: parameter.imageRepository.secretRef\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\n\t\timagePolicy:
-        {\n\t\t\tapiVersion: \"image.toolkit.fluxcd.io/v1beta1\"\n\t\t\tkind:       \"ImagePolicy\"\n\t\t\tmetadata:
-        {\n\t\t\t\tname:      context.name\n\t\t\t\tnamespace: context.namespace\n\t\t\t}\n\t\t\tspec:
-        {\n\t\t\t\timageRepositoryRef: name: context.name\n\t\t\t\tpolicy: parameter.imageRepository.policy\n\t\t\t\tif
-        parameter.imageRepository.filterTags != _|_ {\n\t\t\t\t\tfilterTags: parameter.imageRepository.filterTags\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\n\t\timageUpdate:
-        {\n\t\t\tapiVersion: \"image.toolkit.fluxcd.io/v1beta1\"\n\t\t\tkind:       \"ImageUpdateAutomation\"\n\t\t\tmetadata:
-        {\n\t\t\t\tname:      context.name\n\t\t\t\tnamespace: context.namespace\n\t\t\t}\n\t\t\tspec:
-        {\n\t\t\t\tinterval: parameter.imageRepository.interval\n\t\t\t\tsourceRef:
-        {\n\t\t\t\t\tkind: \"GitRepository\"\n\t\t\t\t\tif parameter.sourceName ==
-        _|_ {\n\t\t\t\t\t\tname: context.name\n\t\t\t\t\t}\n\t\t\t\t\tif parameter.sourceName
-        != _|_ {\n\t\t\t\t\t\tname: parameter.sourceName\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t\tgit:
-        {\n\t\t\t\t\tcheckout: ref: branch: parameter.git.branch\n\t\t\t\t\tcommit:
-        {\n\t\t\t\t\t\tauthor: {\n\t\t\t\t\t\t\temail: \"kubevelabot@users.noreply.github.com\"\n\t\t\t\t\t\t\tname:
-        \ \"kubevelabot\"\n\t\t\t\t\t\t}\n\t\t\t\t\t\tif parameter.imageRepository.commitMessage
-        != _|_ {\n\t\t\t\t\t\t\tmessageTemplate: \"Update image automatically.\\n\"
-        + parameter.imageRepository.commitMessage\n\t\t\t\t\t\t}\n\t\t\t\t\t\tif parameter.imageRepository.commitMessage
-        == _|_ {\n\t\t\t\t\t\t\tmessageTemplate: \"Update image automatically.\"\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t\tpush:
-        branch: parameter.git.branch\n\t\t\t\t}\n\t\t\t\tupdate: {\n\t\t\t\t\tpath:
-        \    parameter.path\n\t\t\t\t\tstrategy: \"Setters\"\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n}\n_secret:
-        {\n\tif parameter.secretRef != _|_ {\n\t\tsecretRef: name: parameter.secretRef\n\t}\n}\n_sourceCommonArgs:
-        {\n\tinterval: parameter.pullInterval\n\tif parameter.timeout != _|_ {\n\t\ttimeout:
-        parameter.timeout\n\t}\n}\nparameter: {\n\trepoType: *\"git\" | \"oss\" |
-        \"oci\"\n\t// +usage=The image repository for automatically update image to
-        git\n\timageRepository?: {\n\t\t// +usage=The image url\n\t\timage: string\n\t\t//
-        +usage=The name of the secret containing authentication credentials\n\t\tsecretRef?:
-        string\n\t\t// +usage=Policy gives the particulars of the policy to be followed
-        in selecting the most recent image.\n\t\tpolicy: {\n\t\t\t// +usage=Alphabetical
-        set of rules to use for alphabetical ordering of the tags.\n\t\t\talphabetical?:
-        {\n\t\t\t\t// +usage=Order specifies the sorting order of the tags.\n\t\t\t\t//
-        +usage=Given the letters of the alphabet as tags, ascending order would select
-        Z, and descending order would select A.\n\t\t\t\torder?: \"asc\" | \"desc\"\n\t\t\t}\n\t\t\t//
-        +usage=Numerical set of rules to use for numerical ordering of the tags.\n\t\t\tnumerical?:
-        {\n\t\t\t\t// +usage=Order specifies the sorting order of the tags.\n\t\t\t\t//
-        +usage=Given the integer values from 0 to 9 as tags, ascending order would
-        select 9, and descending order would select 0.\n\t\t\t\torder: \"asc\" | \"desc\"\n\t\t\t}\n\t\t\t//
-        +usage=SemVer gives a semantic version range to check against the tags available.\n\t\t\tsemver?:
-        {\n\t\t\t\t// +usage=Range gives a semver range for the image tag; the highest
-        version within the range that's a tag yields the latest image.\n\t\t\t\trange:
-        string\n\t\t\t}\n\t\t}\n\t\t// +usage=FilterTags enables filtering for only
-        a subset of tags based on a set of rules. If no rules are provided, all the
-        tags from the repository will be ordered and compared.\n\t\tfilterTags?: {\n\t\t\t//
-        +usage=Extract allows a capture group to be extracted from the specified regular
-        expression pattern, useful before tag evaluation.\n\t\t\textract?: string\n\t\t\t//
-        +usage=Pattern specifies a regular expression pattern used to filter for image
-        tags.\n\t\t\tpattern?: string\n\t\t}\n\t\t// +usage=The image url\n\t\tcommitMessage?:
-        string\n\t\t// +uasge=Interval is the length of time to wait between scans
-        of the image repository.\n\t\tinterval: *\"5m\" | string\n\t}\n\t// +usage=The
-        interval at which to check for repository/bucket and release updates, default
-        to 5m\n\tpullInterval: *\"5m\" | string\n\t// +usage=The Git or Helm repository
-        URL, OSS endpoint or OCI repo, accept HTTP/S or SSH address as git url\n\turl:
-        string\n\t// +usage=The name of the secret containing authentication credentials\n\tsecretRef?:
-        string\n\t// +usage=The timeout for operations like download index/clone repository,
-        optional\n\ttimeout?: string\n\t// +usage=The name of the source already existed\n\tsourceName?:
-        string\n\n\tgit?: {\n\t\t// +usage=The Git reference to checkout and monitor
-        for changes, defaults to master branch\n\t\tbranch: string\n\t\t// +usage=Determines
-        which git client library to use. Defaults to GitHub, it will pick go-git.
-        AzureDevOps will pick libgit2.\n\t\tprovider?: *\"GitHub\" | \"AzureDevOps\"\n\t}\n\toss?:
-        {\n\t\t// +usage=The bucket's name, required if repoType is oss\n\t\tbucketName:
-        string\n\t\t// +usage=\"generic\" for Minio, Amazon S3, Google Cloud Storage,
-        Alibaba Cloud OSS, \"aws\" for retrieve credentials from the EC2 service when
-        credentials not specified, default \"generic\"\n\t\tprovider: *\"generic\"
-        | \"aws\"\n\t\t// +usage=The bucket region, optional\n\t\tregion?: string\n\t}\n\toci?:
-        {\n\t\t// +usage=The OIDC provider used for authentication purposes.The generic
-        provider can be used for public repositories or when static credentials are
-        used for authentication, either with spec.secretRef or spec.serviceAccountName\n\t\tprovider:
-        *\"generic\" | \"azure\" | \"aws\" | \"gcp\"\n\t\t// +usage=The image tag\n\t\ttag:
-        *\"latest\" | string\n\t}\n\t//+usage=Path to the directory containing the
-        kustomization.yaml file, or the set of plain YAMLs a kustomization.yaml should
-        be generated for.\n\tpath: string\n\t//+usage=Whether to delete objects that
-        have already been applyed\n\tprune: *true | bool\n\t//+usage=This flag tells
-        the controller to suspend subsequent kustomize executions, it does not apply
-        to already started executions. Defaults to false.\n\tsuspend: *false | bool\n\t//+usage=Force
-        instructs the controller to recreate resources when patching fails due to
-        an immutable field change.\n\tforce: *false | bool\n\t//+usage=TargetNamespace
-        sets or overrides the namespace in the kustomization.yaml file, optional\n\ttargetNamespace?:
-        string\n}\n"
-  workload:
-    type: autodetects.core.oam.dev
----
-apiVersion: core.oam.dev/v1beta1
-kind: ComponentDefinition
-metadata:
-  annotations:
-    definition.oam.dev/description: helm release is a group of K8s resources from
-      either git repository or helm repo
-  labels: {}
-  name: helm
-  namespace: vela-system
-spec:
-  schematic:
-    cue:
-      template: "outputs: {\n\tif parameter.sourceName == _|_ {\n\t\trepo: {\n\t\t\tapiVersion:
-        \"source.toolkit.fluxcd.io/v1beta2\"\n\t\t\tmetadata: name: context.name\n\t\t\tif
-        parameter.repoType == \"git\" {\n\t\t\t\tkind: \"GitRepository\"\n\t\t\t\tspec:
-        {\n\t\t\t\t\turl: parameter.url\n\t\t\t\t\tif parameter.git.branch != _|_
-        {\n\t\t\t\t\t\tref: branch: parameter.git.branch\n\t\t\t\t\t}\n\t\t\t\t\t_secret\n\t\t\t\t\t_sourceCommonArgs\n\t\t\t\t}\n\t\t\t}\n\t\t\tif
-        parameter.repoType == \"oss\" {\n\t\t\t\tkind: \"Bucket\"\n\t\t\t\tspec: {\n\t\t\t\t\tendpoint:
-        \  parameter.url\n\t\t\t\t\tbucketName: parameter.oss.bucketName\n\t\t\t\t\tprovider:
-        \  parameter.oss.provider\n\t\t\t\t\tif parameter.oss.region != _|_ {\n\t\t\t\t\t\tregion:
-        parameter.oss.region\n\t\t\t\t\t}\n\t\t\t\t\t_secret\n\t\t\t\t\t_sourceCommonArgs\n\t\t\t\t}\n\t\t\t}\n\t\t\tif
-        parameter.repoType == \"helm\" || parameter.repoType == \"oci\" {\n\t\t\t\tkind:
-        \"HelmRepository\"\n\t\t\t\tspec: {\n\t\t\t\t\turl: parameter.url\n\t\t\t\t\tif
-        parameter.repoType == \"oci\" {\n\t\t\t\t\t\ttype: \"oci\"\n\t\t\t\t\t}\n\t\t\t\t\tif
-        parameter.helmrepository.provider != _|_ {\n\t\t\t\t\t\tprovider: parameter.helmrepository.provider\n\t\t\t\t\t}\n\t\t\t\t\t_secret\n\t\t\t\t\t_sourceCommonArgs\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n}\noutput:
-        {\n\tapiVersion: \"helm.toolkit.fluxcd.io/v2beta1\"\n\tkind:       \"HelmRelease\"\n\tmetadata:
-        name: context.name\n\tspec: {\n\t\ttimeout:  parameter.installTimeout\n\t\tinterval:
-        parameter.pullInterval\n\t\tchart: spec: {\n\t\t\tchart:   parameter.chart\n\t\t\tversion:
-        parameter.version\n\t\t\tsourceRef: {\n\t\t\t\tif parameter.repoType == \"git\"
-        {\n\t\t\t\t\tkind: \"GitRepository\"\n\t\t\t\t}\n\t\t\t\tif parameter.repoType
-        == \"helm\" || parameter.repoType == \"oci\" {\n\t\t\t\t\tkind: \"HelmRepository\"\n\t\t\t\t}\n\t\t\t\tif
-        parameter.repoType == \"oss\" {\n\t\t\t\t\tkind: \"Bucket\"\n\t\t\t\t}\n\t\t\t\tif
-        parameter.sourceName == _|_ {\n\t\t\t\t\tname: context.name\n\t\t\t\t}\n\t\t\t\tif
-        parameter.sourceName != _|_ {\n\t\t\t\t\tname: parameter.sourceName\n\t\t\t\t}\n\t\t\t}\n\t\t\tinterval:
-        parameter.interval\n\t\t\tif parameter[\"valuesFiles\"] != _|_ {\n\t\t\t\tvaluesFiles:
-        parameter[\"valuesFiles\"]\n\t\t\t}\n\t\t}\n\t\tif parameter.targetNamespace
-        != _|_ {\n\t\t\ttargetNamespace: parameter.targetNamespace\n\t\t}\n\t\tif
-        parameter.releaseName != _|_ {\n\t\t\treleaseName: parameter.releaseName\n\t\t}\n\t\tif
-        parameter.values != _|_ {\n\t\t\tvalues: parameter.values\n\t\t}\n\t\tif parameter.valuesFrom
-        != _|_ {\n\t\t\tvaluesFrom: [ for v in parameter.valuesFrom {{\n\t\t\t\tkind:
-        v.kind\n\t\t\t\tname: v.name\n\t\t\t\tif v.valuesKey != _|_ {\n\t\t\t\t\tvaluesKey:
-        v.valuesKey\n\t\t\t\t}\n\t\t\t\tif v.targetPath != _|_ {\n\t\t\t\t\ttargetPath:
-        v.targetPath\n\t\t\t\t}\n\t\t\t\tif v.optional != _|_ {\n\t\t\t\t\toptional:
-        v.optional\n\t\t\t\t}\n\t\t\t}}]\n\t\t}\n\t\tinstall: remediation: retries:
-        parameter.retries\n\t\tupgrade: {\n\t\t\tremediation: retries: parameter.retries\n\t\t\tif
-        parameter.upgradeCRD != _|_ {\n\t\t\t\tif parameter.upgradeCRD {\n\t\t\t\t\tcrds:
-        \"CreateReplace\"\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n}\n_secret: {\n\tif parameter.secretRef
-        != _|_ {\n\t\tif parameter.secretRef != \"\" {\n\t\t\tsecretRef: name: parameter.secretRef\n\t\t}\n\t}\n}\n_sourceCommonArgs:
-        {\n\tinterval: parameter.pullInterval\n\tif parameter.timeout != _|_ {\n\t\ttimeout:
-        parameter.timeout\n\t}\n}\nparameter: {\n\trepoType: *\"helm\" | \"git\" |
-        \"oss\" | \"oci\"\n\t// +usage=The interval at which to check for repository/bucket
-        and release updates, default to 5m\n\tpullInterval: *\"5m\" | string\n\t//
-        +usage=The  Interval at which to reconcile the Helm release, default to 30s\n\tinterval:
-        *\"30s\" | string\n\t// +usage=The Git or Helm repository URL, OSS endpoint,
-        accept HTTP/S or SSH address as git url,\n\turl: string\n\t// +usage=The name
-        of the secret containing authentication credentials\n\tsecretRef?: string\n\t//
-        +usage=The timeout for operations like download index/clone repository, optional\n\ttimeout?:
-        string\n\t// +usage=The timeout for operation `helm install`, optional\n\tinstallTimeout:
-        *\"10m\" | string\n\t// +usage=The name of the source already existed\n\tsourceName?:
-        string\n\n\tgit?: {\n\t\t// +usage=The Git reference to checkout and monitor
-        for changes, defaults to main branch\n\t\tbranch: *\"main\" | string\n\t}\n\toss?:
-        {\n\t\t// +usage=The bucket's name, required if repoType is oss\n\t\tbucketName:
-        string\n\t\t// +usage=\"generic\" for Minio, Amazon S3, Google Cloud Storage,
-        Alibaba Cloud OSS, \"aws\" for retrieve credentials from the EC2 service when
-        credentials not specified, default \"generic\"\n\t\tprovider: *\"generic\"
-        | \"azure\" | \"aws\" | \"gcp\"\n\t\t// +usage=The bucket region, optional\n\t\tregion?:
-        string\n\t}\n\thelmrepository?: {\n\t\t// +usage=The OIDC provider used for
-        authentication purposes.The generic provider can be used for public repositories
-        or when static credentials are used for authentication, either with spec.secretRef
-        or spec.serviceAccountName\n\t\tprovider: *\"generic\" | \"azure\" | \"aws\"
-        | \"gcp\"\n\t}\n\t// +usage=Alternative list of values files to use as the
-        chart values (values.yaml is not included by default), expected to be a relative
-        path in the SourceRef.Values files are merged in the order of this list with
-        the last file overriding the first.\n\tvaluesFiles?: [...string]\n\n\t// +usage=1.The
-        relative path to helm chart for git/oss source. 2. chart name for helm resource
-        3. relative path for chart package(e.g. ./charts/podinfo-1.2.3.tgz)\n\tchart:
-        string\n\t// +usage=Chart version\n\tversion: *\"*\" | string\n\t// +usage=The
-        namespace for helm chart, optional\n\ttargetNamespace?: string\n\t// +usage=The
-        release name\n\treleaseName?: string\n\t// +usage=Retry times when install/upgrade
-        fail.\n\tretries: *3 | int\n\t// +usage=Chart values\n\tvalues?: #nestedmap\n\t//
-        +usage=valuesFrom holds references to resources containing Helm values for
-        this HelmRelease, and information about how they should be merged.\n\tvaluesFrom?:
-        [...{\n\t\t// +usage=Kind of the values referent, valid values are ('Secret',
-        'ConfigMap').\n\t\tkind: \"Secret\" | \"ConfigMap\"\n\t\t// +usage=Name of
-        the values referent. Should reside in the same namespace as the referring
-        resource.\n\t\tname: string\n\t\t// +usage=ValuesKey is the data key where
-        the values.yaml or a specific value can be found at. Defaults to 'values.yaml'.\n\t\tvaluesKey?:
-        string\n\t\t// +usage=TargetPath is the YAML dot notation path the value should
-        be merged at. When set, the ValuesKey is expected to be a single flat value.
-        Defaults to 'None', which results in the values getting merged at the root.\n\t\ttargetPath?:
-        string\n\t\t// +usage=Optional marks this ValuesReference as optional. When
-        set, a not found error or the values reference is ignored, but any ValuesKey,
-        TargetPath or transient error will still result in a reconciliation failure.\n\t\toptional?:
-        bool\n\t}]\n\tupgradeCRD?: *false | bool\n}\n#nestedmap: {\n\t...\n}\n"
-  status:
-    customStatus: "\trepoMessage:    *\"\" | string\n\treleaseMessage: *\"Wating repository
-      ready\" | string\n\tif context.outputs.repo == _|_ {\n\t\trepoMessage: \"Use
-      existed repository\"\n\t}\n\tif context.outputs.repo != _|_ && context.outputs.repo.status
-      == _|_ {\n\t\trepoMessage:    \"Fetching repository\"\n\t}\n\tif context.outputs.repo
-      != _|_ && context.outputs.repo.status != _|_ && context.outputs.repo.status.conditions
-      != _|_ {\n\t\trepoStatus: context.outputs.repo.status\n\t\tif len(repoStatus.conditions)
-      == 0 || repoStatus.conditions[0][\"type\"] != \"Ready\" {\n\t\t\trepoMessage:
-      \"Fetch repository fail\"\n\t\t}\n\t\tif len(repoStatus.conditions) != 0 &&
-      repoStatus.conditions[0][\"type\"] == \"Ready\" {\n\t\t\trepoMessage: \"Fetch
-      repository successfully\"\n\t\t}\n\t}\n\tif context.output.status == _|_ {\n\t\t\treleaseMessage:
-      \"Creating helm release\"\n\t}\n\tif context.output.status != _|_ {\n\t\t\treleaseStatus:
-      context.output.status\n\t\t\tif releaseStatus.conditions != _|_ {\n\t\t\t\tif
-      len(releaseStatus.conditions) > 0 {\n\t\t\t\t\tif releaseStatus.conditions[0][\"message\"]
-      != _|_ {\n\t\t\t\t\t\tif releaseStatus.conditions[0][\"message\"] == \"Release
-      reconciliation succeeded\" {\n\t\t\t\t\t\t\treleaseMessage: \"Create helm release
-      successfully\"\n\t\t\t\t\t\t}\n\t\t\t\t\t\tif releaseStatus.conditions[0][\"message\"]
-      != \"Release reconciliation succeeded\" {\n\t\t\t\t\t\t\t\treleaseBasicMessage:
-      \"Delivery helm release in progress, message: \" + releaseStatus.conditions[0][\"message\"]\n\t\t\t\t\t\t\t\tif
-      len(releaseStatus.conditions) == 1 {\n\t\t\t\t\t\t\t\t\treleaseMessage: releaseBasicMessage\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t\tif
-      len(releaseStatus.conditions) > 1 {\n\t\t\t\t\t\t\t\t\tif releaseStatus.conditions[1][\"message\"]
-      != _|_ {\n\t\t\t\t\t\t\t\t\t\treleaseMessage: releaseBasicMessage + \", \" +
-      releaseStatus.conditions[1][\"message\"]\n\t\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t}\n\tmessage:
-      repoMessage + \", \" + releaseMessage"
-    healthPolicy: 'isHealth: len(context.output.status.conditions) != 0 && context.output.status.conditions[0]["status"]=="True"'
-  workload:
-    type: autodetects.core.oam.dev
----
-apiVersion: core.oam.dev/v1beta1
-kind: TraitDefinition
-metadata:
-  annotations:
-    addon.oam.dev/ignore-without-component: fluxcd-kustomize-controller
-    definition.oam.dev/description: A list of JSON6902 patch to selected target
-  labels:
-    custom.definition.oam.dev/ui-hidden: "true"
-  name: kustomize-json-patch
-  namespace: vela-system
-spec:
-  podDisruptive: false
-  schematic:
-    cue:
-      template: "patch: spec: patches: parameter.patchesJson\nparameter: {\n\t// +usage=A
-        list of JSON6902 patch.\n\tpatchesJson: [...#jsonPatchItem]\n}\n// +usage=Contains
-        a JSON6902 patch\n#jsonPatchItem: {\n\ttarget: #selector\n\tpatch: [...{\n\t\t//
-        +usage=operation to perform\n\t\top: string | \"add\" | \"remove\" | \"replace\"
-        | \"move\" | \"copy\" | \"test\"\n\t\t// +usage=operate path e.g. /foo/bar\n\t\tpath:
-        string\n\t\t// +usage=specify source path when op is copy/move\n\t\tfrom?:
-        string\n\t\t// +usage=specify opraation value when op is test/add/replace\n\t\tvalue?:
-        string\n\t}]\n}\n\n// +usage=Selector specifies a set of resources\n#selector:
-        {\n\tgroup?:              string\n\tversion?:            string\n\tkind?:
-        \              string\n\tnamespace?:          string\n\tname?:               string\n\tannotationSelector?:
-        string\n\tlabelSelector?:      string\n}\n"
----
-apiVersion: v1
-data:
-  expanded-writer: |
-    nacos: null
-  schema: |
-    properties:
-      caFile:
-        description: The ca certificate of helm repository. Please encode this data with
-          base64.
-        title: caFile
-        type: string
-      password:
-        description: The password of basic auth repo.
-        title: password
-        type: string
-      url:
-        description: The public url of the helm chart repository.
-        title: url
-        type: string
-      username:
-        description: The username of basic auth repo.
-        title: username
-        type: string
-    required:
-    - url
-    type: object
-  template: "metadata: {\n\tname:        \"helm-repository\"\n\talias:       \"Helm
-    Repository\"\n\tdescription: \"Config information to authenticate helm chart repository\"\n\tsensitive:
-    \  false\n\tscope:       \"project\"\n}\n\ntemplate: {\n\toutput: {\n\t\tapiVersion:
-    \"v1\"\n\t\tkind:       \"Secret\"\n\t\tmetadata: {\n\t\t\tname:      context.name\n\t\t\tnamespace:
-    context.namespace\n\t\t\tlabels: {\n\t\t\t\t\"config.oam.dev/catalog\":       \"velacore-config\"\n\t\t\t\t\"config.oam.dev/type\":
-    \         \"helm-repository\"\n\t\t\t\t\"config.oam.dev/multi-cluster\": \"true\"\n\t\t\t\t\"config.oam.dev/sub-type\":
-    \     \"helm\"\n\t\t\t}\n\t\t}\n\t\ttype: \"Opaque\"\n\t\tstringData: {\n\t\t\turl:
-    parameter.url\n\t\t\tif parameter.username != _|_ {\n\t\t\t\tusername: parameter.username\n\t\t\t}\n\t\t\tif
-    parameter.password != _|_ {\n\t\t\t\tpassword: parameter.password\n\t\t\t}\n\n\t\t}\n\t\tdata:
-    {\n\t\t\tif parameter.caFile != _|_ {\n\t\t\t\tcaFile: parameter.caFile\n\t\t\t}\n\t\t}\n\t}\n\tparameter:
-    {\n\t\t// +usage=The public url of the helm chart repository.\n\t\turl: string\n\t\t//
-    +usage=The username of basic auth repo.\n\t\tusername?: string\n\t\t// +usage=The
-    password of basic auth repo.\n\t\tpassword?: string\n\t\t// +usage=The ca certificate
-    of helm repository. Please encode this data with base64.\n\t\tcaFile?: string\n\t}\n}\n\n\n\tcontext:
-    {\n\t\tname: string\n\t\tnamespace: string\n\t}\n"
-kind: ConfigMap
-metadata:
-  annotations:
-    config.oam.dev/alias: Helm Repository
-    config.oam.dev/description: ""
-    config.oam.dev/sensitive: "false"
-  creationTimestamp: null
-  labels:
-    config.oam.dev/catalog: velacore-config
-    config.oam.dev/scope: project
-  name: config-template-helm-repository
-  namespace: vela-system
----
-apiVersion: v1
-data:
-  ui-schema: '[{"jsonKey":"repoType","label":"Repo Type","sort":1,"validate":{"defaultValue":"helm","options":[{"label":"Git","value":"git"},{"label":"Helm","value":"helm"},{"label":"Oss","value":"oss"},{"label":"Oci","value":"oci"}],"required":true}},{"description":"Please
-    input or select the helm or git repo address.","jsonKey":"url","label":"Repo URL","sort":2,"uiType":"HelmRepoSelect","validate":{"pattern":"^(http|git).*$","required":true}},{"conditions":[{"jsonKey":"url","op":"!=","value":""}],"description":"Please
-    select the chart or input the chart path.","jsonKey":"chart","label":"Chart","sort":3,"uiType":"HelmChartSelect"},{"conditions":[{"jsonKey":"repoType","op":"!=","value":"git"},{"jsonKey":"chart","op":"!=","value":""},{"jsonKey":"url","op":"!=","value":""}],"jsonKey":"version","label":"Version","sort":4,"uiType":"HelmChartVersionSelect","validate":{"defaultValue":"*","required":false}},{"conditions":[{"jsonKey":"repoType","op":"==","value":"git"}],"description":"git
-    repoType detail configuration","jsonKey":"git","label":"Git","sort":5,"validate":{"required":true}},{"description":"oss
-    repoType detail configuration","disable":true,"jsonKey":"oss","label":"OSS","sort":6},{"conditions":[{"jsonKey":"version","op":"!=","value":""},{"jsonKey":"chart","op":"!=","value":""},{"jsonKey":"url","op":"!=","value":""}],"description":"Set
-    the custom values configuration.","jsonKey":"values","sort":7,"uiType":"HelmValues","validate":{"required":false}},{"disable":true,"jsonKey":"installTimeout"},{"disable":true,"jsonKey":"interval"},{"disable":true,"jsonKey":"pullInterval"},{"disable":true,"jsonKey":"releaseName"},{"disable":true,"jsonKey":"targetNamespace"},{"disable":true,"jsonKey":"timeout"}]'
-kind: ConfigMap
-metadata:
-  creationTimestamp: null
-  name: component-uischema-helm
-  namespace: vela-system
----
-apiVersion: v1
-data:
-  ui-schema: '[{"jsonKey":"repoType","label":"Repo Type","sort":1,"uiType":"Select","validate":{"defaultValue":"git","options":[{"label":"Git","value":"git"},{"label":"Oss","value":"oss"},{"label":"Oci","value":"oci"}],"required":true}},{"jsonKey":"url","label":"Repo
-    URL","sort":2,"validate":{"required":true}},{"jsonKey":"path","label":"Path","sort":3,"validate":{"required":true}},{"jsonKey":"pullInterval","label":"PullInterval","sort":4,"validate":{"defaultValue":"5m","required":true}}]'
-kind: ConfigMap
-metadata:
-  creationTimestamp: null
-  name: component-uischema-kustomize
-  namespace: vela-system
----
-apiVersion: v1
-data:
-  ui-schema: '[{"description":"The ca certificate of helm repository. Please encode
-    this data with base64.","jsonKey":"caFile","sort":11,"uiType":"CertBase64"},{"jsonKey":"url","label":"URL","sort":5},{"jsonKey":"username","sort":8,"style":{"colSpan":12}},{"jsonKey":"password","sort":9,"style":{"colSpan":12},"uiType":"Password"}]'
-kind: ConfigMap
-metadata:
-  creationTimestamp: null
-  name: config-uischema-helm-repository
-  namespace: vela-system
