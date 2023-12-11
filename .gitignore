@@ -26,4 +26,7 @@ config.tf.json
 *.pem
 *.key
 scripts/migration.yaml
+<<<<<<< HEAD
 scripts/*.json
+=======
+>>>>>>> 5e3516d (PLT-8878 (#65))
