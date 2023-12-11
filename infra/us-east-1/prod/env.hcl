@@ -16,5 +16,6 @@ locals {
     "play.marlowe.iohk.io"      = "Z05871641F4AK6KR15L8I"
     "runner.marlowe.iohk.io"    = "Z07461731YZ6V1LNRG6IQ"
   }
+>>>>>>> bc1cad9 (PLT-8878 (#65))
   cidr_prefix = "10.30"
 }
