@@ -1,4 +1,3 @@
-
 parameter: {
     // +usage=Specify the domain you want to expose
     domains: [...string]
