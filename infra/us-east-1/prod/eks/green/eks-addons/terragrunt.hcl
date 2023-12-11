@@ -5,11 +5,15 @@ locals {
   # Extract out common variables for reuse
   env         = local.environment_vars.locals.environment
   region      = local.environment_vars.locals.aws_region
+  domains     = local.environment_vars.locals.route53_config
   profile     = local.account_vars.locals.aws_profile
   secret_vars = yamldecode(sops_decrypt_file(find_in_parent_folders("secrets.yaml")))
 
   # Generators
   providers = read_terragrunt_config(find_in_parent_folders("${get_parent_terragrunt_dir()}/provider-configs/providers.hcl"))
+
+  route53_zone_arns = [for zone_id in values(local.domains) : "arn:aws:route53:::hostedzone/${zone_id}"]
+  traefik_hostnames = [for domain in keys(local.domains) : "*.${domain}"]
 }
 
 include {
@@ -26,10 +30,6 @@ dependency "eks" {
 
 dependency "acm" {
   config_path = "../../../acm"
-}
-
-dependency "route53" {
-  config_path = "${get_repo_root()}/infra/global/route53/zones"
 }
 
 generate = local.providers.generate
@@ -57,7 +57,11 @@ inputs = {
 
     # External-DNS
     enable_external_dns            = true
+<<<<<<< HEAD
     external_dns_route53_zone_arns = values(dependency.route53.outputs.route53_zone_zone_arn)
+=======
+    external_dns_route53_zone_arns = local.route53_zone_arns
+>>>>>>> 9ba4b35 (PLT-8878 (#65))
     external_dns = {
       values = [
         <<-EOT
