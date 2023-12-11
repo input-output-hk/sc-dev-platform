@@ -1,14 +1,6 @@
 apiVersion: core.oam.dev/v1beta1
 kind: Application
 metadata:
-  annotations:
-    oam.dev/kubevela-version: v1.9.7
-  finalizers:
-  - app.oam.dev/resource-tracker-finalizer
-  labels:
-    addons.oam.dev/name: crossplane
-    addons.oam.dev/registry: KubeVela
-    addons.oam.dev/version: 1.14.0
   name: addon-crossplane
   namespace: vela-system
 spec:
@@ -39,7 +31,7 @@ spec:
           spec:
             controllerConfigRef:
               name: aws-config
-            package: xpkg.upbound.io/crossplane-contrib/provider-aws:v0.44.2
+            package: xpkg.upbound.io/crossplane-contrib/provider-aws:v0.45.2
         replicas: 1
       version: 1.14.0
     type: helm

@@ -1,11 +1,6 @@
 apiVersion: core.oam.dev/v1beta1
 kind: Application
 metadata:
-  creationTimestamp: null
-  labels:
-    addons.oam.dev/name: dex
-    addons.oam.dev/registry: KubeVela
-    addons.oam.dev/version: 0.6.6
   name: addon-dex
   namespace: vela-system
 spec:
@@ -60,7 +55,7 @@ spec:
             - key: favicon-dark
               path: favicon.png
             secretName: kubevela-logo
-      version: 0.6.5
+      version: 0.15.3
     type: helm
   - name: dex-resources
     properties:

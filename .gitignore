@@ -25,3 +25,4 @@ config.tf.json
 # others
 *.pem
 *.key
+scripts/migration.yaml
