@@ -9,9 +9,6 @@ locals {
   app     = "marlowe-runtime"
 
   database_name = "${local.env}-${local.app}-db-new"
-
-  tags = {}
-
 }
 
 dependency "vpc" {
@@ -99,6 +96,4 @@ inputs = {
   auto_minor_version_upgrade = false
   apply_immediately          = true
   deletion_protection        = true
-
-  tags = local.tags
 }
