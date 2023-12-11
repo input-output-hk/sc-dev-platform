@@ -37,7 +37,7 @@ include {
 
 inputs = {
   identifier            = local.database_name
-  instance_class        = "db.m6g.2xlarge"
+  instance_class        = "db.m7g.2xlarge"
   multi_az              = true
   storage_type          = "gp3"
   allocated_storage     = 1500
