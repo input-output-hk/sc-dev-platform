@@ -14,7 +14,7 @@ locals {
     "demo.scdev.aws.iohkdev.io" = "Z10147571DRRDCJXSER5Y"
     "prod.scdev.aws.iohkdev.io" = "Z10147571DRRDCJXSER5Y"
     "marlowe.iohk.io"           = "Z0440193WFXP2UUTHQ1S"
-    "runner.marlowe.iohk.io"    = "Z0440193WFXP2UUTHQ1S"
+    "runner.marlowe.iohk.io"    = "Z07461731YZ6V1LNRG6IQ"
   }
   cidr_prefix = "10.30"
 }
