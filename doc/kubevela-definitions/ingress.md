@@ -6,48 +6,43 @@ This feature toggle allows developers to declare their applications with private
 
 Defining HTTPS rules for mapping request from an ingress to an application.
 
-Here is an example of a dry run with the following output once the specific manadatory parameters have been filled.
+To create a new https-route we have to add public/internal property.
+The application definition for each is as follows:
+
+**For public**
 
 ```yaml
-## From the trait https-route
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  annotations:
-    external-dns.alpha.kubernetes.io/hostname: marlowe-runtime-preview-web.scdev.aws.iohkdev.io
-    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-  labels:
-    app.oam.dev/appRevision: ""
-    app.oam.dev/component: marlowe-web-server-preview-qa
-    app.oam.dev/name: marlowe-web-server-preview-qa
-    app.oam.dev/namespace: default
-    app.oam.dev/resourceType: TRAIT
-    trait.oam.dev/resource: ingress
-    trait.oam.dev/type: https-route
-  name: marlowe-web-server-preview-qa
-  namespace: default
-spec:
-  ingressClassName: nginx-public
-  rules:
-    - host: marlowe-runtime-preview-web.scdev.aws.iohkdev.io
-      http:
-        paths:
-          - backend:
-              service:
-                name: marlowe-web-server-preview-qa
-                port:
-                  number: 3780
-            path: /
-            pathType: ImplementationSpecific
+traits:
+  - properties:
+      domains:
+        - marlowe-runtime-mainnet-web.demo.scdev.aws.iohkdev.io
+      rules:
+        - port: 3780
+    type: https-route
+type: webservice
+```
+
+**For internal**
+
+```yaml
+traits:
+  - properties:
+      instanceClassName: internal
+      domains:
+        - marlowe-runtime-mainnet-web.demo.scdev.aws.iohkdev.io
+      rules:
+        - port: 3780
+    type: https-route
+type: webservice
 ```
 
 The mandatory parameters are:
 
-- **ingressClass**: The ingress class used for loadbalancer, toggle selection field with two choices (`public/public`)
+- **ingressClass**: The ingress class used for loadbalancer, toggle selection field with two choices (`public/internal`)
 - **domain**: The desired domain.
 - **rules**: The specific http matches such as pathType which is an Exact or Prefix, and the port.
 
-VelaUX Guidance:
+**VelaUX Guidance:**
 
 To toggle the feature in VelaUX, follow these steps:
 
@@ -59,3 +54,7 @@ The toggle to select between public and private is at the bottom of this page.
 Choose between public and private for the ingressClass toggle field.
 Provide the desired domain and rules in the corresponding input fields.
 Deploy the changes to have the desired effect.
+
+**Accessing Connection Through VPN**
+
+For enhanced security, access to the connection is restricted to VPN users only. Ensure you are connected to the VPN before attempting to access the specified domain.
