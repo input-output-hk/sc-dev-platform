@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+
+>>>>>>> 5e3516d (PLT-8878 (#65))
 parameter: {
     // +usage=Specify the domain you want to expose
     domains: [...string]
@@ -7,10 +11,14 @@ parameter: {
         // +usage=An HTTP request path matcher. If this field is not specified, a default prefix match on the "/" path is provided.
         path?: {
 <<<<<<< HEAD
+<<<<<<< HEAD
             type: *"ImplementationSpecific" | "Exact" | "Prefix"
 =======
             pathType: *"ImplementationSpecific" | "Exact" | "Prefix"
 >>>>>>> 9ba4b35 (PLT-8878 (#65))
+=======
+            pathType: *"ImplementationSpecific" | "Exact" | "Prefix"
+>>>>>>> 5e3516d (PLT-8878 (#65))
             value:    *"/" | string
         }
         port: int
@@ -44,18 +52,24 @@ outputs: ingress: {
                 for rule in parameter.rules {
                     path: [
 <<<<<<< HEAD
+<<<<<<< HEAD
                         if rule.path.value != _|_ {rule.path.value},
                         "/",
                     ][0]
                     pathType: [
                         if rule.path.type != _|_ {rule.path.type},
 =======
+=======
+>>>>>>> 5e3516d (PLT-8878 (#65))
                         if rule.path != _|_ {rule.path},
                         "/",
                     ][0]
                     pathType: [
                         if rule.pathType != _|_ {rule.pathType},
+<<<<<<< HEAD
 >>>>>>> 9ba4b35 (PLT-8878 (#65))
+=======
+>>>>>>> 5e3516d (PLT-8878 (#65))
                         "ImplementationSpecific",
                     ][0]
                     backend: service: {
