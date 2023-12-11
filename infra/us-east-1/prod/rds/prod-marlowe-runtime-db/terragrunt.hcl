@@ -18,8 +18,12 @@ dependency "vpc" {
   config_path = "../../vpc"
 }
 
-dependency "eks" {
+dependency "eks_blue" {
   config_path = "../../eks/blue/eks"
+}
+
+dependency "eks_green" {
+  config_path = "../../eks/green/eks"
 }
 
 terraform {
@@ -33,7 +37,7 @@ include {
 
 inputs = {
   identifier            = local.database_name
-  instance_class        = "db.m6g.2xlarge"
+  instance_class        = "db.m7g.2xlarge"
   multi_az              = true
   storage_type          = "gp3"
   allocated_storage     = 1500
@@ -50,7 +54,7 @@ inputs = {
   create_db_subnet_group = true
   subnet_ids             = dependency.vpc.outputs.intra_subnets
 
-  vpc_security_group_ids = [dependency.eks.outputs.node_security_group_id]
+  vpc_security_group_ids = [dependency.eks_blue.outputs.node_security_group_id, dependency.eks_green.outputs.node_security_group_id]
 
   engine               = "postgres"
   major_engine_version = "15"

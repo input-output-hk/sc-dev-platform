@@ -1,11 +1,6 @@
 apiVersion: core.oam.dev/v1beta1
 kind: Application
 metadata:
-  creationTimestamp: null
-  labels:
-    addons.oam.dev/name: velaux
-    addons.oam.dev/registry: KubeVela
-    addons.oam.dev/version: v1.8.1
   name: addon-velaux
   namespace: vela-system
 spec:
@@ -53,7 +48,7 @@ spec:
       - --datastore-type=kubeapi
       - --feature-gates=EnableCacheJSFile=true
       exposeType: ClusterIP
-      image: oamdev/velaux:v1.8.1
+      image: oamdev/velaux:v1.9.3
       ports:
       - expose: true
         port: 8000

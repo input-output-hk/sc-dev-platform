@@ -4,14 +4,14 @@ resource "kubernetes_manifest" "traitdefinition_https_route" {
     "kind"       = "TraitDefinition"
     "metadata" = {
       "annotations" = {
-        "definition.oam.dev/description" = "defines HTTPS rules for mapping requests from a Gateway to Application."
+        "definition.oam.dev/description" = "defines HTTPS rules for mapping requests from an Ingress to Application."
       }
       "name"      = "https-route"
       "namespace" = var.namespace
     }
     "spec" = {
       "appliesToWorkloads" = [
-        "*",
+        "deployments.apps", "statefulsets.apps"
       ]
       "conflictsWith" = []
       "podDisruptive" = false
@@ -165,5 +165,11 @@ resource "kubectl_manifest" "componentdefinition_bucket" {
 resource "kubectl_manifest" "componentdefinition_helmrelease" {
   force_new          = true
   yaml_body          = file("${path.module}/definitions/helm.yaml")
+  override_namespace = var.namespace
+}
+
+resource "kubectl_manifest" "componentdefinition_kustomize" {
+  force_new          = true
+  yaml_body          = file("${path.module}/definitions/kustomize.yaml")
   override_namespace = var.namespace
 }
