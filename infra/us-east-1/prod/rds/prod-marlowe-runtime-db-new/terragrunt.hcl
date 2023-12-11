@@ -8,7 +8,7 @@ locals {
   env     = local.environment_vars.locals.environment
   app     = "marlowe-runtime"
 
-  database_name = "${local.env}-${local.app}-db"
+  database_name = "${local.env}-${local.app}-db-new"
 }
 
 dependency "vpc" {
@@ -60,6 +60,7 @@ inputs = {
   skip_final_snapshot     = false
   copy_tags_to_snapshot   = true
   backup_retention_period = 21
+  snapshot_identifier     = "rds:prod-marlowe-runtime-db-2023-12-08-08-38"
 
   performance_insights_enabled          = true
   performance_insights_retention_period = 31
