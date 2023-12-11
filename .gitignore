@@ -26,9 +26,4 @@ config.tf.json
 *.pem
 *.key
 scripts/migration.yaml
-<<<<<<< HEAD
 scripts/*.json
-
-=======
-scripts/*.json
->>>>>>> ab11cf2 (PLT-8878 (#65))
