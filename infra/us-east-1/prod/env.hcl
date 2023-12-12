@@ -10,10 +10,10 @@ locals {
   # IAM: Policies allowing External-DNS to use Route53
   route53_config = {
     "scdev.aws.iohkdev.io"      = "Z10147571DRRDCJXSER5Y"
-    "test.scdev.aws.iohkdev.io" = "Z10147571DRRDCJXSER5Y"
     "demo.scdev.aws.iohkdev.io" = "Z10147571DRRDCJXSER5Y"
     "prod.scdev.aws.iohkdev.io" = "Z10147571DRRDCJXSER5Y"
     "marlowe.iohk.io"           = "Z0440193WFXP2UUTHQ1S"
+    "play.marlowe.iohk.io"      = "Z05871641F4AK6KR15L8I"
     "runner.marlowe.iohk.io"    = "Z07461731YZ6V1LNRG6IQ"
   }
   cidr_prefix = "10.30"
