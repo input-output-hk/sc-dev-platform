@@ -13,10 +13,7 @@ locals {
     "demo.scdev.aws.iohkdev.io" = "Z10147571DRRDCJXSER5Y"
     "prod.scdev.aws.iohkdev.io" = "Z10147571DRRDCJXSER5Y"
     "marlowe.iohk.io"           = "Z0440193WFXP2UUTHQ1S"
-<<<<<<< HEAD
     "play.marlowe.iohk.io"      = "Z05871641F4AK6KR15L8I"
-=======
->>>>>>> 5e3516d (PLT-8878 (#65))
     "runner.marlowe.iohk.io"    = "Z07461731YZ6V1LNRG6IQ"
   }
   cidr_prefix = "10.30"
