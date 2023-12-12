@@ -60,6 +60,7 @@ inputs = {
   skip_final_snapshot     = false
   copy_tags_to_snapshot   = true
   backup_retention_period = 21
+  snapshot_identifier     = "prod-marlowe-runtime-db-new-migration"
 
   performance_insights_enabled          = true
   performance_insights_retention_period = 31
