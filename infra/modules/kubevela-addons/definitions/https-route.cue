@@ -7,7 +7,7 @@ parameter: {
     rules: [...{
         // +usage=An HTTP request path matcher. If this field is not specified, a default prefix match on the "/" path is provided.
         path?: {
-            pathType: *"ImplementationSpecific" | "Exact" | "Prefix"
+            type: *"ImplementationSpecific" | "Exact" | "Prefix"
             value:    *"/" | string
         }
         port: int
@@ -40,11 +40,11 @@ outputs: ingress: {
             http: paths: [
                 for rule in parameter.rules {
                     path: [
-                        if rule.path != _|_ {rule.path},
+                        if rule.path.value != _|_ {rule.path.value},
                         "/",
                     ][0]
                     pathType: [
-                        if rule.pathType != _|_ {rule.pathType},
+                        if rule.path.type != _|_ {rule.path.type},
                         "ImplementationSpecific",
                     ][0]
                     backend: service: {
