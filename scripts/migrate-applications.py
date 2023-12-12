@@ -9,8 +9,8 @@ namespaces = ["marlowe-staging", "marlowe-production", "dapps-certification-stag
 
 # Defining source and target clusters
 # Must be the same names configured on kubectl contexts
-source_cluster = "scde-prod-green"
-target_cluster = "scde-prod-blue"
+source_cluster = "scde-prod-blue"
+target_cluster = "scde-prod-green"
 
 for namespace in namespaces:
     cmd = subprocess.check_output('kubectl --context ' + source_cluster + ' -n ' 
