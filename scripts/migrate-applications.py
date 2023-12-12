@@ -42,6 +42,6 @@ for namespace in namespaces:
             json.dump(output, file, ensure_ascii=False, indent=4)
 
         # Importing the outputs on the target cluster        
-#        print("Importing "+file_name) 
-#        subprocess.check_output('kubectl --context ' + target_cluster + ' apply -f '+ file_name, shell=True)
-#        time.sleep(5)
+        print("Importing "+file_name) 
+        subprocess.check_output('kubectl --context ' + target_cluster + ' apply -f '+ file_name, shell=True)
+        time.sleep(5)
