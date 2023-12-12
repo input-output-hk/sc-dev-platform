@@ -26,3 +26,4 @@ config.tf.json
 *.pem
 *.key
 scripts/migration.yaml
+scripts/*.json

@@ -9,8 +9,8 @@ namespaces = ["marlowe-staging", "marlowe-production", "dapps-certification-stag
 
 # Defining source and target clusters
 # Must be the same names configured on kubectl contexts
-source_cluster = "scde-prod-blue"
-target_cluster = "scde-prod-green"
+source_cluster = "scde-prod-green"
+target_cluster = "scde-prod-blue"
 
 for namespace in namespaces:
     cmd = subprocess.check_output('kubectl --context ' + source_cluster + ' -n ' 
@@ -24,14 +24,17 @@ for namespace in namespaces:
         + namespace + ' get application ' + app_name + ' -o json', shell=True))
 
         # Deleting some fields that we don't need 
-        del output['metadata']['annotations'] 
-        del output['metadata']['creationTimestamp']
-        del output['metadata']['generation']
-        del output['metadata']['finalizers'] 
-        del output['metadata']['labels']
-        del output['metadata']['resourceVersion']
-        del output['metadata']['uid']
-        del output['status']
+        try:
+            del output['metadata']['annotations'] 
+            del output['metadata']['creationTimestamp']
+            del output['metadata']['generation']
+            del output['metadata']['finalizers'] 
+            del output['metadata']['labels']
+            del output['metadata']['resourceVersion']
+            del output['metadata']['uid']
+            del output['status']
+        except:
+            pass
         
         # Outputing files
         file_name = app_name+'.json'
