@@ -3,7 +3,7 @@ import "encoding/json"
 output: {
 	apiVersion: "s3.aws.crossplane.io/v1beta1"
 	kind:       "Bucket"
-	metadata: name: context.appName
+	metadata: name: context.name
 	spec: {
 		forProvider: {
 			locationConstraint: "${aws_region}"
@@ -44,11 +44,11 @@ outputs: {
 				"s3:Delete*",
 				"s3:Put*",
 			],
-			"Resource": "arn:aws:s3:::\( context.appName )"
+			"Resource": "arn:aws:s3:::\( context.name )"
 		}, {
 			"Effect": "Allow", 
 			"Action": "s3:List*",
-			"Resource": "arn:aws:s3:::\( context.appName )"
+			"Resource": "arn:aws:s3:::\( context.name )"
 		}]
 	}
 
@@ -68,11 +68,11 @@ outputs: {
 	policy: {
 		apiVersion: "iam.aws.crossplane.io/v1beta1"
 		kind:       "Policy"
-		metadata: name: "pol-\( context.appName )"
+		metadata: name: "pol-\( context.name )"
 		spec: {
 			forProvider: {
 				description: "Allow application access to S3 buckets"
-				name:        context.appName
+				name:        context.name
 				document: json.Marshal(_bucketPolicyDocument)
 			}
 			providerConfigRef: name: "aws-provider"
@@ -81,7 +81,7 @@ outputs: {
 	role: {
 		apiVersion: "iam.aws.crossplane.io/v1beta1"
 		kind:       "Role"
-		metadata: name: "role-\( context.appName )"
+		metadata: name: "role-\( context.name )"
 		spec: {
 			forProvider: {
 				assumeRolePolicyDocument: json.Marshal(_rolePolicyDocument)
@@ -111,11 +111,11 @@ outputs: {
 	rolePolicyAttachment: {
 		apiVersion: "iam.aws.crossplane.io/v1beta1"
 		kind:       "RolePolicyAttachment"
-		metadata: name: "role-pol-\( context.appName )"
+		metadata: name: "role-pol-\( context.name )"
 		spec: {
 			forProvider: {
-				policyArnRef: name: "pol-\( context.appName )"
-				roleNameRef: name:  "role-\( context.appName )"
+				policyArnRef: name: "pol-\( context.name )"
+				roleNameRef: name:  "role-\( context.name )"
 			}
 			providerConfigRef: name: "aws-provider"
 		}}
