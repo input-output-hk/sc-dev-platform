@@ -1,3 +1,5 @@
+import "encoding/json"
+
 parameter: {
   network: *"preview" | string
   version?: *"latest" | string
