@@ -13,7 +13,7 @@ resource "grafana_oncall_route" "team_route" {
 
   integration_id      = grafana_oncall_integration.alertmanager.id
   escalation_chain_id = grafana_oncall_escalation_chain.team_escalation_chain.id
-  routing_regex       = "\"namespace\" *: *\"ops-.*\""
+  routing_regex       = "\"severity\": \"critical\""
   position            = 0
 }
 
