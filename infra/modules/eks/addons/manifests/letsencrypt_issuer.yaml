@@ -9,10 +9,9 @@ spec:
     privateKeySecretRef:
       name: letsencrypt
     solvers:
-    - http01:
-        gatewayHTTPRoute:
-          parentRefs:
-          - group: gateway.networking.k8s.io
-            kind: Gateway
-            name: traefik-gateway
-            namespace: traefik
+    - selector:
+        dnsZones: [%{ for dns_zone in dns_zones ~} "${dns_zone}", %{ endfor ~}]
+      dns01:
+        cnameStrategy: Follow
+        route53:
+          region: "${aws_region}"
