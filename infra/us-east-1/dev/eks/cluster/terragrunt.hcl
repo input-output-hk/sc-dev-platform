@@ -61,7 +61,7 @@ inputs = {
 
   eks_managed_node_groups = {
     "worker" = {
-      instance_types = ["t3.large", "t3a.large"]
+      instance_types = ["t3.large", "t3a.large", "t3.medium", "t3a.medium"]
       min_size       = 3
       max_size       = 6
       desired_size   = 3
