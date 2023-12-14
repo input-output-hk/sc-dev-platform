@@ -163,7 +163,6 @@ resource "kubectl_manifest" "componentdefinition_bucket" {
 }
 
 resource "kubectl_manifest" "traitdefinition_cardano_node_connector" {
-  force_new = true
   yaml_body = yamlencode({
     "apiVersion" = "core.oam.dev/v1beta1"
     "kind"       = "TraitDefinition"
