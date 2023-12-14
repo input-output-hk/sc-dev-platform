@@ -25,3 +25,8 @@ variable "slack_channels" {
   type        = list(string)
   default     = [ ]
 }
+
+variable "oncall_schedule_start_date" {
+  description = "Start date and time for oncall schedule"
+  type        = string
+}

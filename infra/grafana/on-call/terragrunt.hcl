@@ -22,11 +22,14 @@ inputs = {
   team_email = "dev-empowerment@iohk.io"
 
   usernames = [
-    "olaniyioshunbote",
+    "shealevy1",
     "renebarbosa",
+    "olaniyioshunbote",
+    "fentonhaslam",
     "oguzhanboran",
     "danielthagard",
-    "shealevy1"
+    "lorenzocalegari",
+    "rosariopulella"
   ]
 
   slack_channels = [
@@ -34,4 +37,6 @@ inputs = {
     "uptime",
     "sc-k8s-monitoring"
   ]
+
+  oncall_schedule_start_date = "2023-12-18T00:00:00"
 }
