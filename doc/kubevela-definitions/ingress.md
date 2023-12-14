@@ -46,4 +46,4 @@ The mandatory parameters are:
 
 For enhanced security, access to the connection is restricted to VPN users only. Ensure you are connected to the VPN before attempting to access the specified domain.
 
-Confluence document on how to connect to our AWS services securely are located here: https://input-output.atlassian.net/wiki/spaces/SCT/pages/4019617812/User+Handbook+Connecting+to+AWS+Services+Securely+using+OpenVPN+Client
+Confluence document on how to connect to our AWS services securely is located [_here_](https://input-output.atlassian.net/wiki/spaces/SCT/pages/4019617812/User+Handbook+Connecting+to+AWS+Services+Securely+using+OpenVPN+Client).
