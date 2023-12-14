@@ -1,3 +1,11 @@
+# The oncall shift schedule operates on a week-long rotation
+# running from Monday to Sunday. Members of the schedule
+# are rotated weekly and are expected to have all their 
+# communication channels (at least Mobile App, Slack, and
+# Phone numbers) configured. Comms channels can be
+# configured from the link below: 
+# https://sctf.grafana.net/a/grafana-oncall-app/users?p=1
+
 resource "grafana_oncall_on_call_shift" "week_shift" {
   provider = grafana.oncall
 
