@@ -29,4 +29,8 @@ variable "slack_channels" {
 variable "oncall_schedule_start_date" {
   description = "Start date and time for oncall schedule"
   type        = string
+  validation {
+    condition     = can(regex("^[0-9]{4}-[0-1][0-9]-[0-3][0-9]T[0-2][0-3]:[0-5][0-9]:[0-5][0-9]$", var.oncall_schedule_start_date))
+    error_message = "The oncall schedule start date must be a string in the format YYYY-MM-DDTHH:MM:SS e.g. '2025-09-17T13:46:28'."
+  }
 }
