@@ -38,7 +38,7 @@ type: webservice
 
 The mandatory parameters are:
 
-- **ingressClass**: The ingress class used for loadbalancer, toggle selection field with two choices (`public/internal`)
+- **ingressClassName**: The ingress class used for loadbalancer, toggle selection field with two choices (`public/internal`)
 - **domain**: The desired domain.
 - **rules**: The specific http matches such as pathType which is an Exact or Prefix, and the port.
 
@@ -58,3 +58,5 @@ Deploy the changes to have the desired effect.
 **Accessing Connection Through VPN**
 
 For enhanced security, access to the connection is restricted to VPN users only. Ensure you are connected to the VPN before attempting to access the specified domain.
+
+Confluence document on how to connect to our AWS services securely are located here: https://input-output.atlassian.net/wiki/spaces/SCT/pages/4019617812/User+Handbook+Connecting+to+AWS+Services+Securely+using+OpenVPN+Client
