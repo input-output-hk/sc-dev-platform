@@ -61,7 +61,18 @@ inputs = {
 
   eks_managed_node_groups = {
     "worker" = {
-      instance_types = ["t3.large", "t3a.large", "t3.medium", "t3a.medium"]
+      instance_types = ["t3.xlarge", "t3a.xlarge"]
+      min_size       = 3
+      max_size       = 6
+      desired_size   = 3
+      subnet_ids     = dependency.vpc.outputs.private_subnets
+      capacity_type  = "SPOT"
+      labels = {
+        network = "private"
+      }
+    }
+    "worker-memory" = {
+      instance_types = ["t3a.2xlarge"]
       min_size       = 3
       max_size       = 6
       desired_size   = 3
