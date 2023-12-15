@@ -71,16 +71,19 @@ module "eks_addons" {
 
   enable_cert_manager                   = try(var.eks_addons.enable_cert_manager, false)
   cert_manager                          = try(var.eks_addons.cert_manager, local.eks_addons.cert_manager)
-  cert_manager_route53_hosted_zone_arns = try(var.eks_addons.cert_manager.cert_manager_route53_hosted_zone_arns, local.eks_addons.cert_manager_route53_hosted_zone_arns)
+  cert_manager_route53_hosted_zone_arns = try(var.eks_addons.cert_manager.route53_hosted_zone_arns, [])
 
   enable_external_dns            = try(var.eks_addons.enable_external_dns, false)
   external_dns                   = try(var.eks_addons.external_dns, local.eks_addons.external_dns)
-  external_dns_route53_zone_arns = try(var.eks_addons.external_dns_route53_zone_arns, local.eks_addons.external_dns_route53_zone_arns)
+  external_dns_route53_zone_arns = try(var.eks_addons.external_dns.route53_zone_arns, [])
 }
 
 resource "kubectl_manifest" "letsencrypt_issuer" {
-  count     = try(var.eks_addons.enable_cert_manager, false) ? 1 : 0
-  yaml_body = file("${path.module}/manifests/letsencrypt_issuer.yaml")
+  count = try(var.eks_addons.enable_cert_manager, false) ? 1 : 0
+  yaml_body = templatefile("${path.module}/manifests/letsencrypt_issuer.yaml", {
+    dns_zones  = var.eks_addons.cert_manager.route53_hosted_zones
+    aws_region = var.aws_region
+  })
 
   depends_on = [
     module.eks_addons

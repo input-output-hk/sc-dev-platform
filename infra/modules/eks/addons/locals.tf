@@ -4,13 +4,11 @@ locals {
   helm_create_namespace = true
 
   eks_addons = {
-    aws_load_balancer_controller          = {}
-    metrics_server                        = {}
-    cluster_autoscaler                    = {}
-    cert_manager                          = {}
-    cert_manager_route53_hosted_zone_arns = []
-    external_dns                          = {}
-    external_dns_route53_zone_arns        = []
+    aws_load_balancer_controller = {}
+    metrics_server               = {}
+    cluster_autoscaler           = {}
+    cert_manager                 = {}
+    external_dns                 = {}
     node_local_dns = {
       chart            = "node-local-dns"
       chart_version    = "2.0.3"
@@ -60,8 +58,6 @@ locals {
       values        = []
       set           = []
     }
-
-
     nginx_ingress_load_balancer = {
       chart         = "ingress-nginx"
       chart_version = "4.8.4"
@@ -71,7 +67,6 @@ locals {
       values        = []
       set           = []
     }
-
     internal_nginx_ingress_load_balancer = {
       chart         = "ingress-nginx"
       chart_version = "4.8.4"
