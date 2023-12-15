@@ -75,7 +75,7 @@ module "eks_addons" {
 
   enable_external_dns            = try(var.eks_addons.enable_external_dns, false)
   external_dns                   = try(var.eks_addons.external_dns, local.eks_addons.external_dns)
-  external_dns_route53_zone_arns = try(var.eks_addons.external_dns.route53_zone_arns, [])
+  external_dns_route53_zone_arns = try(var.eks_addons.external_dns.route53_hosted_zone_arns, [])
 }
 
 resource "kubectl_manifest" "letsencrypt_issuer" {
@@ -173,7 +173,6 @@ module "eks_addon_internal_nginx_ingress_load_balancer" {
     module.eks_addons
   ]
 }
-
 
 module "eks_addon_kubevela_controller" {
   count   = try(var.eks_addons.enable_kubevela_controller, false) ? 1 : 0
