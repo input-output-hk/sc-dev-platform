@@ -55,10 +55,21 @@ inputs = {
       }]
     }
 
+    # Cert-Manager
+    enable_cert_manager = true
+    cert_manager = {
+      route53_hosted_zone_arns = values(dependency.route53.outputs.route53_zone_zone_arn)
+      route53_hosted_zones     = keys(dependency.route53.outputs.route53_zone_zone_arn)
+      set = [{
+        name  = "securityContext.fsGroup"
+        value = 1001
+      }]
+    }
+
     # External-DNS
     enable_external_dns            = true
-    external_dns_route53_zone_arns = values(dependency.route53.outputs.route53_zone_zone_arn)
     external_dns = {
+      route53_hosted_zone_arns = values(dependency.route53.outputs.route53_zone_zone_arn)
       values = [
         <<-EOT
         env:
