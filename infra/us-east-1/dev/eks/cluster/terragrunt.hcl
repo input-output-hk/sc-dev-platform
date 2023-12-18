@@ -61,7 +61,7 @@ inputs = {
 
   eks_managed_node_groups = {
     "worker" = {
-      instance_types = ["t3.xlarge", "t3a.xlarge"]
+      instance_types = ["t3.medium", "t3a.medium"]
       min_size       = 3
       max_size       = 6
       desired_size   = 3
@@ -71,17 +71,17 @@ inputs = {
         network = "private"
       }
     }
-    "worker-memory" = {
-      instance_types = ["t3a.2xlarge"]
-      min_size       = 3
-      max_size       = 6
-      desired_size   = 3
-      subnet_ids     = dependency.vpc.outputs.private_subnets
-      capacity_type  = "SPOT"
-      labels = {
-        network = "private"
-      }
-    }
+    # "worker-memory" = {
+    #   instance_types = ["t3a.2xlarge"]
+    #   min_size       = 3
+    #   max_size       = 6
+    #   desired_size   = 3
+    #   subnet_ids     = dependency.vpc.outputs.private_subnets
+    #   capacity_type  = "SPOT"
+    #   labels = {
+    #     network = "private"
+    #   }
+    # }
   }
 
   # aws-auth configmap
