@@ -16,13 +16,3 @@ spec:
     - type: cardano-node-connector
       properties:
         network: preview
-
-  policies:
-  - name: debug
-    type: debug
-  - name: local-vela-system
-    properties:
-      clusters:
-      - local
-      namespace: vela-system
-    type: topology
