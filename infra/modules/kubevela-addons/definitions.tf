@@ -181,7 +181,7 @@ resource "kubectl_manifest" "traitdefinition_cardano_node_connector" {
       "podDisruptive" = true
       "schematic" = {
         "cue" = {
-          "template" = templatefile("${path.module}/definitions/cardano-node-connector.cue")
+          "template" = file("${path.module}/definitions/cardano-node-connector.cue")
         }
       }
     }
