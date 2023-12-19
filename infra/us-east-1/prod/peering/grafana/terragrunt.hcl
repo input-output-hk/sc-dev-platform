@@ -7,7 +7,7 @@ locals {
   project = local.environment_vars.locals.project
   profile = local.account_vars.locals.aws_profile
   tribe   = local.account_vars.locals.tribe
-  name    = "grafana-vpc-peering"
+  name    = "vpc-peering-grafana"
 
   # AWS Regions
   requester_region = local.environment_vars.locals.aws_region
@@ -50,4 +50,8 @@ inputs = {
   auto_accept                               = true
   requestor_allow_remote_vpc_dns_resolution = true
   acceptor_allow_remote_vpc_dns_resolution  = true
+
+  tags = {
+    Name = local.name
+  }
 }
