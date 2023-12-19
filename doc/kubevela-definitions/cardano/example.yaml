@@ -26,15 +26,3 @@ spec:
       - local
       namespace: vela-system
     type: topology
-
-  workflow:
-    mode:
-      steps: DAG
-    steps:
-    - meta:
-        alias: Deploy To local-vela-system
-      name: local-vela-system
-      properties:
-        policies:
-        - local-vela-system
-      type: deploy
