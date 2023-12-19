@@ -1,8 +1,5 @@
-import "encoding/json"
-
 parameter: {
   network: *"preview" | string
-  version?: *"latest" | string
   volumeMounts: *[{
     name: "ipc",
     mountPath: "/ipc",
