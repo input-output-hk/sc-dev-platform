@@ -4,8 +4,8 @@ locals {
   account_vars     = read_terragrunt_config(find_in_parent_folders("account.hcl"))
 
   # Extract out common variables for reuse
-  project       = local.environment_vars.locals.project
-  tribe         = local.account_vars.locals.tribe
+  project = local.environment_vars.locals.project
+  tribe   = local.account_vars.locals.tribe
 }
 
 terraform {
@@ -30,7 +30,7 @@ inputs = {
       name = ""
       type = "A"
       alias = {
-        name = "s3-website.eu-central-1.amazonaws.com."
+        name    = "s3-website.eu-central-1.amazonaws.com."
         zone_id = "Z21DNDUVLTQW6Q"
       }
     },
@@ -38,7 +38,7 @@ inputs = {
       name = "play"
       type = "A"
       alias = {
-        name = "s3-website.eu-central-1.amazonaws.com."
+        name    = "s3-website.eu-central-1.amazonaws.com."
         zone_id = "Z21DNDUVLTQW6Q"
       }
     }

@@ -105,32 +105,36 @@ outputs: {
 	}
 }
 
-patch: spec: template: spec: containers: [{
+patch: spec: template: spec: {
 	// +patchKey=name
-	env: [{
-		name: "DB_USER"
-		valueFrom: secretKeyRef: {
-			key:  "username"
-			name: "conn-\( parameter.name )"
-		}
-	}, {
-		name: "DB_PASS"
-		valueFrom: secretKeyRef: {
-			key:  "password"
-			name: "conn-\( parameter.name )"
-		}
-	}, {
-		name: "DB_HOST"
-		valueFrom: secretKeyRef: {
-			key:  "endpoint"
-			name: "conn-\( parameter.name )"
-		}
-	}, {
-		name:  "DB_NAME"
-		value: "scdedb"
-	},
-	]
-}]
+	containers: [{
+	  name: context.name
+	  // +patchStrategy=retainKeys
+		env: [{
+			name: "DB_USER"
+			valueFrom: secretKeyRef: {
+				key:  "username"
+				name: "conn-\( parameter.name )"
+			}
+		}, {
+			name: "DB_PASS"
+			valueFrom: secretKeyRef: {
+				key:  "password"
+				name: "conn-\( parameter.name )"
+			}
+		}, {
+			name: "DB_HOST"
+			valueFrom: secretKeyRef: {
+				key:  "endpoint"
+				name: "conn-\( parameter.name )"
+			}
+		}, {
+			name:  "DB_NAME"
+			value: "scdedb"
+		},
+		]
+	}]
+}
 
 parameter: {
 	// +usage=Specify a name for the RDS instance name.

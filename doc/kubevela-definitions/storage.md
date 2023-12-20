@@ -43,6 +43,12 @@ spec:
           resources:
             requests:
               storage: 5Gi
+    # When using EBS persistent volumes is recommended to add k8s-update-strategy trait
+    # It will avoid stuck rollouts with Pending pods, forever waiting for the volume allocation
+    - type: k8s-update-strategy
+      properties:
+        strategy:
+          type: Recreate
     type: webservice
 ```
 

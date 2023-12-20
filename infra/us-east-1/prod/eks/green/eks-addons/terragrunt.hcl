@@ -24,10 +24,6 @@ dependency "eks" {
   config_path = "../eks"
 }
 
-dependency "acm" {
-  config_path = "../../../acm"
-}
-
 dependency "route53" {
   config_path = "${get_repo_root()}/infra/global/route53/zones"
 }
@@ -55,10 +51,21 @@ inputs = {
       }]
     }
 
+    # Cert-Manager
+    enable_cert_manager = true
+    cert_manager = {
+      route53_hosted_zone_arns = values(dependency.route53.outputs.route53_zone_zone_arn)
+      route53_hosted_zones     = keys(dependency.route53.outputs.route53_zone_zone_arn)
+      set = [{
+        name  = "securityContext.fsGroup"
+        value = 1001
+      }]
+    }
+
     # External-DNS
     enable_external_dns            = true
-    external_dns_route53_zone_arns = values(dependency.route53.outputs.route53_zone_zone_arn)
     external_dns = {
+      route53_hosted_zone_arns = values(dependency.route53.outputs.route53_zone_zone_arn)
       values = [
         <<-EOT
         env:
@@ -87,11 +94,8 @@ inputs = {
               "service.beta.kubernetes.io/aws-load-balancer-type": "external"
               "service.beta.kubernetes.io/aws-load-balancer-nlb-target-type": "instance"
               "service.beta.kubernetes.io/aws-load-balancer-name": "prod-green-nginx-public"
-              "service.beta.kubernetes.io/aws-load-balancer-backend-protocol": "ssl"
+              "service.beta.kubernetes.io/aws-load-balancer-backend-protocol": "tcp"
               "service.beta.kubernetes.io/aws-load-balancer-scheme": "internet-facing"
-              "service.beta.kubernetes.io/aws-load-balancer-ssl-cert": "${join(",", dependency.acm.outputs.acm_certificate_arns)}"
-              "service.beta.kubernetes.io/aws-load-balancer-ssl-ports": "https"
-              "service.beta.kubernetes.io/aws-load-balancer-ssl-negotiation-policy": "ELBSecurityPolicy-TLS13-1-2-2021-06"
         EOT
       ]
     }
@@ -114,10 +118,7 @@ inputs = {
               "service.beta.kubernetes.io/aws-load-balancer-type": "external"
               "service.beta.kubernetes.io/aws-load-balancer-nlb-target-type": "instance"
               "service.beta.kubernetes.io/aws-load-balancer-name": "prod-green-nginx-internal"
-              "service.beta.kubernetes.io/aws-load-balancer-backend-protocol": "ssl"
-              "service.beta.kubernetes.io/aws-load-balancer-ssl-cert": "${join(",", dependency.acm.outputs.acm_certificate_arns)}"
-              "service.beta.kubernetes.io/aws-load-balancer-ssl-ports": "https"
-              "service.beta.kubernetes.io/aws-load-balancer-ssl-negotiation-policy": "ELBSecurityPolicy-TLS13-1-2-2021-06"
+              "service.beta.kubernetes.io/aws-load-balancer-backend-protocol": "tcp"
         EOT
       ]
     }
