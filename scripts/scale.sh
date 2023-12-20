@@ -28,7 +28,7 @@ aws eks --region us-east-1 update-kubeconfig --name "$eks_cluster_name"
 
 read -p "Do you want to scale the indexer up? (y/n):" scale_context
 
-if [[ $scale_context == "y" || $scale_context == "Y"]]; then
+if [[ $scale_context == "y" || $scale_context == "Y" ]]; then
     kubectl --context "$eks_cluster_name" -n $namespace get deploy -oname | grep indexer | while read -r deploy; do 
     kubectl --context scde-prod-blue -n $namespace scale $deploy --replicas=1; done
     echo "Indexer is scaled to 1 in $namespace"
