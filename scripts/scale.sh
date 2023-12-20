@@ -30,11 +30,11 @@ read -p "Do you want to scale the indexer up? (y/n):" scale_context
 
 if [[ $scale_context == "y" || $scale_context == "Y" ]]; then
     kubectl --context "$eks_cluster_name" -n $namespace get deploy -oname | grep indexer | while read -r deploy; do 
-    kubectl --context scde-prod-blue -n $namespace scale $deploy --replicas=1; done
+    kubectl --context "$eks_cluster_name" -n $namespace scale $deploy --replicas=1; done
     echo "Indexer is scaled to 1 in $namespace"
 else
     kubectl --context "$eks_cluster_name" -n $namespace get deploy -oname | grep indexer | while read -r deploy; do 
-    kubectl --context scde-prod-blue -n $namespace scale $deploy --replicas=0; done
+    kubectl --context "$eks_cluster_name" -n $namespace scale $deploy --replicas=0; done
     echo "Indexer is scaled to 0 in $namespace"
 fi
 
