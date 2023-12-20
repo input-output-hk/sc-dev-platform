@@ -12,7 +12,7 @@ Your team's project will have one or more environments/namespaces associated wit
 
 ## Application Parameters
 
-### Compnonents
+### Components
 Each application has a main component and optionally other side components. A component is where the main deployment information goes. There are various component types to choose from, you will likely want to use either the `webservice` or `daemon` type. `Webservice` for any service that will need an externally exposed port, and `daemon` for other long running services.
 
 *Note:* Component types for cardano-node based services may be added in the future.
