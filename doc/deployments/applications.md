@@ -26,7 +26,7 @@ To make any other deployment features available for a component, you can specify
 Some generally useful traits are:
  - `scaler`: Replicate a component any number of times and ensure the service for the component points to a healthy instance.
  - `storage`: Add persistent storage to a component.
- - `https-route`: Make component service publicly accessible. The `secret` parameter can be left empty, because that will be automatically removed. The domain argument must be a sub-domain of `scdev.aws.iohkdev.io`, as that is the domain the cluster is configured for. To use another domain (for production instances), a request will need to be made.
+ - `https-route`: Make component service publicly accessible. The `secret` parameter can be left empty, because that will be automatically removed. The domain argument must be a sub-domain of `scdev.aws.iohkdev.io` or `marlowe.iohk.io`, as they are the domains the cluster is configured for.
 
 ### Workflow
 Each application has a workflow configuration that determines how it should be deployed. A workflow has one or more steps that will either be run in parallel with the `DAG` mode or one at a time with the `StepByStep` mode. Workflow steps have a type that determine what they will do and likely the only workflow type you will need is the `deploy` type. You should attach a `topology` policy to a `deploy` workflow to make sure the application gets deployed in your team's namespace.
