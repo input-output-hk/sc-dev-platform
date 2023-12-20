@@ -38,6 +38,3 @@ else
     echo "Indexer is scaled to 0 in $namespace"
 fi
 
-
-# Pseudo code for development infrastructure process of mimicing the production cluster.
-# Update terragrunt values with 
