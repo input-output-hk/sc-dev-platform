@@ -49,15 +49,6 @@ locals {
       ]
       set = []
     }
-    traefik_load_balancer = {
-      chart         = "traefik"
-      chart_version = "25.0.0"
-      repository    = "https://traefik.github.io/charts"
-      description   = "A Traefik based Kubernetes ingress controller"
-      namespace     = "traefik"
-      values        = []
-      set           = []
-    }
     nginx_ingress_load_balancer = {
       chart         = "ingress-nginx"
       chart_version = "4.8.4"
