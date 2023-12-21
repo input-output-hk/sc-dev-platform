@@ -40,7 +40,7 @@ inputs = {
   cluster_certificate_authority_data = dependency.eks.outputs.cluster_certificate_authority_data
   oidc_provider_arn                  = dependency.eks.outputs.oidc_provider_arn
   rds_security_groups                = [dependency.security_group.outputs.security_group_id]
-  enable_addons                      = false
-  enable_cardano_nodes               = false
+  enable_addons                      = true 
+  enable_cardano_nodes               = true 
   enable_dex                         = false
 }
