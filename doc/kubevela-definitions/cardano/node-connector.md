@@ -2,12 +2,12 @@
 
 ## Overview
 
-The Cardano Node Connector in Kubvela acts as a bridge between your application and the Cardano node through specific application characteristics and settings
+The Cardano Node Connector in Kubevela acts as a bridge between your application and the Cardano node through specific application characteristics and settings
 
 The ***required*** parameter for implementing this trait is:
  - `network`: Defines the network choice for the Cardano Node. The available options are "preview", "preprod" and "mainnet".
 
-This configuration effectively attaches specific volumes to each container that is part of your application. Also, a `socat` container bridges your application and the Cardano Node by utilizing TCP Socket over a UNIX Socket.
+This configuration effectively attaches specific volumes to each container that is part of your application. Also, a `socat` container bridges your application and the Cardano Node by utilizing TCP Socket over a UNIX Socket. Please note that this trait will also configure an `init-container` to clone some configurations from [cardano-configurations](https://github.com/input-output-hk/cardano-configurations) repository, this behavior can be disabled by setting the ***optional*** parameter `configCloner` as **false**.
 
 ## Usage
 
