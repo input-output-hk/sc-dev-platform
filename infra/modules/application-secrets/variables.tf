@@ -13,6 +13,11 @@ variable "marlowe_oracle_preprod_vkey" {
   type = string
 }
 
+variable "nixbuild_net_token" {
+  description = "The cluster-wide nixbuild.net build token"
+  type = string
+}
+
 variable "cluster_name" {
   description = "Name of the Kubernetes cluster"
   type        = string

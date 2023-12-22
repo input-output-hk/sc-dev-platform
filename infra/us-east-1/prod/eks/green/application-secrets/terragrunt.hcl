@@ -33,4 +33,5 @@ inputs = {
   marlowe_oracle_preprod_address = local.secret_vars.marlowe_oracle.preprod.address
   marlowe_oracle_preprod_skey    = local.secret_vars.marlowe_oracle.preprod.skey
   marlowe_oracle_preprod_vkey    = local.secret_vars.marlowe_oracle.preprod.vkey
+  nixbuild_net_token             = local.secret_vars.nixbuild_net
 }
