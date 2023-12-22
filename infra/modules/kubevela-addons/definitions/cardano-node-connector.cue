@@ -1,61 +1,102 @@
 parameter: {
-  network: *"preview" | "preprod" | "mainnet"
+	network:       *"preview" | "preprod" | "mainnet"
+	configCloner?: *true | false
+}
+
+#cardanoNodeConfigs: {
+  volumes: [{
+    name: "ipc"
+    emptyDir: {}
+  }]
+  envs: [{
+    name: "CARDANO_NODE_SOCKET_PATH"
+    value: "/ipc/node.socket"
+  }]
+}
+
+#configClonerConfigs: {
+  volumes: [{
+    name: "node-config"
+    emptyDir: {}
+  }]
+  envs: [{
+    name: "NODE_CONFIG"
+    value: "/node-config/network/\( parameter.network )/cardano-node/config.json"
+  }]
+}
+
+#PatchConfig: {
+  volumes: [
+    if parameter.configCloner != _|_ {
+      if parameter.configCloner {
+        #configClonerConfigs.volumes + #cardanoNodeConfigs.volumes
+      }
+      if parameter.configCloner != true {
+        #cardanoNodeConfigs.volumes
+      }
+    }, 
+    #configClonerConfigs.volumes + #cardanoNodeConfigs.volumes
+  ][0]
+  envs: [
+    if parameter.configCloner != _|_ {
+      if parameter.configCloner {
+        #configClonerConfigs.envs + #cardanoNodeConfigs.envs
+      }
+      if parameter.configCloner != true {
+        #cardanoNodeConfigs.envs
+      }
+    }, 
+    #configClonerConfigs.envs + #cardanoNodeConfigs.envs
+  ][0]
 }
 
 patch: spec: template: spec: {
-  // +patchKey=name
-  volumes: [{
-    name: "ipc",
-    emptyDir: {}
-  },{
-    name: "node-config",
-    emptyDir: {}
-  }]
-  // +patchKey=name
-  containers: [
-    {
-      name: context.name
-      volumeMounts: [{
-        name: "ipc",
-        mountPath: "/ipc",
-      }]
-      // +patchStrategy=retainKeys
-      env: [{
-        name: "CARDANO_NODE_SOCKET_PATH"
-        value: "/ipc/node.socket"
-      },{
-        name: "NODE_CONFIG"
-        value: "/node-config/network/\( parameter.network )/cardano-node/config.json"
-      }]
+	// +patchKey=name
+	volumes: #PatchConfig.volumes
+	// +patchKey=name
+	containers: [
+		{
+			name: context.name
+			volumeMounts: [{
+				name:      #cardanoNodeConfigs.volumes[0].name
+				mountPath: "/\( #cardanoNodeConfigs.volumes[0].name )"
+			}]
+	    // +patchKey=name
+			env: #PatchConfig.envs
+		},
+		{
+			name:            "socat"
+			image:           "alpine/socat"
+			imagePullPolicy: "Always"
+			args: [
+				"UNIX-LISTEN:\( #cardanoNodeConfigs.envs[0].value ),fork",
+				"TCP-CONNECT:cardano-node-\( parameter.network ).vela-system:8090",
+			]
+			volumeMounts: [{
+				name:      #cardanoNodeConfigs.volumes[0].name
+				mountPath: "/\( #cardanoNodeConfigs.volumes[0].name )"
+			}]
+		},
+	]
+	initContainers: [
+    if parameter.configCloner != _|_ {
+      if parameter.configCloner != true {[]}
     },
-    {
-      name:  "socat"
-      image: "alpine/socat"
-      imagePullPolicy: "Always"
-      args: [
-        "UNIX-LISTEN:/ipc/node.socket,fork",
-        "TCP-CONNECT:cardano-node-\( parameter.network ).vela-system:8090"
-      ]
-      volumeMounts: [{
-        name: "ipc",
-        mountPath: "/ipc",
-      }]
-    } 
-  ]
-  initContainers: [{
-    name: "node-config-cloner"
-    image: "alpine/git"
-    imagePullPolicy: "Always"
-    args: [
-      "clone",
-      "--single-branch",
-      "--",
-      "https://github.com/input-output-hk/cardano-configurations", 
-      "/node-config"
-    ]
-    volumeMounts: [{
-      name: "node-config",
-      mountPath: "/node-config",
-    }]
-  }]
-} 
+    [{
+		  name:            "node-config-cloner"
+		  image:           "alpine/git"
+		  imagePullPolicy: "Always"
+		  args: [
+			  "clone",
+			  "--single-branch",
+			  "--",
+			  "https://github.com/input-output-hk/cardano-configurations",
+			  "/node-config",
+		  ]
+		  volumeMounts: [{
+			  name:      #configClonerConfigs.volumes[0].name
+			  mountPath: "/\( #configClonerConfigs.volumes[0].name )"
+		  }]
+	  }]
+  ][0]
+}
