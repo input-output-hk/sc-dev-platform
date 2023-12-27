@@ -1,9 +1,12 @@
 version: 3
+allowed_overrides: [workflow]
+
 projects:
 - dir: infra/us-east-1/prod/eks/green
   workflow: terragrunt
 # - dir: infra/us-east-1/prod
 #   workflow: terragrunt
+
 workflows:
   terragrunt:
     plan:

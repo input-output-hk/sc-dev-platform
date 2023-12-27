@@ -20,7 +20,7 @@ orgAllowlist: github.com/input-output-hk/*
 # github: {}
 github:
   user: atlantis
-  token: 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
+  token: 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
   secret: xfrcuvmtnndwihkeqhsyrandztseqycahbzofvitmwqeytlqvawqiehvpifwcmfcokkovgxlzfdnqmndhvfbboqvmaepfptgkgnridvqfyodqtmvmaoiwsbwcxmgsiif
 # GitHub Enterprise only:
 #   hostname: github.your.org
