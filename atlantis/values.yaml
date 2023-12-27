@@ -238,7 +238,8 @@ readinessProbe:
 
 service:
   type: LoadBalancer
-  annotations: {}
+  annotations: 
+    service.beta.kubernetes.io/aws-load-balancer-internal: "false"
   port: 80
   nodePort: null
   targetPort: 4141
