@@ -19,8 +19,8 @@ orgAllowlist: github.com/input-output-hk/*
 # If using GitHub, specify like the following:
 # github: {}
 github:
-  user: atlantis
-  token: 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
+  user: fentonhaslam
+  token: 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
   secret: xfrcuvmtnndwihkeqhsyrandztseqycahbzofvitmwqeytlqvawqiehvpifwcmfcokkovgxlzfdnqmndhvfbboqvmaepfptgkgnridvqfyodqtmvmaoiwsbwcxmgsiif
 # GitHub Enterprise only:
 #   hostname: github.your.org
@@ -157,7 +157,7 @@ repoConfig: |
  repos:
  - id: /.*/
    allowed_overrides: [workflow]
-#    allow_custom_workflows: false
+   allow_custom_workflows: true
 #  workflows:
 #    default:
 #      plan:
