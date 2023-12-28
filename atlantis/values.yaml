@@ -19,8 +19,8 @@ orgAllowlist: github.com/input-output-hk/*
 # If using GitHub, specify like the following:
 # github: {}
 github:
-  user: atlantis
-  token: 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
+  user: fentonhaslam
+  token: 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
   secret: xfrcuvmtnndwihkeqhsyrandztseqycahbzofvitmwqeytlqvawqiehvpifwcmfcokkovgxlzfdnqmndhvfbboqvmaepfptgkgnridvqfyodqtmvmaoiwsbwcxmgsiif
 # GitHub Enterprise only:
 #   hostname: github.your.org
