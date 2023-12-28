@@ -19,8 +19,8 @@ orgAllowlist: github.com/input-output-hk/*
 # If using GitHub, specify like the following:
 # github: {}
 github:
-  user: fentonhaslam
-  token: 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
+  user: atlantis
+  token: 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
   secret: xfrcuvmtnndwihkeqhsyrandztseqycahbzofvitmwqeytlqvawqiehvpifwcmfcokkovgxlzfdnqmndhvfbboqvmaepfptgkgnridvqfyodqtmvmaoiwsbwcxmgsiif
 # GitHub Enterprise only:
 #   hostname: github.your.org
@@ -127,6 +127,7 @@ aws: {}
 
 image:
   repository: ghcr.io/runatlantis/atlantis
+  # repository: flaconi/atlantis-terragrunt
   # if not set appVersion field from Chart.yaml is used
   tag: ""
   pullPolicy: Always
@@ -486,7 +487,7 @@ initContainers: []
 
 # Install providers/plugins into a path shared with the Atlantis pod
 initConfig:
-  enabled: false
+  enabled: true
   image: alpine:latest
   imagePullPolicy: IfNotPresent
   # sharedDir is set as env var INIT_SHARED_DIR
