@@ -45,17 +45,3 @@ module "atlantis" {
   certificate_domain_name = "atlantis.${var.domain_name}"
   route53_zone_id         = var.route53_zone_id
 }
-
-module "github_repository_webhooks" {
-  source = "github.com/terraform-aws-modules/terraform-aws-atlantis/modules/github-repository-webhook"
-
-  repositories = "github.com/input-output-hk/*"
-
-  webhook_url    = "${module.atlantis.url}/events"
-  webhook_secret = random_password.webhook_secret.result
-}
-
-resource "random_password" "webhook_secret" {
-  length  = 32
-  special = false
-}
