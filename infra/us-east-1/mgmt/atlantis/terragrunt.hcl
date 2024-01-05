@@ -36,4 +36,3 @@ inputs = {
     route53_zone_id = "Z10147571DRRDCJXSER5Y"
     domain_name     = "scdev.aws.iohkdev.io"
 }
-
