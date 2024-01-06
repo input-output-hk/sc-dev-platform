@@ -104,3 +104,56 @@ variable "addons_dir" {
   type        = string
   default     = "./addons"
 }
+
+variable "secrets_namespace" {
+  description = "Namespace to deploy secrets to"
+  type        = string
+}
+
+variable "jwt_signature" {
+  description = "K8s secret for Marlowe JWT signature"
+  type        = string
+  sensitive   = true
+}
+
+variable "jwt_signature_input_properties" {
+  description = "Linked with JWT signature secret"
+  type        = string
+  sensitive   = true
+}
+
+variable "gh_oauth_callbackPath" {
+  description = "Linked with gh-oauth secret"
+  type        = string
+  sensitive   = true
+}
+
+variable "gh_oauth_clientID" {
+  description = "Linked with gh-oauth secret"
+  type        = string
+  sensitive   = true
+}
+
+variable "gh_oauth_clientSecret" {
+  description = "Linked with gh-oauth secret"
+  type        = string
+  sensitive   = true
+}
+
+variable "gh_oauth_input_properties" {
+  description = "Linked with gh-oauth secret"
+  type        = string
+  sensitive   = true
+}
+
+variable "iohk_ghcr_creds_dockerconfigjson" {
+  description = "Linked with iohk-ghcr-creds secret"
+  type        = string
+  sensitive   = true
+}
+
+variable "iohk_ghcr_creds_input_properties" {
+  description = "Linked with iohk-ghcr-creds secret"
+  type        = string
+  sensitive   = true
+}

@@ -4,11 +4,11 @@ resource "kubectl_manifest" "iohk-ghcr-creds" {
     kind = "Secret"
     metadata = {
       name = "iohk-ghcr-creds"
-      namespace = var.namespace
+      namespace = var.secrets_namespace
     }
     data = {
-      ".dockerconfigjson" = var.iohk-ghcr-creds-dockerconfigjson
-      input-properties  = var.iohk-ghcr-creds-input-properties
+      ".dockerconfigjson" = var.iohk_ghcr_creds_dockerconfigjson
+      input-properties  = var.iohk_ghcr_creds_input_properties
     }
   })
 }
@@ -19,13 +19,13 @@ resource "kubectl_manifest" "gh-oauth" {
     kind = "Secret"
     metadata = {
       name = "gh-oauth"
-      namespace = var.namespace
+      namespace = var.secrets_namespace
     }
     data = {
-      callbackPath     = var.gh-oauth-callbackPath
-      clientID         = var.gh-oauth-clientID
-      clientSecret     = var.gh-oauth-clientSecret
-      input-properties = var.gh-oauth-input-properties
+      callbackPath     = var.gh_oauth_callbackPath
+      clientID         = var.gh_oauth_clientID
+      clientSecret     = var.gh_oauth_clientSecret
+      input-properties = var.gh_oauth_input_properties
     }
   })
 }
@@ -36,11 +36,11 @@ resource "kubectl_manifest" "jwt-signature" {
     kind = "Secret"
     metadata = {
       name = "jwt-signature"
-      namespace = var.namespace
+      namespace = var.secrets_namespace
     }
     data = {
-      JWT_SIGNATURE    = var.jwt-signature
-      input-properties = var.jwt-signature-input-properties
+      JWT_SIGNATURE    = var.jwt_signature
+      input-properties = var.jwt_signature_input_properties
     }
   })
 }

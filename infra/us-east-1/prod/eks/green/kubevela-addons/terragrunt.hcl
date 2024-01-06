@@ -1,8 +1,9 @@
 locals {
   # Automatically load environment-level variables
-  environment_vars = read_terragrunt_config(find_in_parent_folders("env.hcl"))
-  account_vars     = read_terragrunt_config(find_in_parent_folders("account.hcl"))
-  secret_vars      = yamldecode(sops_decrypt_file(find_in_parent_folders("secrets.yaml")))
+  environment_vars    = read_terragrunt_config(find_in_parent_folders("env.hcl"))
+  account_vars        = read_terragrunt_config(find_in_parent_folders("account.hcl"))
+  secret_vars         = yamldecode(sops_decrypt_file(find_in_parent_folders("secrets.yaml")))
+  cluster_secret_vars = yamldecode(sops_decrypt_file("./cluster-secrets.enc.yaml"))
 
   # Generators
   providers = read_terragrunt_config(find_in_parent_folders("${get_parent_terragrunt_dir()}/provider-configs/providers.hcl"))
@@ -47,4 +48,14 @@ inputs = {
   velaux_domain                      = "vela.scdev.aws.iohkdev.io"
   dex_client_id                      = local.dex_client_id
   dex_client_secret                  = local.dex_client_secret
+
+  secrets_namespace                = "marlowe"
+  jwt_signature                    = local.cluster_secret_vars.jwt-signature.JWT_SIGNATURE
+  jwt_signature_input_properties   = local.cluster_secret_vars.jwt-signature.input-properties
+  gh_oauth_callbackPath            = local.cluster_secret_vars.gh-oauth.callbackPath
+  gh_oauth_clientID                = local.cluster_secret_vars.gh-oauth.clientID
+  gh_oauth_clientSecret            = local.cluster_secret_vars.gh-oauth.clientSecret
+  gh_oauth_input_properties        = local.cluster_secret_vars.gh-oauth.input-properties
+  iohk_ghcr_creds_dockerconfigjson = local.cluster_secret_vars.iohk-ghcr-creds.dockerconfigjson
+  iohk_ghcr_creds_input_properties = local.cluster_secret_vars.iohk-ghcr-creds.input-properties
 }
