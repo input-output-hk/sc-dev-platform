@@ -27,7 +27,10 @@ inputs = {
 
     task_exec_secret_arns = [
         "arn:aws:secretsmanager:us-east-1:677160962006:secret:atlantis-github-token-Ns6xng",
-        "arn:aws:secretsmanager:us-east-1:677160962006:secret:atlantis-github-webhook-secret-5LsH5r"
+        "arn:aws:secretsmanager:us-east-1:677160962006:secret:atlantis-github-webhook-secret-5LsH5r",
+        "arn:aws:secretsmanager:us-east-1:677160962006:secret:atlantis-gh-webhook-secret-cwFbJy",
+        "arn:aws:secretsmanager:us-east-1:677160962006:secret:atlantis-gh-app-key-iSotd9",
+        "arn:aws:secretsmanager:us-east-1:677160962006:secret:gh-app-id-d8b6zU"
     ]
 
     service_subnets = dependency.vpc_mgmt.outputs.public_subnets
