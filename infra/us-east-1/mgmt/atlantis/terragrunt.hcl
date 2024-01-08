@@ -2,19 +2,13 @@ locals {
   # Automatically load environment-level variables
   environment_vars = read_terragrunt_config(find_in_parent_folders("env.hcl"))
   account_vars     = read_terragrunt_config(find_in_parent_folders("account.hcl"))
-  # Extract out common variables for reuse
-  env         = local.environment_vars.locals.environment
-  region      = local.environment_vars.locals.aws_region
-  project     = local.environment_vars.locals.project
-  cidr_prefix = local.environment_vars.locals.cidr_prefix
-  tribe       = local.account_vars.locals.tribe
 }
 
 terraform {
-  source = "../../../modules/atlantis"
+  source = "github.com/terraform-aws-modules/terraform-aws-atlantis"
 }
 
-dependency "vpc_mgmt" {
+dependency "vpc" {
   config_path = "${get_repo_root()}/infra/us-east-1/mgmt/vpc"
 }
 
@@ -23,19 +17,62 @@ include {
 }
 
 inputs = {
-    name = "atlantis"
+  name = "atlantis"
 
-    task_exec_secret_arns = [
-        "arn:aws:secretsmanager:us-east-1:677160962006:secret:atlantis-github-token-Ns6xng",
-        "arn:aws:secretsmanager:us-east-1:677160962006:secret:atlantis-github-webhook-secret-5LsH5r",
-        "arn:aws:secretsmanager:us-east-1:677160962006:secret:atlantis-gh-webhook-secret-cwFbJy",
-        "arn:aws:secretsmanager:us-east-1:677160962006:secret:atlantis-gh-app-key-iSotd9",
-        "arn:aws:secretsmanager:us-east-1:677160962006:secret:gh-app-id-d8b6zU"
+  atlantis = {
+    environment = [
+      {
+        name  = "ATLANTIS_REPO_ALLOWLIST"
+        value = "github.com/input-output-hk/*"
+      },
+      {
+        name : "ATLANTIS_REPO_CONFIG_JSON",
+        value : jsonencode(yamldecode(file("server-atlantis.yaml")))
+      },
+      {
+        name  = "ATLANTIS_WRITE_GIT_CREDS"
+        value = true
+      },
+      {
+        name  = "ATLANTIS_ENABLE_DIFF_MARKDOWN_FORMAT"
+        value = "true"
+      }
     ]
+    secrets = [
+      {
+        name      = "ATLANTIS_GH_APP_ID"
+        valueFrom = "arn:aws:secretsmanager:us-east-1:677160962006:secret:gh-app-id-d8b6zU"
+      },
+      {
+        name      = "ATLANTIS_GH_APP_KEY"
+        valueFrom = "arn:aws:secretsmanager:us-east-1:677160962006:secret:atlantis-gh-app-key-iSotd9"
+      },
+      {
+        name      = "ATLANTIS_GH_WEBHOOK_SECRET"
+        valueFrom = "arn:aws:secretsmanager:us-east-1:677160962006:secret:atlantis-gh-webhook-secret-cwFbJy"
+      }
+    ]
+  }
 
-    service_subnets = dependency.vpc_mgmt.outputs.public_subnets
-    vpc_id          = dependency.vpc_mgmt.outputs.vpc_id
-    alb_subnets     = dependency.vpc_mgmt.outputs.public_subnets
-    route53_zone_id = "Z10147571DRRDCJXSER5Y"
-    domain_name     = "scdev.aws.iohkdev.io"
+  # ECS Service
+  service = {
+    task_exec_secret_arns = [
+      "arn:aws:secretsmanager:us-east-1:677160962006:secret:atlantis-gh-app-key-iSotd9",
+      "arn:aws:secretsmanager:us-east-1:677160962006:secret:atlantis-gh-webhook-secret-cwFbJy",
+      "arn:aws:secretsmanager:us-east-1:677160962006:secret:gh-app-id-d8b6zU"
+    ]
+    # Provide Atlantis permission necessary to create/destroy resources
+    tasks_iam_role_policies = {
+      AdministratorAccess = "arn:aws:iam::aws:policy/AdministratorAccess"
+    }
+    assign_public_ip = true
+  }
+
+  service_subnets = dependency.vpc.outputs.public_subnets
+  vpc_id          = dependency.vpc.outputs.vpc_id
+
+  # ALB
+  alb_subnets             = dependency.vpc.outputs.public_subnets
+  certificate_domain_name = "atlantis.scdev.aws.iohkdev.io"
+  route53_zone_id         = "Z10147571DRRDCJXSER5Y"
 }
