@@ -3,7 +3,6 @@ locals {
   environment_vars    = read_terragrunt_config(find_in_parent_folders("env.hcl"))
   account_vars        = read_terragrunt_config(find_in_parent_folders("account.hcl"))
   secret_vars         = yamldecode(sops_decrypt_file(find_in_parent_folders("secrets.yaml")))
-  cluster_secret_vars = yamldecode(sops_decrypt_file("./cluster-secrets.enc.yaml"))
 
   # Generators
   providers = read_terragrunt_config(find_in_parent_folders("${get_parent_terragrunt_dir()}/provider-configs/providers.hcl"))
@@ -49,13 +48,13 @@ inputs = {
   dex_client_id                      = local.dex_client_id
   dex_client_secret                  = local.dex_client_secret
 
-  secrets_namespace                = "marlowe"
-  jwt_signature                    = local.cluster_secret_vars.jwt-signature.JWT_SIGNATURE
-  jwt_signature_input_properties   = local.cluster_secret_vars.jwt-signature.input-properties
-  gh_oauth_callbackPath            = local.cluster_secret_vars.gh-oauth.callbackPath
-  gh_oauth_clientID                = local.cluster_secret_vars.gh-oauth.clientID
-  gh_oauth_clientSecret            = local.cluster_secret_vars.gh-oauth.clientSecret
-  gh_oauth_input_properties        = local.cluster_secret_vars.gh-oauth.input-properties
-  iohk_ghcr_creds_dockerconfigjson = local.cluster_secret_vars.iohk-ghcr-creds.dockerconfigjson
-  iohk_ghcr_creds_input_properties = local.cluster_secret_vars.iohk-ghcr-creds.input-properties
+  secrets_namespace                                  = "marlowe"
+  (cluster_secrets.jwt_signature)                    = local.secret_vars.jwt-signature.JWT_SIGNATURE
+  (cluster_secrets.jwt_signature_input_properties)   = local.secret_vars.jwt-signature.input-properties
+  (cluster_secrets.gh_oauth_callbackPath)            = local.secret_vars.gh-oauth.callbackPath
+  (cluster_secrets.gh_oauth_clientID)                = local.secret_vars.gh-oauth.clientID
+  (cluster_secrets.gh_oauth_clientSecret)            = local.secret_vars.gh-oauth.clientSecret
+  (cluster_secrets.gh_oauth_input_properties)        = local.secret_vars.gh-oauth.input-properties
+  (cluster_secrets.iohk_ghcr_creds_dockerconfigjson) = local.secret_vars.iohk-ghcr-creds.dockerconfigjson
+  (cluster_secrets.iohk_ghcr_creds_input_properties) = local.secret_vars.iohk-ghcr-creds.input-properties
 }
