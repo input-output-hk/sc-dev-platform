@@ -38,20 +38,20 @@ inputs = {
         value = "true"
       }
     ]
-    secrets = [
-      {
-        name      = "ATLANTIS_GH_APP_ID"
-        valueFrom = "arn:aws:secretsmanager:us-east-1:677160962006:secret:gh-app-id-d8b6zU"
-      },
-      {
-        name      = "ATLANTIS_GH_APP_KEY"
-        valueFrom = "arn:aws:secretsmanager:us-east-1:677160962006:secret:atlantis-gh-app-key-iSotd9"
-      },
-      {
-        name      = "ATLANTIS_GH_WEBHOOK_SECRET"
-        valueFrom = "arn:aws:secretsmanager:us-east-1:677160962006:secret:atlantis-gh-webhook-secret-cwFbJy"
-      }
-    ]
+  //   secrets = [
+  //     {
+  //       name      = "ATLANTIS_GH_APP_ID"
+  //       valueFrom = "arn:aws:secretsmanager:us-east-1:677160962006:secret:gh-app-id-d8b6zU"
+  //     },
+  //     {
+  //       name      = "ATLANTIS_GH_APP_KEY"
+  //       valueFrom = "arn:aws:secretsmanager:us-east-1:677160962006:secret:atlantis-gh-app-key-iSotd9"
+  //     },
+  //     {
+  //       name      = "ATLANTIS_GH_WEBHOOK_SECRET"
+  //       valueFrom = "arn:aws:secretsmanager:us-east-1:677160962006:secret:atlantis-gh-webhook-secret-cwFbJy"
+  //     }
+  //   ]
   }
 
   # ECS Service
@@ -68,11 +68,28 @@ inputs = {
     assign_public_ip = true
   }
 
-  service_subnets = dependency.vpc.outputs.public_subnets
   vpc_id          = dependency.vpc.outputs.vpc_id
 
+
+  alb = {
+    # For example only
+    enable_deletion_protection = false
+  }
+
+  enable_efs = true
+  efs = {
+    mount_targets = {
+        "eu-west-1a" = {
+          subnet_id = dependency.vpc.outputs.public_subnets[0]
+        }
+        "eu-west-1b" = {
+          subnet_id = dependency.vpc.outputs.public_subnets[1]
+        }
+    }
+  }
   # ALB
   alb_subnets             = dependency.vpc.outputs.public_subnets
+  service_subnets         = dependency.vpc.outputs.public_subnets
   certificate_domain_name = "atlantis.scdev.aws.iohkdev.io"
   route53_zone_id         = "Z10147571DRRDCJXSER5Y"
 }
