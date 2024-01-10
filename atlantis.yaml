@@ -6,6 +6,8 @@ projects:
   workflow: terragrunt
 - dir: infra/global/iam/roles/atlantis
   workflow: terragrunt  
+- dir: infra/us-east-1/prod/eks/green/kubevela-addons
+  workflow: terragrunt
 
 workflows:
   terragrunt:

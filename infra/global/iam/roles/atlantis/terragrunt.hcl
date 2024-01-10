@@ -23,6 +23,7 @@ include {
 inputs = {
   create_role                = true
   role_name                  = local.role_name
+  allow_self_assume_role     = true
   assume_role_condition_test = "StringLike"
   cluster_service_accounts = {
     "scde-dev-us-east-1"       = [local.atlantis_serviceaccount]
