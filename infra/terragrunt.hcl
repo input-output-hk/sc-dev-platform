@@ -55,7 +55,6 @@ generate "provider" {
   contents  = <<EOF
   provider "aws" {
     region = "${local.aws_region}"
-    profile = "${local.aws_profile}"
     allowed_account_ids = ["${local.account_id}"]
     # Use assume role instead named profile / Create Role manually
     #assume_role {
@@ -98,7 +97,6 @@ remote_state {
     key            = "${path_relative_to_include()}/terraform.tfstate"
     region         = "${local.tf_bucket_region}"
     dynamodb_table = "terraform-locks"
-    profile        = local.aws_profile
     role_arn      = "arn:aws:iam::${local.account_id}:role/AtlantisDeploymentRole"
   }
   generate = {
