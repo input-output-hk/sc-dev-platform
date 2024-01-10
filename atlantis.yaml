@@ -6,8 +6,6 @@ projects:
   workflow: terragrunt
 - dir: infra/global/iam/roles/atlantis
   workflow: terragrunt  
-# - dir: live/prod
-#   workflow: terragrunt
 
 workflows:
   terragrunt:
