@@ -7,6 +7,5 @@ terraform {
     key            = "./terraform.tfstate"
     profile        = "dapps-world"
     region         = "us-east-1"
-    role_arn       = "arn:aws:iam::677160962006:role/AtlantisDeploymentRole"
   }
 }
