@@ -7,7 +7,7 @@ locals {
   project = local.environment_vars.locals.project
   tribe   = local.account_vars.locals.tribe
 
-  role_name                 = "AtlantisRole"
+  role_name                 = "AtlantisDevRole"
   atlantis_serviceaccount   = "default:provider-aws-*"
 }
 
