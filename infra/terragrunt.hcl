@@ -96,7 +96,7 @@ remote_state {
     region         = "${local.tf_bucket_region}"
     dynamodb_table = "terraform-locks"
     profile        = local.aws_profile
-    role_arn      = "arn:aws:iam::${local.account_id}:role/AtlantisDeploymentRole"
+    // role_arn      = "arn:aws:iam::${local.account_id}:role/AtlantisDeploymentRole"
   }
   generate = {
     path      = "backend.tf"
