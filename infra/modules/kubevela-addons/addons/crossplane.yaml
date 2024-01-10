@@ -33,6 +33,10 @@ spec:
               name: aws-config
             package: xpkg.upbound.io/crossplane-contrib/provider-aws:v0.45.2
         replicas: 1
+        resourcesCrossplane:
+          limits:
+            cpu: 500m
+            memory: 512Mi
       version: 1.14.0
     type: helm
   - name: crossplane-provider-config
