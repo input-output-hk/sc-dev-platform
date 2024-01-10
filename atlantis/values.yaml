@@ -20,8 +20,8 @@ orgAllowlist: github.com/input-output-hk/*
 # github: {}
 github:
   user: Fentonhaslam
-  token: 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
-  secret: xfrcuvmtnndwihkeqhsyrandztseqycahbzofvitmwqeytlqvawqiehvpifwcmfcokkovgxlzfdnqmndhvfbboqvmaepfptgkgnridvqfyodqtmvmaoiwsbwcxmgsiif
+  token: 
+  secret: 
 
 # To specify AWS credentials to be mapped to ~/.aws or to aws.directory:
 aws: {}
@@ -30,11 +30,11 @@ aws: {}
   #   aws_access_key_id=
   #   aws_secret_access_key=
   #   region=us-east-1
-#   config: |
-#     [profile a_role_to_assume]
-#     role_arn = arn:aws:iam::123456789:role/service-role/roleToAssume
-#     source_profile = default
-#   directory: "/home/atlantis/.aws"
+  # config: |
+  #   [dapps-world]
+  #   role_arn = arn:aws:iam::677160962006:role/AtlantisDeploymentRole
+  #   source_profile = dapps-world
+  # directory: "/home/atlantis/.aws"
 # To reference an already existing Secret object with AWS credentials
 # awsSecretName: 'mysecretwithawscreds'
 

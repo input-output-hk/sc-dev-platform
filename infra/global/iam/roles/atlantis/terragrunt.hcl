@@ -8,7 +8,7 @@ locals {
   tribe   = local.account_vars.locals.tribe
 
   role_name                 = "AtlantisDeploymentRole"
-  atlantis_serviceaccount   = "default:provider-aws-*"
+  atlantis_serviceaccount   = "default:atlantis"
 }
 
 terraform {
