@@ -25,7 +25,6 @@ inputs = {
 
   azs            = ["${local.region}a", "${local.region}b"]
   public_subnets = ["${local.cidr_prefix}.0.0/20", "${local.cidr_prefix}.16.0/20"]
-  private_subnets = ["${local.cidr_prefix}.32.0/20", "${local.cidr_prefix}.48.0/20", "${local.cidr_prefix}.64.0/20"]
 
   enable_nat_gateway     = false
   single_nat_gateway     = false
