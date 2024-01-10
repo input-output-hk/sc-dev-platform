@@ -4,6 +4,8 @@ projects:
   workflow: terragrunt
 - dir: infra/us-east-1/mgmt/vpc
   workflow: terragrunt
+- dir: infra/global/iam/roles/*
+  workflow: terragrunt  
 # - dir: live/prod
 #   workflow: terragrunt
 
