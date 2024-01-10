@@ -22,6 +22,7 @@ github:
   user: Fentonhaslam
   token: 
   secret: 
+<<<<<<< HEAD
 # To specify AWS credentials to be mapped to ~/.aws or to aws.directory:
 aws: {}
   # credentials: |
@@ -34,6 +35,21 @@ aws: {}
   #   role_arn = arn:aws:iam::677160962006:role/AtlantisDeploymentRole
   #   source_profile = dapps-world
   # directory: "/home/atlantis/.aws"
+=======
+
+# To specify AWS credentials to be mapped to ~/.aws or to aws.directory:
+aws:
+  credentials: |
+    [dapps-world]
+    aws_access_key_id=
+    aws_secret_access_key=
+    region=us-east-1
+#   config: |
+#     [profile a_role_to_assume]
+#     role_arn = arn:aws:iam::123456789:role/service-role/roleToAssume
+#     source_profile = default
+#   directory: "/home/atlantis/.aws"
+>>>>>>> 96638ef (removed atlantis module and added helm chart)
 # To reference an already existing Secret object with AWS credentials
 # awsSecretName: 'mysecretwithawscreds'
 
@@ -82,6 +98,7 @@ repoConfig: |
  - id: /.*/
    allowed_overrides: [workflow]
    allow_custom_workflows: true
+<<<<<<< HEAD
    pre_workflow_hooks: 
     - run: terragrunt-atlantis-config generate --output atlantis.yaml --autoplan --parallel --create-workspace
  workflows:
@@ -108,6 +125,17 @@ repoConfig: |
            name: TF_IN_AUTOMATION
            value: 'true'
        - run: terragrunt apply $PLANFILE
+=======
+#  workflows:
+#    default:
+#      plan:
+#        steps: [init, plan]
+#      apply:
+#        steps: [apply]
+#  # metrics:
+#  #   prometheus:
+#  #     endpoint: /metrics
+>>>>>>> 96638ef (removed atlantis module and added helm chart)
 
 # allowForkPRs enables atlantis to run on a fork Pull Requests
 allowForkPRs: false
@@ -342,9 +370,15 @@ serviceAccount:
   # annotations:
   #   annotation1: value
   #   annotation2: value
+<<<<<<< HEAD
   annotations: 
   # IRSA example:
     eks.amazonaws.com/role-arn: arn:aws:iam::677160962006:role/AtlantisDeploymentRole
+=======
+  annotations: {}
+  # IRSA example:
+  # eks.amazonaws.com/role-arn: role-arn
+>>>>>>> 96638ef (removed atlantis module and added helm chart)
 
 # Optionally deploy rbac to allow for the serviceAccount to manage terraform state via the kubernetes backend
 enableKubernetesBackend: false
