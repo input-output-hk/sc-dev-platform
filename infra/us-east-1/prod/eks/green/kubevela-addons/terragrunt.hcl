@@ -48,13 +48,15 @@ inputs = {
   dex_client_id                      = local.dex_client_id
   dex_client_secret                  = local.dex_client_secret
 
-  secrets_namespace                                  = "marlowe"
-  (cluster_secrets.jwt_signature)                    = local.secret_vars.jwt-signature.JWT_SIGNATURE
-  (cluster_secrets.jwt_signature_input_properties)   = local.secret_vars.jwt-signature.input-properties
-  (cluster_secrets.gh_oauth_callbackPath)            = local.secret_vars.gh-oauth.callbackPath
-  (cluster_secrets.gh_oauth_clientID)                = local.secret_vars.gh-oauth.clientID
-  (cluster_secrets.gh_oauth_clientSecret)            = local.secret_vars.gh-oauth.clientSecret
-  (cluster_secrets.gh_oauth_input_properties)        = local.secret_vars.gh-oauth.input-properties
-  (cluster_secrets.iohk_ghcr_creds_dockerconfigjson) = local.secret_vars.iohk-ghcr-creds.dockerconfigjson
-  (cluster_secrets.iohk_ghcr_creds_input_properties) = local.secret_vars.iohk-ghcr-creds.input-properties
+  secrets_namespace                  = "marlowe"
+  cluster_secrets = {
+    jwt_signature                    = local.secret_vars.jwt-signature.JWT_SIGNATURE
+    jwt_signature_input_properties   = local.secret_vars.jwt-signature.input-properties
+    gh_oauth_callbackPath            = local.secret_vars.gh-oauth.callbackPath
+    gh_oauth_clientID                = local.secret_vars.gh-oauth.clientID
+    gh_oauth_clientSecret            = local.secret_vars.gh-oauth.clientSecret
+    gh_oauth_input_properties        = local.secret_vars.gh-oauth.input-properties
+    iohk_ghcr_creds_dockerconfigjson = local.secret_vars.iohk-ghcr-creds.dockerconfigjson
+    iohk_ghcr_creds_input_properties = local.secret_vars.iohk-ghcr-creds.input-properties
+  }
 }
