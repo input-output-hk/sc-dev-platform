@@ -20,16 +20,16 @@ orgAllowlist: github.com/input-output-hk/*
 # github: {}
 github:
   user: Fentonhaslam
-  token: 
-  secret: 
+  token: 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
+  secret: xfrcuvmtnndwihkeqhsyrandztseqycahbzofvitmwqeytlqvawqiehvpifwcmfcokkovgxlzfdnqmndhvfbboqvmaepfptgkgnridvqfyodqtmvmaoiwsbwcxmgsiif
 
 # To specify AWS credentials to be mapped to ~/.aws or to aws.directory:
-aws:
-  credentials: |
-    [dapps-world]
-    aws_access_key_id=
-    aws_secret_access_key=
-    region=us-east-1
+aws: {}
+  # credentials: |
+  #   [dapps-world]
+  #   aws_access_key_id=
+  #   aws_secret_access_key=
+  #   region=us-east-1
 #   config: |
 #     [profile a_role_to_assume]
 #     role_arn = arn:aws:iam::123456789:role/service-role/roleToAssume
@@ -326,9 +326,9 @@ serviceAccount:
   # annotations:
   #   annotation1: value
   #   annotation2: value
-  annotations: {}
+  annotations: 
   # IRSA example:
-  # eks.amazonaws.com/role-arn: role-arn
+    eks.amazonaws.com/role-arn: arn:aws:iam::677160962006:role/AtlantisDeploymentRole
 
 # Optionally deploy rbac to allow for the serviceAccount to manage terraform state via the kubernetes backend
 enableKubernetesBackend: false
