@@ -1,0 +1,35 @@
+version: 3
+projects:
+- dir: infra/us-east-1/dev/eks/cluster
+  workflow: terragrunt
+- dir: infra/us-east-1/mgmt/vpc
+  workflow: terragrunt
+- dir: infra/global/iam/roles/atlantis
+  workflow: terragrunt  
+- dir: infra/us-east-1/prod/eks/green/kubevela-addons
+  workflow: terragrunt
+
+workflows:
+  terragrunt:
+    plan:
+      steps:
+      - env:
+          name: TERRAGRUNT_TFPATH
+          command: 'echo "terraform${ATLANTIS_TERRAFORM_VERSION}"'
+      - env:
+          # Reduce Terraform suggestion output
+          name: TF_IN_AUTOMATION
+          value: 'true'
+      - run:
+          command: terragrunt plan -input=false -out=$PLANFILE
+          output: strip_refreshing
+    apply:
+      steps:
+      - env:
+          name: TERRAGRUNT_TFPATH
+          command: 'echo "terraform${ATLANTIS_TERRAFORM_VERSION}"'
+      - env:
+          # Reduce Terraform suggestion output
+          name: TF_IN_AUTOMATION
+          value: 'true'
+      - run: terragrunt apply $PLANFILE
