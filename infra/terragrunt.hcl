@@ -55,6 +55,7 @@ generate "provider" {
   contents  = <<EOF
   provider "aws" {
     region = "${local.aws_region}"
+    # profile = "${local.aws_profile}"
     allowed_account_ids = ["${local.account_id}"]
     # Use assume role instead named profile / Create Role manually
     #assume_role {
@@ -97,6 +98,7 @@ remote_state {
     key            = "${path_relative_to_include()}/terraform.tfstate"
     region         = "${local.tf_bucket_region}"
     dynamodb_table = "terraform-locks"
+    // profile        = local.aws_profile
     role_arn      = "arn:aws:iam::${local.account_id}:role/AtlantisDeploymentRole"
   }
   generate = {
@@ -118,3 +120,5 @@ inputs = merge(
   local.account_vars.locals,
   local.environment_vars.locals,
 )
+
+# If Atlantis is unavailable, use local deployment by commenting out line 101 and profile on line 58 whilst commemtiing out references to role_arn line 102 and 65-68
