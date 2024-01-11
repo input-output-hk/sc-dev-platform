@@ -22,17 +22,18 @@ github:
   user: Fentonhaslam
   token: 
   secret: 
+
 # To specify AWS credentials to be mapped to ~/.aws or to aws.directory:
 aws: {}
   # credentials: |
-  #   [dapps-world]
+  #   [default]
   #   aws_access_key_id=
   #   aws_secret_access_key=
   #   region=us-east-1
   # config: |
-  #   [dapps-world]
-  #   role_arn = arn:aws:iam::677160962006:role/AtlantisDeploymentRole
-  #   source_profile = dapps-world
+  #   [default]
+  #   role_arn = arn
+  #   source_profile = default
   # directory: "/home/atlantis/.aws"
 # To reference an already existing Secret object with AWS credentials
 # awsSecretName: 'mysecretwithawscreds'
@@ -83,7 +84,7 @@ repoConfig: |
    allowed_overrides: [workflow]
    allow_custom_workflows: true
    pre_workflow_hooks: 
-    - run: terragrunt-atlantis-config generate --output atlantis.yaml --autoplan --parallel --create-workspace
+    - run: terragrunt-atlantis-config generate --output atlantis.yaml --autoplan --parallel --create-workspace --ignore-parent-terragrunt
  workflows:
    default:
      plan:
