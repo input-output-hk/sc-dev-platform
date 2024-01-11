@@ -35,5 +35,5 @@ inputs = {
   key_owners            = ["arn:aws:iam::${local.account_id}:root"]
   key_administrators    = local.key_administrators
   key_users             = local.key_administrators
-  aliases               = [local.account_name, "${local.account_name}-${local.env}"]
+  aliases               = [local.account_name]
 }

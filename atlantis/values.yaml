@@ -22,7 +22,6 @@ github:
   user: Fentonhaslam
   token: 
   secret: 
-
 # To specify AWS credentials to be mapped to ~/.aws or to aws.directory:
 aws: {}
   # credentials: |
@@ -83,15 +82,32 @@ repoConfig: |
  - id: /.*/
    allowed_overrides: [workflow]
    allow_custom_workflows: true
-#  workflows:
-#    default:
-#      plan:
-#        steps: [init, plan]
-#      apply:
-#        steps: [apply]
-#  # metrics:
-#  #   prometheus:
-#  #     endpoint: /metrics
+   pre_workflow_hooks: 
+    - run: terragrunt-atlantis-config generate --output atlantis.yaml --autoplan --parallel --create-workspace
+ workflows:
+   default:
+     plan:
+       steps:
+       - env:
+           name: TERRAGRUNT_TFPATH
+           command: 'echo "terraform${ATLANTIS_TERRAFORM_VERSION}"'
+       - env:
+           # Reduce Terraform suggestion output
+           name: TF_IN_AUTOMATION
+           value: 'true'
+       - run:
+           command: terragrunt plan -input=false -out=$PLANFILE
+           output: strip_refreshing
+     apply:
+       steps:
+       - env:
+           name: TERRAGRUNT_TFPATH
+           command: 'echo "terraform${ATLANTIS_TERRAFORM_VERSION}"'
+       - env:
+           # Reduce Terraform suggestion output
+           name: TF_IN_AUTOMATION
+           value: 'true'
+       - run: terragrunt apply $PLANFILE
 
 # allowForkPRs enables atlantis to run on a fork Pull Requests
 allowForkPRs: false
