@@ -10,7 +10,7 @@ nameOverride: ""
 
 ## An option to override the atlantis url,
 ##   if not using an ingress, set it to the external IP.
-# atlantisUrl: http://10.0.0.0
+# atlantisUrl: http://k8s-default-atlantis-91ad56e657-af175fe4f3d67964.elb.us-east-1.amazonaws.com
 
 # Replace this with your own repo allowlist:
 orgAllowlist: github.com/input-output-hk/*
@@ -26,14 +26,14 @@ github:
 # To specify AWS credentials to be mapped to ~/.aws or to aws.directory:
 aws: {}
   # credentials: |
-  #   [default]
+  #   [dapps-world]
   #   aws_access_key_id=
   #   aws_secret_access_key=
   #   region=us-east-1
   # config: |
-  #   [default]
-  #   role_arn = arn
-  #   source_profile = default
+  #   [dapps-world]
+  #   role_arn = arn:aws:iam::677160962006:role/AtlantisDeploymentRole
+  #   source_profile = dapps-world
   # directory: "/home/atlantis/.aws"
 # To reference an already existing Secret object with AWS credentials
 # awsSecretName: 'mysecretwithawscreds'
@@ -135,7 +135,7 @@ disableApplyAll: false
 disableRepoLocking: false
 
 # Use Diff Markdown Format for color coding diffs
-enableDiffMarkdownFormat: false
+enableDiffMarkdownFormat: true
 
 # Optionally specify an username and a password for basic authentication
 # basicAuth:
@@ -352,7 +352,8 @@ enableKubernetesBackend: false
 
 # tlsSecretName: tls
 
-environment: {}
+environment: 
+  ATLANTIS_ATLANTIS_URL: http://k8s-default-atlantis-91ad56e657-af175fe4f3d67964.elb.us-east-1.amazonaws.com
 # environment:
 #   ATLANTIS_DEFAULT_TF_VERSION: v1.2.9
 
