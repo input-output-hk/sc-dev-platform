@@ -19,7 +19,7 @@ orgAllowlist: github.com/input-output-hk/*
 # If using GitHub, specify like the following:
 # github: {}
 github:
-  user: Fentonhaslam
+  user: iog-sc-bot
   token: 
   secret: 
 
