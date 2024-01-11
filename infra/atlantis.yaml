@@ -8,6 +8,8 @@ projects:
   workflow: terragrunt  
 - dir: infra/us-east-1/prod/eks/green/kubevela-addons
   workflow: terragrunt
+- dir: infra/us-east-1/prod/eks/green/cluster
+  workflow: terragrunt
 
 workflows:
   terragrunt:
