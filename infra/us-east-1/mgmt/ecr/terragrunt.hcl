@@ -44,11 +44,8 @@ terraform {
 
 inputs = {
     repository_name = "smart-contracts"
-    ecrs = {
-    smart-contracts = {
-      tags             = { Service = "smart-contracts"}
-      lifecycle_policy = local.lifecycle_policy
-    }
-  }
+
+    repository_lifecycle_policy = local.lifecycle_policy
+  
 }
 
