@@ -43,7 +43,7 @@ terraform {
 }
 
 inputs = {
-    repository_name = "smart-contracts"
+    repository_name = "${local.name}"
 
     repository_lifecycle_policy = local.lifecycle_policy
   
