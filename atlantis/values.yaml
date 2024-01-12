@@ -20,8 +20,8 @@ orgAllowlist: github.com/input-output-hk/*
 # github: {}
 github:
   user: iog-sc-bot
-  token: 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
-  secret: xfrcuvmtnndwihkeqhsyrandztseqycahbzofvitmwqeytlqvawqiehvpifwcmfcokkovgxlzfdnqmndhvfbboqvmaepfptgkgnridvqfyodqtmvmaoiwsbwcxmgsiif
+  token: 
+  secret: 
 
 # To specify AWS credentials to be mapped to ~/.aws or to aws.directory:
 aws: {}
