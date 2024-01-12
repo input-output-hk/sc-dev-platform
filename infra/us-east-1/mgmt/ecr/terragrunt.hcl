@@ -39,7 +39,7 @@ locals {
 }
 
 terraform {
-  source = "github.com/terraform-module/ecr/aws"
+  source = "github.com/terraform-aws-modules/terraform-aws-ecr"
 }
 
 inputs = {
