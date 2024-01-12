@@ -39,12 +39,13 @@ locals {
 }
 
 terraform {
-  source = "github.com/terraform-aws-modules/terraform-aws-ecr"
+  source = "github.com/terraform-aws-modules/terraform-aws-ecr?ref=v1.6.0"
 }
 
 inputs = {
+    repository_name = "smart-contracts"
     ecrs = {
-    smart-contracts-dev = {
+    smart-contracts = {
       tags             = { Service = "smart-contracts"}
       lifecycle_policy = local.lifecycle_policy
     }
