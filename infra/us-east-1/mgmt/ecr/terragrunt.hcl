@@ -35,7 +35,7 @@ locals {
       }
     }]
   }
-  name        = "smart-contracts"
+  name        = "scde"
 }
 
 terraform {
@@ -43,9 +43,7 @@ terraform {
 }
 
 inputs = {
-    repository_name = "${local.name}"
-
+    repository_name = local.name
     repository_lifecycle_policy = local.lifecycle_policy
-  
 }
 
