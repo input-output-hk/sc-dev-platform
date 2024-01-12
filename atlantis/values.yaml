@@ -20,8 +20,8 @@ orgAllowlist: github.com/input-output-hk/*
 # github: {}
 github:
   user: iog-sc-bot
-  token: 
-  secret: 
+  token: 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
+  secret: xfrcuvmtnndwihkeqhsyrandztseqycahbzofvitmwqeytlqvawqiehvpifwcmfcokkovgxlzfdnqmndhvfbboqvmaepfptgkgnridvqfyodqtmvmaoiwsbwcxmgsiif
 
 # To specify AWS credentials to be mapped to ~/.aws or to aws.directory:
 aws: {}
@@ -460,8 +460,7 @@ initConfig:
     cp -fv "terragrunt-atlantis-config_${TAC_VERSION}_linux_amd64/terragrunt-atlantis-config_${TAC_VERSION}_linux_amd64" "${TAC_FILE}"
     chmod 755 "${TG_FILE}"
     terragrunt-atlantis-config version
-
-
+    
 # hostAliases:
 #   - hostnames:
 #     - aaa.com
