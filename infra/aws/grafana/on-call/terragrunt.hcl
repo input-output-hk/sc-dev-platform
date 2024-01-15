@@ -12,7 +12,7 @@ include "root" {
 }
 
 terraform {
-  source = "../../modules/grafana-oncall"
+  source = "${get_repo_root()}/infra/modules/grafana-oncall"
 }
 
 inputs = {
