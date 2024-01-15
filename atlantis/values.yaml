@@ -51,9 +51,9 @@ aws: {}
 ## -------------------------- ##
 
 image:
-  repository: ghcr.io/runatlantis/atlantis
+  repository: 677160962006.dkr.ecr.us-east-1.amazonaws.com/scde
   # if not set appVersion field from Chart.yaml is used
-  tag: ""
+  tag: "latest"
   pullPolicy: Always
 
 ## Optionally specify an array of imagePullSecrets.
