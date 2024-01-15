@@ -17,8 +17,8 @@ locals {
 
   list_users = concat([for user in local.users :
     "arn:aws:iam::${local.aws_account_id}:user/${user}"
-  ], "arn:aws:iam::${local.aws_account_id}:role/AtlantisDeploymentRole")
-  
+  ], ["arn:aws:iam::${local.aws_account_id}:role/AtlantisDeploymentRole"])
+
   map_roles = [{
     rolearn = "arn:aws:iam::${local.aws_account_id}:role/AtlantisDeploymentRole"
     username = "atlantis"
