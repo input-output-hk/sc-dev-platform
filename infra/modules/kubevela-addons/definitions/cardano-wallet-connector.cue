@@ -9,6 +9,11 @@ parameter: {
     persistentVolumeClaim: {
       claimName: "wallet-db"
     }
+  }, {
+    name: "db"
+    persistentVolumeClaim: {
+      claimName: "db"
+    }
   }]
   volumeMounts: [{
     name:      "wallet-db"
@@ -16,7 +21,16 @@ parameter: {
     storageClassName: "ebs-sc"
     resources: {
       requests: {
-        storage: "10Gi"
+        storage: "100Ki"
+      }
+    }
+  }, {
+    name:      "db"
+    mountPath: "/db"
+    storageClassName: "ebs-sc"
+    resources: {
+      requests: {
+        storage: "100Ki"
       }
     }
   }]
@@ -169,10 +183,30 @@ patch: spec: template: spec: {
         ],
         resources: {
           requests: {
-            storage: "100Ki"
+            storage: #cardanoWalletConfigs.volumeMounts[0].resources.requests.storage
           }
         },
         storageClassName: #cardanoWalletConfigs.volumeMounts[0].storageClassName,
+        volumeMode: "Filesystem"
+      }
+    },
+    "pvc-\( #cardanoWalletConfigs.volumes[1].persistentVolumeClaim.claimName )": {
+      apiVersion: "v1",
+      kind: "PersistentVolumeClaim",
+      metadata: {
+        name: #cardanoWalletConfigs.volumes[1].persistentVolumeClaim.claimName,
+        namespace: context.namespace
+      },
+      spec: {
+        accessModes: [
+          "ReadWriteOnce"
+        ],
+        resources: {
+          requests: {
+            storage: #cardanoWalletConfigs.volumeMounts[1].resources.requests.storage
+          }
+        },
+        storageClassName: #cardanoWalletConfigs.volumeMounts[1].storageClassName,
         volumeMode: "Filesystem"
       }
     }
