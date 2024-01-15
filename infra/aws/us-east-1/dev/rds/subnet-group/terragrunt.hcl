@@ -5,7 +5,7 @@ locals {
   # Extract out common variables for reuse
   env = local.environment_vars.locals.environment
 
-  subnet_group_name = "rds-${local.env}-subnet-group"
+  subnet_group_name = "${local.env}-subnet-group"
 }
 
 dependency "vpc" {
