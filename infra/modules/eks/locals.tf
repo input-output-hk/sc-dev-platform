@@ -2,12 +2,15 @@ locals {
   cluster_addons = {
     coredns = {
       most_recent = true
+      resolve_conflicts = "OVERWRITE"
     }
     kube-proxy = {
       most_recent = true
+      resolve_conflicts = "OVERWRITE"
     }
     vpc-cni = {
       most_recent = true
+      resolve_conflicts = "OVERWRITE"
     }
   }
 
