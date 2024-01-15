@@ -51,9 +51,9 @@ aws: {}
 ## -------------------------- ##
 
 image:
-  repository: ghcr.io/runatlantis/atlantis
+  repository: 677160962006.dkr.ecr.us-east-1.amazonaws.com/scde
   # if not set appVersion field from Chart.yaml is used
-  tag: ""
+  tag: "latest"
   pullPolicy: Always
 
 ## Optionally specify an array of imagePullSecrets.
@@ -460,8 +460,7 @@ initConfig:
     cp -fv "terragrunt-atlantis-config_${TAC_VERSION}_linux_amd64/terragrunt-atlantis-config_${TAC_VERSION}_linux_amd64" "${TAC_FILE}"
     chmod 755 "${TG_FILE}"
     terragrunt-atlantis-config version
-
-
+    
 # hostAliases:
 #   - hostnames:
 #     - aaa.com
