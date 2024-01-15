@@ -11,11 +11,11 @@ locals {
 }
 
 dependency "vpc_prod" {
-  config_path = "${get_repo_root()}/infra/us-east-1/prod/vpc"
+  config_path = "${get_repo_root()}/infra/aws/us-east-1/prod/vpc"
 }
 
 dependency "vpc_prod_old" {
-  config_path = "${get_repo_root()}/infra/prod-us-east-1/vpc"
+  config_path = "${get_repo_root()}/infra/aws/prod-us-east-1/vpc"
 }
 
 terraform {

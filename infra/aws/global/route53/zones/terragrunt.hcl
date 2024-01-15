@@ -18,7 +18,7 @@ include {
 }
 
 dependency "vpc" {
-  config_path = "${get_repo_root()}/infra/us-east-1/prod/vpc"
+  config_path = "${get_repo_root()}/infra/aws/us-east-1/prod/vpc"
 }
 
 inputs = {

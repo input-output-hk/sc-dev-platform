@@ -19,7 +19,7 @@ include "root" {
 generate = local.providers.generate
 
 terraform {
-  source = "../../../../../infra/modules/kubevela-addons"
+  source = "${get_repo_root()}/infra/modules/kubevela-addons"
 }
 
 dependency "eks" {

@@ -22,7 +22,7 @@ dependency "zones" {
 }
 
 dependency "private_link" {
-  config_path = "${get_repo_root()}/infra/us-east-2/prod/grafana/private-link"
+  config_path = "${get_repo_root()}/infra/aws/us-east-2/prod/grafana/private-link"
 }
 
 inputs = {

@@ -24,7 +24,7 @@ dependency "eks" {
 }
 
 dependency "route53" {
-  config_path = "${get_repo_root()}/infra/global/route53/zones"
+  config_path = "${get_repo_root()}/infra/aws/global/route53/zones"
 }
 
 generate = local.providers.generate

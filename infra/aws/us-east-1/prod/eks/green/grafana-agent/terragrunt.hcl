@@ -12,7 +12,7 @@ locals {
 }
 
 dependency "route53" {
-  config_path = "${get_repo_root()}/infra/global/route53/records/us-east-2.vpce.grafana.net"
+  config_path = "${get_repo_root()}/infra/aws/global/route53/records/us-east-2.vpce.grafana.net"
 }
 
 include "root" {

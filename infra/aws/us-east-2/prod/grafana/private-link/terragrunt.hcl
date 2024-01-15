@@ -21,11 +21,11 @@ include {
 }
 
 dependency "vpc_us_east_1" {
-  config_path = "${get_repo_root()}/infra/us-east-1/prod/vpc"
+  config_path = "${get_repo_root()}/infra/aws/us-east-1/prod/vpc"
 }
 
 dependency "vpc_us_east_2" {
-  config_path = "${get_repo_root()}/infra/us-east-2/prod/grafana/vpc"
+  config_path = "${get_repo_root()}/infra/aws/us-east-2/prod/grafana/vpc"
 }
 
 terraform {

@@ -25,12 +25,12 @@ include {
 
 # Requester VPC
 dependency "vpc_us_east_1" {
-  config_path = "${get_repo_root()}/infra/us-east-1/prod/vpc"
+  config_path = "${get_repo_root()}/infra/aws/us-east-1/prod/vpc"
 }
 
 # Accepter VPC
 dependency "vpc_us_east_2" {
-  config_path = "${get_repo_root()}/infra/us-east-2/prod/grafana/vpc"
+  config_path = "${get_repo_root()}/infra/aws/us-east-2/prod/grafana/vpc"
 }
 
 # These are the variables we have to pass in to use the module specified in the terragrunt configuration above
