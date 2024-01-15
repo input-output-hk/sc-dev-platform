@@ -3,6 +3,25 @@ parameter: {
 	configCloner?: *true | false
 }
 
+#cardanoWalletConfigs: {
+  volumes: [{
+    name: "wallet-db"
+    persistentVolumeClaim: {
+      claimName: "wallet-db"
+    }
+  }]
+  volumeMounts: [{
+    name:      "wallet-db"
+    mountPath: "/wallet-db"
+    storageClassName: "ebs-sc"
+    resources: {
+      requests: {
+        storage: "10Gi"
+      }
+    }
+  }]
+}
+
 #cardanoNodeConfigs: {
   volumes: [{
     name: "ipc"
@@ -29,13 +48,13 @@ parameter: {
   volumes: [
     if parameter.configCloner != _|_ {
       if parameter.configCloner {
-        #configClonerConfigs.volumes + #cardanoNodeConfigs.volumes
+        #configClonerConfigs.volumes + #cardanoNodeConfigs.volumes + #cardanoWalletConfigs.volumes
       }
       if parameter.configCloner != true {
         #cardanoNodeConfigs.volumes
       }
     },
-    #configClonerConfigs.volumes + #cardanoNodeConfigs.volumes
+    #configClonerConfigs.volumes + #cardanoNodeConfigs.volumes + #cardanoWalletConfigs.volumes
   ][0]
   envs: [
     if parameter.configCloner != _|_ {
@@ -53,6 +72,8 @@ parameter: {
 patch: spec: template: spec: {
 	// +patchKey=name
 	volumes: #PatchConfig.volumes
+  // +patchKey=name
+  volumeMounts: #cardanoWalletConfigs.volumeMounts,
 	// +patchKey=name
 	containers: [
 		{
@@ -98,6 +119,8 @@ patch: spec: template: spec: {
         "serve",
         "--node-socket",
         "/ipc/node.socket",
+        "--database",
+        "/wallet-db",
         "--listen-address",
         "0.0.0.0",
         "--testnet",
@@ -107,6 +130,7 @@ patch: spec: template: spec: {
         name:      #cardanoNodeConfigs.volumes[0].name
         path: "/\( #configClonerConfigs.volumes[0].name )"
       }]
+      volumeMounts: #cardanoWalletConfigs.volumeMounts,
     },
 	]
 	initContainers: [
@@ -130,4 +154,27 @@ patch: spec: template: spec: {
 		  }]
 	  }]
   ][0]
+
+  outputs: {
+    "pvc-\( #cardanoWalletConfigs.volumes[0].persistentVolumeClaim.claimName )": {
+      apiVersion: "v1",
+      kind: "PersistentVolumeClaim",
+      metadata: {
+        name: #cardanoWalletConfigs.volumes[0].persistentVolumeClaim.claimName,
+        namespace: context.namespace
+      },
+      spec: {
+        accessModes: [
+          "ReadWriteOnce"
+        ],
+        resources: {
+          requests: {
+            storage: "100Ki"
+          }
+        },
+        storageClassName: #cardanoWalletConfigs.volumeMounts[0].storageClassName,
+        volumeMode: "Filesystem"
+      }
+    }
+  }
 }
