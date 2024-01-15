@@ -5,7 +5,7 @@ locals {
   secret_vars      = yamldecode(sops_decrypt_file(find_in_parent_folders("secrets.yaml")))
 
   # Generators
-  providers = read_terragrunt_config(find_in_parent_folders("${get_parent_terragrunt_dir()}/provider-configs/providers.hcl"))
+  providers = read_terragrunt_config(find_in_parent_folders("providers.hcl"))
 
   # Extract out common variables for reuse
   env               = local.environment_vars.locals.environment

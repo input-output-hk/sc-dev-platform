@@ -8,7 +8,7 @@ locals {
   profile = local.account_vars.locals.aws_profile
 
   # Generators
-  providers = read_terragrunt_config(find_in_parent_folders("${get_parent_terragrunt_dir()}/provider-configs/providers.hcl"))
+  providers = read_terragrunt_config(find_in_parent_folders("providers.hcl"))
 }
 
 include {
