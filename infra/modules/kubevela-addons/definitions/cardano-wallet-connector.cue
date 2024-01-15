@@ -30,7 +30,7 @@ parameter: {
     storageClassName: "ebs-sc"
     resources: {
       requests: {
-        storage: "100Ki"
+        storage: "10Gi"
       }
     }
   }]
