@@ -19,6 +19,12 @@ locals {
     "arn:aws:iam::${local.aws_account_id}:user/${user}"
   ]
 
+  map_roles = [{
+    rolearn = "arn:aws:iam::${local.aws_account_id}:role/AtlantisDeploymentRole"
+    username = "atlantis"
+    group = ["system:masters"]
+  }]
+
   map_users = [for user in local.users : {
     userarn  = "arn:aws:iam::${local.aws_account_id}:user/${user}"
     username = user
@@ -74,6 +80,7 @@ inputs = {
   }
 
   # aws-auth configmap
+  aws_auth_roles = local.map_roles
   aws_auth_users = local.map_users
 
   kms_key_owners         = local.list_users
