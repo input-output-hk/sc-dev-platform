@@ -25,8 +25,8 @@ inputs = {
   role_name                  = local.role_name
   assume_role_condition_test = "StringLike"
   cluster_service_accounts = {
-    "scde-dev-us-east-1"       = [local.crossplane_serviceaccount]
-    "scde-prod-us-east-1-blue" = [local.crossplane_serviceaccount]
+    "scde-dev-us-east-1"        = [local.crossplane_serviceaccount]
+    "scde-prod-us-east-1-green" = [local.crossplane_serviceaccount]
   }
   role_policy_arns = {
     AmazonS3FullAccess  = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
