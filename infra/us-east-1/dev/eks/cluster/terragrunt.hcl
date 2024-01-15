@@ -15,10 +15,10 @@ locals {
   name           = "${local.environment_vars.locals.project}-${local.environment_vars.locals.environment}-${local.environment_vars.locals.aws_region}"
   version        = "1.26"
 
-  list_users = [for user in local.users :
+  list_users = concat([for user in local.users :
     "arn:aws:iam::${local.aws_account_id}:user/${user}"
-  ]
-
+  ], "arn:aws:iam::${local.aws_account_id}:role/AtlantisDeploymentRole")
+  
   map_roles = [{
     rolearn = "arn:aws:iam::${local.aws_account_id}:role/AtlantisDeploymentRole"
     username = "atlantis"
