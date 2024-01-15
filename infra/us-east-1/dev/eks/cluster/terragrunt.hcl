@@ -20,9 +20,9 @@ locals {
   ], ["arn:aws:iam::${local.aws_account_id}:role/AtlantisDeploymentRole"])
 
   map_roles = [{
-    rolearn = "arn:aws:iam::${local.aws_account_id}:role/AtlantisDeploymentRole"
+    rolearn  = "arn:aws:iam::${local.aws_account_id}:role/AtlantisDeploymentRole"
     username = "atlantis"
-    group = ["system:masters"]
+    groups   = ["system:masters"]
   }]
 
   map_users = [for user in local.users : {
