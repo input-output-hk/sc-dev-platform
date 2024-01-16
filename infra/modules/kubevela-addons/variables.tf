@@ -16,6 +16,12 @@ variable "enable_dex" {
   default     = true
 }
 
+variable "enable_cluster_secrets" {
+  description = "Feature flag to enable Cluster Secrets"
+  type        = bool
+  default     = true
+}
+
 variable "aws_profile" {
   description = "AWS profile to use for deployment"
   type        = string
@@ -108,21 +114,12 @@ variable "addons_dir" {
 variable "secrets_namespace" {
   description = "Namespace to deploy secrets to"
   type        = string
+  default     = ""
 }
 
 variable "cluster_secrets" {
-  type = object(
-    {
-      jwt_signature                    = string
-      jwt_signature_input_properties   = string
-      gh_oauth_callbackPath            = string
-      gh_oauth_clientID                = string
-      gh_oauth_clientSecret            = string
-      gh_oauth_input_properties        = string
-      iohk_ghcr_creds_dockerconfigjson = string
-      iohk_ghcr_creds_input_properties = string
-    }
-  )
   description = "Secrets used by applications deployed to the EKS cluster"
+  type = any
+  default = {}
   sensitive   = true
 }

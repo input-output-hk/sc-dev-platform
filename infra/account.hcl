@@ -16,7 +16,6 @@ locals {
     "shea.levy",
     "daniel.thagard",
     "rene.barbosa",
-    "oguzhan.boran",
     "alexsander.falcucci",
     "fenton.haslam",
   ]

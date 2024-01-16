@@ -15,9 +15,15 @@ locals {
   name           = local.cluster_vars.locals.cluster_name
   version        = local.cluster_vars.locals.version
 
-  list_users = [for user in local.users :
+  list_users = concat([for user in local.users :
     "arn:aws:iam::${local.aws_account_id}:user/${user}"
-  ]
+  ], ["arn:aws:iam::${local.aws_account_id}:role/AtlantisDeploymentRole"])
+
+  map_roles = [{
+    rolearn  = "arn:aws:iam::${local.aws_account_id}:role/AtlantisDeploymentRole"
+    username = "atlantis"
+    groups   = ["system:masters"]
+  }]
 
   map_users = [for user in local.users : {
     userarn  = "arn:aws:iam::${local.aws_account_id}:user/${user}"
@@ -77,6 +83,7 @@ inputs = {
   }
 
   # aws-auth configmap
+  aws_auth_roles = local.map_roles
   aws_auth_users = local.map_users
 
   kms_key_owners         = local.list_users
