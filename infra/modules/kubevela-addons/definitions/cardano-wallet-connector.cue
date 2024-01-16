@@ -30,7 +30,7 @@ parameter: {
     storageClassName: "ebs-sc"
     resources: {
       requests: {
-        storage: "10Gi"
+        storage: "100Ki"
       }
     }
   }]
@@ -143,8 +143,15 @@ patch: spec: template: spec: {
       volumes: [{
         name:      #cardanoNodeConfigs.volumes[0].name
         path: "/\( #configClonerConfigs.volumes[0].name )"
+      }, {
+        name:      #cardanoWalletConfigs.volumes[0].name
+        path: "/\( #cardanoWalletConfigs.volumes[0].name )"
       }]
-      volumeMounts: #cardanoWalletConfigs.volumeMounts,
+      volumeMounts: [{
+        name:      #cardanoNodeConfigs.volumes[0].name
+        mountPath: "/\( #cardanoNodeConfigs.volumes[0].name )"
+        emptyDir: {}
+      }]
     },
     {
       name:            "create-wallet"
