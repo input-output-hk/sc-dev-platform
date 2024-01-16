@@ -170,27 +170,6 @@ patch: spec: template: spec: {
       ]
     },
 	]
-	initContainers: [
-    if parameter.configCloner != _|_ {
-      if parameter.configCloner != true {[]}
-    },
-    [{
-		  name:            "node-config-cloner"
-		  image:           "alpine/git"
-		  imagePullPolicy: "Always"
-		  args: [
-			  "clone",
-			  "--single-branch",
-			  "--",
-			  "https://github.com/input-output-hk/cardano-configurations",
-			  "/node-config",
-		  ]
-		  volumeMounts: [{
-			  name:      #configClonerConfigs.volumes[0].name
-			  mountPath: "/\( #configClonerConfigs.volumes[0].name )"
-		  }]
-	  }]
-  ][0]
 }
 
 outputs: {
