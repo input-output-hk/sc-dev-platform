@@ -15,9 +15,15 @@ locals {
   name           = "${local.environment_vars.locals.project}-${local.environment_vars.locals.environment}-${local.environment_vars.locals.aws_region}"
   version        = "1.26"
 
-  list_users = [for user in local.users :
+  list_users = concat([for user in local.users :
     "arn:aws:iam::${local.aws_account_id}:user/${user}"
-  ]
+  ], ["arn:aws:iam::${local.aws_account_id}:role/AtlantisDeploymentRole"])
+
+  map_roles = [{
+    rolearn  = "arn:aws:iam::${local.aws_account_id}:role/AtlantisDeploymentRole"
+    username = "atlantis"
+    groups   = ["system:masters"]
+  }]
 
   map_users = [for user in local.users : {
     userarn  = "arn:aws:iam::${local.aws_account_id}:user/${user}"
@@ -29,7 +35,7 @@ locals {
 # Terragrunt will copy the Terraform configurations specified by the source parameter, along with any files in the
 # working directory, into a temporary folder, and execute your Terraform commands in that folder.
 terraform {
-  source = "../../../../../infra/modules/eks"
+  source = "${get_repo_root()}/infra/modules/eks"
 }
 
 # Include all settings from the root terragrunt.hcl file
@@ -74,6 +80,7 @@ inputs = {
   }
 
   # aws-auth configmap
+  aws_auth_roles = local.map_roles
   aws_auth_users = local.map_users
 
   kms_key_owners         = local.list_users

@@ -1,8 +1,3 @@
-locals {
-  account_vars = read_terragrunt_config(find_in_parent_folders("account.hcl"))
-  profile      = local.account_vars.locals.aws_profile
-}
-
 generate "data_sources" {
   path      = "data_sources.tf"
   if_exists = "overwrite"
@@ -23,7 +18,7 @@ generate "k8s_provider" {
       exec {
         api_version = "client.authentication.k8s.io/v1beta1"
         command     = "aws"
-        args        = ["eks", "get-token", "--cluster-name", data.aws_eks_cluster.cluster.id, "--profile", "${local.profile}"]
+        args        = ["eks", "get-token", "--cluster-name", data.aws_eks_cluster.cluster.id]
       }
     }
   EOF
@@ -41,7 +36,7 @@ generate "helm_provider" {
         exec {
           api_version = "client.authentication.k8s.io/v1beta1"
           command     = "aws"
-          args        = ["eks", "get-token", "--cluster-name", data.aws_eks_cluster.cluster.id, "--profile", "${local.profile}"]
+          args        = ["eks", "get-token", "--cluster-name", data.aws_eks_cluster.cluster.id]
         }
       }
     }
@@ -66,7 +61,7 @@ generate "kubectl_provider" {
       exec {
         api_version = "client.authentication.k8s.io/v1beta1"
         command     = "aws"
-        args        = ["eks", "get-token", "--cluster-name", data.aws_eks_cluster.cluster.id, "--profile", "${local.profile}"]
+        args        = ["eks", "get-token", "--cluster-name", data.aws_eks_cluster.cluster.id]
       }
     }
   EOF

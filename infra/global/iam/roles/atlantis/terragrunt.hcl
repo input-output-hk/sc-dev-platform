@@ -7,8 +7,8 @@ locals {
   project = local.environment_vars.locals.project
   tribe   = local.account_vars.locals.tribe
 
-  role_name                 = "CrossPlaneAddonRole"
-  crossplane_serviceaccount = "vela-system:provider-aws-*"
+  role_name                 = "AtlantisDeploymentRole"
+  atlantis_serviceaccount   = "default:atlantis"
 }
 
 terraform {
@@ -23,14 +23,12 @@ include {
 inputs = {
   create_role                = true
   role_name                  = local.role_name
+  allow_self_assume_role     = true
   assume_role_condition_test = "StringLike"
   cluster_service_accounts = {
-    "scde-dev-us-east-1"        = [local.crossplane_serviceaccount]
-    "scde-prod-us-east-1-green" = [local.crossplane_serviceaccount]
+    "scde-dev-us-east-1"       = [local.atlantis_serviceaccount]
   }
   role_policy_arns = {
-    AmazonS3FullAccess  = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
-    AmazonRDSFullAccess = "arn:aws:iam::aws:policy/AmazonRDSFullAccess"
-    AmazonIAMFullAccess = "arn:aws:iam::aws:policy/IAMFullAccess"
+    AmazonAdminAccess   = "arn:aws:iam::aws:policy/AdministratorAccess"
   }
 }
