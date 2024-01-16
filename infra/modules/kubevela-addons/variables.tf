@@ -118,19 +118,8 @@ variable "secrets_namespace" {
 }
 
 variable "cluster_secrets" {
-  type = object(
-    {
-      jwt_signature                    = string
-      jwt_signature_input_properties   = string
-      gh_oauth_callbackPath            = string
-      gh_oauth_clientID                = string
-      gh_oauth_clientSecret            = string
-      gh_oauth_input_properties        = string
-      iohk_ghcr_creds_dockerconfigjson = string
-      iohk_ghcr_creds_input_properties = string
-    }
-  )
   description = "Secrets used by applications deployed to the EKS cluster"
+  type = any
+  default = {}
   sensitive   = true
-  default     = {}
 }
