@@ -19,9 +19,23 @@ dependency "vpc" {
   config_path = "../../vpc"
 }
 
+dependency "security_group" {
+  config_path = "../security-group"
+}
+
 inputs = {
    name = local.name
+   instance_type = "t2.micro"
+   
+   
+   create_iam_instance_profile = true
+   iam_role_description        = "IAM role for EC2 instance"
+    iam_role_policies = {
+      AdministratorAccess = "arn:aws:iam::aws:policy/AdministratorAccess"
+    }
 
    subnet_id              = dependency.vpc.outputs.public_subnets[0]
+
+  vpc_security_group_ids = [dependency.security_group.outputs.security_group_id]
 }
 
