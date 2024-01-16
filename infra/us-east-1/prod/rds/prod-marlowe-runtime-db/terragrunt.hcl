@@ -19,10 +19,6 @@ dependency "eks_green" {
   config_path = "../../eks/green/eks"
 }
 
-dependency "sg_jingles" {
-  config_path = "../security-group-jingles"
-}
-
 terraform {
   source = "github.com/terraform-aws-modules/terraform-aws-rds//.?ref=v6.1.1"
 }
