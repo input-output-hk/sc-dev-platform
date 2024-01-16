@@ -191,47 +191,47 @@ patch: spec: template: spec: {
 		  }]
 	  }]
   ][0]
+}
 
-  outputs: {
-    "pvc-\( #cardanoWalletConfigs.volumes[0].persistentVolumeClaim.claimName )": {
-      apiVersion: "v1",
-      kind: "PersistentVolumeClaim",
-      metadata: {
-        name: #cardanoWalletConfigs.volumes[0].persistentVolumeClaim.claimName,
-        namespace: context.namespace
-      },
-      spec: {
-        accessModes: [
-          "ReadWriteOnce"
-        ],
-        resources: {
-          requests: {
-            storage: #cardanoWalletConfigs.volumeMounts[0].resources.requests.storage
-          }
-        },
-        storageClassName: #cardanoWalletConfigs.volumeMounts[0].storageClassName,
-        volumeMode: "Filesystem"
-      }
+outputs: {
+  "pvc-\( #cardanoWalletConfigs.volumes[0].persistentVolumeClaim.claimName )": {
+    apiVersion: "v1",
+    kind: "PersistentVolumeClaim",
+    metadata: {
+      name: #cardanoWalletConfigs.volumes[0].persistentVolumeClaim.claimName,
+      namespace: context.namespace
     },
-    "pvc-\( #cardanoWalletConfigs.volumes[1].persistentVolumeClaim.claimName )": {
-      apiVersion: "v1",
-      kind: "PersistentVolumeClaim",
-      metadata: {
-        name: #cardanoWalletConfigs.volumes[1].persistentVolumeClaim.claimName,
-        namespace: context.namespace
+    spec: {
+      accessModes: [
+        "ReadWriteOnce"
+      ],
+      resources: {
+        requests: {
+          storage: #cardanoWalletConfigs.volumeMounts[0].resources.requests.storage
+        }
       },
-      spec: {
-        accessModes: [
-          "ReadWriteOnce"
-        ],
-        resources: {
-          requests: {
-            storage: #cardanoWalletConfigs.volumeMounts[1].resources.requests.storage
-          }
-        },
-        storageClassName: #cardanoWalletConfigs.volumeMounts[1].storageClassName,
-        volumeMode: "Filesystem"
-      }
+      storageClassName: #cardanoWalletConfigs.volumeMounts[0].storageClassName,
+      volumeMode: "Filesystem"
+    }
+  },
+  "pvc-\( #cardanoWalletConfigs.volumes[1].persistentVolumeClaim.claimName )": {
+    apiVersion: "v1",
+    kind: "PersistentVolumeClaim",
+    metadata: {
+      name: #cardanoWalletConfigs.volumes[1].persistentVolumeClaim.claimName,
+      namespace: context.namespace
+    },
+    spec: {
+      accessModes: [
+        "ReadWriteOnce"
+      ],
+      resources: {
+        requests: {
+          storage: #cardanoWalletConfigs.volumeMounts[1].resources.requests.storage
+        }
+      },
+      storageClassName: #cardanoWalletConfigs.volumeMounts[1].storageClassName,
+      volumeMode: "Filesystem"
     }
   }
 }
