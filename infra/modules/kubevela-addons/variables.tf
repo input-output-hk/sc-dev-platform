@@ -16,6 +16,12 @@ variable "enable_dex" {
   default     = true
 }
 
+variable "enable_cluster_secrets" {
+  description = "Feature flag to enable Cluster Secrets"
+  type        = bool
+  default     = true
+}
+
 variable "aws_profile" {
   description = "AWS profile to use for deployment"
   type        = string
@@ -108,6 +114,7 @@ variable "addons_dir" {
 variable "secrets_namespace" {
   description = "Namespace to deploy secrets to"
   type        = string
+  default     = ""
 }
 
 variable "cluster_secrets" {
@@ -125,4 +132,5 @@ variable "cluster_secrets" {
   )
   description = "Secrets used by applications deployed to the EKS cluster"
   sensitive   = true
+  default     = {}
 }

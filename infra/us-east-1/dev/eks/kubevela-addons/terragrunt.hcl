@@ -19,7 +19,7 @@ include "root" {
 generate = local.providers.generate
 
 terraform {
-  source = "../../../../../infra/modules/kubevela-addons"
+  source = "${get_repo_root()}/infra/modules/kubevela-addons"
 }
 
 dependency "eks" {
@@ -43,4 +43,5 @@ inputs = {
   enable_addons                      = true 
   enable_cardano_nodes               = true 
   enable_dex                         = false
+  enable_cluster_secrets             = false
 }
