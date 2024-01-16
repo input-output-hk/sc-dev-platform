@@ -1,6 +1,5 @@
 parameter: {
 	network:       *"preview" | "preprod" | "mainnet"
-	configCloner?: *true | false
 }
 
 #cardanoWalletConfigs: {
@@ -47,40 +46,9 @@ parameter: {
   }]
 }
 
-#configClonerConfigs: {
-  volumes: [{
-    name: "node-config"
-    emptyDir: {}
-  }]
-  envs: [{
-    name: "NODE_CONFIG"
-    value: "/node-config/network/\( parameter.network )/cardano-node/config.json"
-  }]
-}
-
 #PatchConfig: {
-  volumes: [
-    if parameter.configCloner != _|_ {
-      if parameter.configCloner {
-        #configClonerConfigs.volumes + #cardanoNodeConfigs.volumes + #cardanoWalletConfigs.volumes
-      }
-      if parameter.configCloner != true {
-        #cardanoNodeConfigs.volumes
-      }
-    },
-    #configClonerConfigs.volumes + #cardanoNodeConfigs.volumes + #cardanoWalletConfigs.volumes
-  ][0]
-  envs: [
-    if parameter.configCloner != _|_ {
-      if parameter.configCloner {
-        #configClonerConfigs.envs + #cardanoNodeConfigs.envs
-      }
-      if parameter.configCloner != true {
-        #cardanoNodeConfigs.envs
-      }
-    },
-    #configClonerConfigs.envs + #cardanoNodeConfigs.envs
-  ][0]
+  volumes: [#cardanoNodeConfigs.volumes + #cardanoWalletConfigs.volumes][0]
+  envs: [#cardanoNodeConfigs.envs][0]
 }
 
 patch: spec: template: spec: {
