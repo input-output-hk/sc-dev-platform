@@ -33,10 +33,11 @@ inputs = {
   intra_subnets    = ["${local.cidr_prefix}.96.0/22", "${local.cidr_prefix}.100.0/22", "${local.cidr_prefix}.104.0/22"]  # /22 will allow 1024 ips per subnet
   database_subnets = ["${local.cidr_prefix}.108.0/22", "${local.cidr_prefix}.112.0/22", "${local.cidr_prefix}.116.0/22"] # /22 will allow 1024 ips per subnet
 
-  enable_nat_gateway         = true
-  single_nat_gateway         = true
-  one_nat_gateway_per_az     = false
-  database_subnet_group_name = "${local.env}-subnet-group"
+  enable_nat_gateway          = true
+  single_nat_gateway          = true
+  one_nat_gateway_per_az      = false
+  database_subnet_group_name  = "${local.env}-subnet-group"
+  create_database_route_table = true
 
   enable_dns_hostnames = true
   enable_dns_support   = true
