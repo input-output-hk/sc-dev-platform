@@ -40,10 +40,10 @@ inputs = {
   subnet_id              = dependency.vpc.outputs.public_subnets[0]
   vpc_security_group_ids = [dependency.security_group.outputs.security_group_id, dependency.eks.outputs.node_security_group_id]
 
-  ebs_block_device = [
+  ebs_block_device = [{
     device_name = "/dev/sdf"
     volume_type = "gp3"
     volume_size = 100
-  ]
+  }]
 
 }
