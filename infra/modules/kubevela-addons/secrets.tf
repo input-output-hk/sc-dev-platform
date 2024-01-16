@@ -1,24 +1,26 @@
 resource "kubectl_manifest" "iohk-ghcr-creds" {
+  count = var.enable_cluster_secrets ? 1 : 0
   yaml_body = yamlencode({
     apiVersion = "v1"
-    kind = "Secret"
+    kind       = "Secret"
     metadata = {
-      name = "iohk-ghcr-creds"
+      name      = "iohk-ghcr-creds"
       namespace = var.secrets_namespace
     }
     data = {
       ".dockerconfigjson" = var.cluster_secrets.iohk_ghcr_creds_dockerconfigjson
-      input-properties  = var.cluster_secrets.iohk_ghcr_creds_input_properties
+      input-properties    = var.cluster_secrets.iohk_ghcr_creds_input_properties
     }
   })
 }
 
 resource "kubectl_manifest" "gh-oauth" {
+  count = var.enable_cluster_secrets ? 1 : 0
   yaml_body = yamlencode({
     apiVersion = "v1"
-    kind = "Secret"
+    kind       = "Secret"
     metadata = {
-      name = "gh-oauth"
+      name      = "gh-oauth"
       namespace = var.secrets_namespace
     }
     data = {
@@ -31,11 +33,12 @@ resource "kubectl_manifest" "gh-oauth" {
 }
 
 resource "kubectl_manifest" "jwt-signature" {
+  count = var.enable_cluster_secrets ? 1 : 0
   yaml_body = yamlencode({
     apiVersion = "v1"
-    kind = "Secret"
+    kind       = "Secret"
     metadata = {
-      name = "jwt-signature"
+      name      = "jwt-signature"
       namespace = var.secrets_namespace
     }
     data = {

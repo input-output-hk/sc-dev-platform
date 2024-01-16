@@ -84,7 +84,7 @@ repoConfig: |
    allowed_overrides: [workflow]
    allow_custom_workflows: true
    pre_workflow_hooks: 
-    - run: terragrunt-atlantis-config generate --output atlantis.yaml --autoplan --parallel --create-workspace --ignore-parent-terragrunt
+    - run: terragrunt-atlantis-config generate --output atlantis.yaml --autoplan --parallel --ignore-parent-terragrunt
  workflows:
    default:
      plan:
@@ -97,7 +97,7 @@ repoConfig: |
            name: TF_IN_AUTOMATION
            value: 'true'
        - run:
-           command: terragrunt plan -input=false -out=$PLANFILE
+           command: terragrunt plan -input=false $(eval echo ${COMMENT_ARGS}) -out=${PLANFILE}
            output: strip_refreshing
      apply:
        steps:
