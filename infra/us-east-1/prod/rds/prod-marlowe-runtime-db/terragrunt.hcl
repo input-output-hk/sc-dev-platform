@@ -48,8 +48,7 @@ inputs = {
   subnet_ids             = dependency.vpc.outputs.intra_subnets
 
   vpc_security_group_ids = [
-    dependency.eks_green.outputs.node_security_group_id,
-    dependency.sg_jingles.outputs.security_group_id
+    dependency.eks_green.outputs.node_security_group_id
   ]
 
   engine               = "postgres"
