@@ -294,9 +294,9 @@ atlantisDataDirectory: /atlantis-data
 volumeClaim:
   enabled: true
   ## Disk space for to check out repositories
-  dataStorage: 5Gi
+  dataStorage: 100Gi
   ## Storage class name (if possible, use a resizable one)
-  # storageClassName: value
+  storageClassName: ebs-sc
 
 ## To keep backwards compatibility
 ## DEPRECATED - Disk space for Atlantis to check out repositories
@@ -354,6 +354,8 @@ enableKubernetesBackend: false
 
 environment: 
   ATLANTIS_ATLANTIS_URL: http://k8s-default-atlantis-91ad56e657-af175fe4f3d67964.elb.us-east-1.amazonaws.com
+  ATLANTIS_PARALLEL_POOL_SIZE: 5
+  
 # environment:
 #   ATLANTIS_DEFAULT_TF_VERSION: v1.2.9
 

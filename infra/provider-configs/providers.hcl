@@ -1,8 +1,3 @@
-locals {
-  account_vars = read_terragrunt_config(find_in_parent_folders("account.hcl"))
-  profile      = local.account_vars.locals.aws_profile
-}
-
 generate "data_sources" {
   path      = "data_sources.tf"
   if_exists = "overwrite"
