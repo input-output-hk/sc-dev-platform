@@ -142,7 +142,7 @@ patch: spec: template: spec: {
       ]
       volumes: [{
         name:      #cardanoNodeConfigs.volumes[0].name
-        path: "/\( #configClonerConfigs.volumes[0].name )"
+        path: "/\( #cardanoNodeConfigs.volumes[0].name )"
       }, {
         name:      #cardanoWalletConfigs.volumes[0].name
         path: "/\( #cardanoWalletConfigs.volumes[0].name )"
