@@ -146,6 +146,22 @@ patch: spec: template: spec: {
       }]
       volumeMounts: #cardanoWalletConfigs.volumeMounts,
     },
+    {
+      name:            "create-wallet"
+      image:           "curlimages/curl:latest"
+      imagePullPolicy: "Always"
+      args: [
+        "-X",
+        "POST",
+        "-H",
+        "Accept: application/json",
+        "-H",
+        "Content-Type: application/json",
+        "-d",
+        "{\"name\":\"test_cf_1\",\"mnemonic_sentence\": [\"stock\",\"horn\",\"under\",\"crime\",\"acid\",\"tell\",\"repair\",\"brain\",\"shallow\",\"dinosaur\",\"candy\",\"sight\",\"memory\",\"antenna\",\"baby\",\"truck\",\"force\",\"chuckle\",\"elephant\",\"unhappy\",\"sentence\",\"control\",\"hold\",\"camera\"],\"passphrase\":\"test123456\"}",
+        "http://localhost:8090/v2/wallets"
+      ]
+    },
 	]
 	initContainers: [
     if parameter.configCloner != _|_ {
