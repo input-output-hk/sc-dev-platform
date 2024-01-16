@@ -94,7 +94,7 @@ patch: spec: template: spec: {
 			}]
 		},
     {
-      name:            "cardano-wallet"
+      name:            "cardano-wallet-\( parameter.network )"
       image:           "inputoutput/cardano-wallet:dev-master"
       imagePullPolicy: "Always"
       args: [
