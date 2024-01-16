@@ -1,10 +1,10 @@
 locals {
   # Automatically load environment-level variables
-  account_vars     = read_terragrunt_config(find_in_parent_folders("account.hcl"))
+  account_vars = read_terragrunt_config(find_in_parent_folders("account.hcl"))
   # Extract out common variables for reuse
-  project        = local.account_vars.locals.project
-  app            = "marlowe-runtime"
-  bastion_name       = "${local.project}-${local.app}-database-bastion"
+  project      = local.account_vars.locals.project
+  app          = "marlowe-runtime"
+  bastion_name = "${local.project}-${local.app}-database-bastion"
 }
 
 terraform {
@@ -17,7 +17,7 @@ include {
 }
 
 dependency "key_pair" {
- config_path = "../key-pair"
+  config_path = "../key-pair"
 }
 
 dependency "vpc" {
@@ -35,6 +35,7 @@ dependency "eks" {
 inputs = {
   name          = local.bastion_name
   instance_type = "t2.micro"
+  ami           = "ami-0588935a949f9ff17"
   key_name      = dependency.key_pair.outputs.key_pair_name
 
   subnet_id              = dependency.vpc.outputs.public_subnets[0]
