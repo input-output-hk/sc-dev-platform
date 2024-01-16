@@ -1,14 +1,10 @@
 locals {
-
   # Automatically load environment-level variables
   account_vars     = read_terragrunt_config(find_in_parent_folders("account.hcl"))
-
   # Extract out common variables for reuse
   project        = local.account_vars.locals.project
   app            = "marlowe-runtime"
-
   bastion_name       = "${local.project}-${local.app}-database-bastion"
-
 }
 
 terraform {
@@ -33,7 +29,7 @@ dependency "security_group" {
 }
 
 dependency "eks" {
-  config_path = "../../../eks/blue/eks"
+  config_path = "../../../eks/green/eks"
 }
 
 inputs = {
@@ -43,4 +39,11 @@ inputs = {
 
   subnet_id              = dependency.vpc.outputs.public_subnets[0]
   vpc_security_group_ids = [dependency.security_group.outputs.security_group_id, dependency.eks.outputs.node_security_group_id]
+
+  ebs_block_device = [
+    device_name = "/dev/sdf"
+    volume_type = "gp3"
+    volume_size = 100
+  ]
+
 }
