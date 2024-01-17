@@ -80,19 +80,6 @@ patch: spec: template: spec: {
 				mountPath: "/\( #cardanoNodeConfigs.volumes[0].name )"
 			}]
 		},
-		{
-			name:            "socat"
-			image:           "alpine/socat"
-			imagePullPolicy: "Always"
-			args: [
-				"UNIX-LISTEN:\( #cardanoNodeConfigs.envs[0].value ),fork",
-				"TCP-CONNECT:cardano-node-\( parameter.network ).vela-system:8090",
-			]
-			volumeMounts: [{
-				name:      #cardanoNodeConfigs.volumes[0].name
-				mountPath: "/\( #cardanoNodeConfigs.volumes[0].name )"
-			}]
-		},
     {
       name:            "cardano-wallet-\( parameter.network )"
       image:           "inputoutput/cardano-wallet:dev-master"
