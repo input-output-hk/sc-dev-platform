@@ -24,7 +24,9 @@ Once the image is built and datasync.yaml is updated accordingly, you just have 
 
 ```shell
 # Decrypting LookerDB instance credentials
-sops --aws-profile dapps-world --kms arn:aws:kms:us-east-1:677160962006:key/fa4d1d08-ad00-4014-97d2-5ff14e00e1b1 -d secret.enc.yaml > secret.yaml
+sops --aws-profile dapps-world \
+--kms arn:aws:kms:us-east-1:677160962006:key/fa4d1d08-ad00-4014-97d2-5ff14e00e1b1 \
+-d secret.enc.yaml > secret.yaml
 
 # Applying secrets and Datasync resources (pvc and cronjob)
 kubectl apply -f secret.yaml
