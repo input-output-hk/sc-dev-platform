@@ -33,7 +33,7 @@ dependency "security_group" {
 }
 
 dependency "eks" {
-  config_path = "../../../eks/blue/eks"
+  config_path = "../../../eks/green/eks"
 }
 
 inputs = {
