@@ -27,7 +27,7 @@ inputs = {
    name = local.name
    instance_type = "t2.micro"
 
-   ami = "ami-09763e9ec61e27444"
+   ami = "ami-02aead0a55359d6ec"
    
    
    create_iam_instance_profile = true
@@ -41,8 +41,6 @@ inputs = {
 
   vpc_security_group_ids = [dependency.security_group.outputs.security_group_id]
 
-  // launch_template = {
-  //   name   = "scde"
     user_data = <<-EOF
       #!/bin/bash
       sudo yum update -y
@@ -50,6 +48,6 @@ inputs = {
       sudo service docker start
       sudo usermod -a -G docker ec2-user
     EOF
-  // }
+
 }
 
