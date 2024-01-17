@@ -26,16 +26,36 @@ dependency "security_group" {
 inputs = {
    name = local.name
    instance_type = "t2.micro"
+
+   ami = "ami-09763e9ec61e27444"
    
    
    create_iam_instance_profile = true
    iam_role_description        = "IAM role for EC2 instance"
     iam_role_policies = {
       AdministratorAccess = "arn:aws:iam::aws:policy/AdministratorAccess"
+      AmazonEC2ContainerRegistryReadOnly = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
     }
 
    subnet_id              = dependency.vpc.outputs.public_subnets[0]
 
   vpc_security_group_ids = [dependency.security_group.outputs.security_group_id]
+
+  launch_template = {
+    name_prefix   = "scde"
+    image_id      = "ami-09763e9ec61e27444"
+    instance_type = "t2.micro"
+    key_name      = "scde"
+    vpc_security_group_ids = [dependency.security_group.outputs.security_group_id]
+    iam_instance_profile = "scde"
+    user_data = <<-EOF
+      #!/bin/bash
+      sudo yum update -y
+      sudo yum install -y docker
+      sudo service docker start
+      sudo usermod -a -G docker ec2-user
+      sudo docker run -d -p 80:80 nginx
+    EOF
+  }
 }
 
