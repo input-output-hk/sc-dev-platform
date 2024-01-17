@@ -8,7 +8,7 @@ locals {
   app            = "atlantis"
 
   name          = "atlantis"
-  key_pair_name = "${local.project}-${local.app}-atlantis-kp"
+  key_pair_name = "${local.project}-atlantis-kp"
 }
 
 terraform {

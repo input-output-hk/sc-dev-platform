@@ -11,6 +11,10 @@ locals {
   name        = "atlantis"
 }
 
+include {
+  path = find_in_parent_folders()
+}
+
 terraform {
   source = "github.com/terraform-aws-modules/terraform-aws-ec2-instance?ref=v5.6.0"
 }
