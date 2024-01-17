@@ -51,13 +51,16 @@ inputs = {
 
   vpc_security_group_ids = [dependency.security_group.outputs.security_group_id]
 
-    user_data = <<-EOF
-      #!/bin/bash
-      sudo yum update -y
-      sudo yum install -y docker
-      sudo service docker start
-      sudo usermod -a -G docker ec2-user
-    EOF
+  user_data = <<-EOF
+    #!/bin/bash
+    sudo yum update -y
+    sudo yum install -y docker
+    sudo service docker start
+    sudo usermod -a -G docker ec2-user
+  EOF
 
+  tags = {
+    Name = "${local.name}"
+  }
 }
 
