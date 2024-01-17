@@ -2,12 +2,10 @@
 
 ## Overview
 
-The Cardano Wallet Connector trait in KubeVela serves as a pass-through between your application and the Cardano wallet, using specific application characteristics and properties.
+The Cardano Wallet Connector trait acts as an intermediary tool allowing seamless communication between your application and the Cardano wallet.
 
 The ***required*** parameter for implementing this trait is:
  - `network`: Defines the network choice for the Cardano Wallet. The available options are "preview", "preprod" and "mainnet".
-
-This configuration effectively attaches specific volumes to each container that is part of your application. Also, a `socat` container bridges the Cardano Wallet and the Cardano Node by utilizing TCP Socket over a UNIX Socket.
 
 ## Usage
 
