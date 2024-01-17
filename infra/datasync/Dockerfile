@@ -7,6 +7,6 @@ RUN apt-get update \
 && apt-get -y install postgresql-client
 
 # Cleaning image
-RUN apt-get clean all && apt-get autoclean all
+RUN apt-get clean && apt-get autoclean
 
 ADD replicate.sh .
