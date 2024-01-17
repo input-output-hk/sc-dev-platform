@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Step 1: Build Docker Image
-DOCKER_IMAGE="data-sync:$(date +%Y%m%d)"
+DOCKER_IMAGE="datasync:$(date +%Y%m%d)"
 docker build -t $DOCKER_IMAGE . --platform=linux/amd64
 
 # Step 2: AWS ECR Login

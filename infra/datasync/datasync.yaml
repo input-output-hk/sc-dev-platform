@@ -28,7 +28,7 @@ spec:
         spec:
           containers:
           - name: datasync
-            image: 677160962006.dkr.ecr.us-east-1.amazonaws.com/data-sync:20240117
+            image: 677160962006.dkr.ecr.us-east-1.amazonaws.com/datasync:20240117
             imagePullPolicy: IfNotPresent
             command:
             - /script/replicate.sh
