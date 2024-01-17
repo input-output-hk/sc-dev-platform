@@ -43,13 +43,13 @@ inputs = {
 
   // launch_template = {
   //   name   = "scde"
-  //   user_data = <<-EOF
-  //     #!/bin/bash
-  //     sudo yum update -y
-  //     sudo yum install -y docker
-  //     sudo service docker start
-  //     sudo usermod -a -G docker ec2-user
-  //   EOF
+    user_data = <<-EOF
+      #!/bin/bash
+      sudo yum update -y
+      sudo yum install -y docker
+      sudo service docker start
+      sudo usermod -a -G docker ec2-user
+    EOF
   // }
 }
 
