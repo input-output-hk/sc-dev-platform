@@ -23,9 +23,15 @@ dependency "security_group" {
   config_path = "../security-group"
 }
 
+dependency "key_pair" {
+ config_path = "../key-pair"
+}
+
 inputs = {
    name = local.name
    instance_type = "t2.micro"
+
+   key_name      = dependency.key_pair.outputs.key_pair_name
 
    ami = "ami-02aead0a55359d6ec"
    
