@@ -15,7 +15,11 @@ To build the image we just need `docker` running in local machine and `awscli` p
 
 Additional Tips:
 1. Make sure Docker has experimental features enabled for multi-platform builds;
-2. It will push an image tagged with a `date` pattern, the pattern is "%Y%m%d" (For example: "20240117"), you have to update `datasync.yaml` with the correct image tag;
+2. It will push an image tagged with a `date` pattern, the pattern is "%Y%m%d" (For example: "20240117"), you have to update `datasync.yaml` with the correct image tag by using the command below:
+
+```shell
+gsed -i "s/data-sync.*/data-sync:$(date +%Y%m%d)/g" datasync.yaml
+```
 
 Deploying the CronJob
 ---------------
