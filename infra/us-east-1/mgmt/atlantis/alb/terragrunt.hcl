@@ -8,7 +8,7 @@ locals {
   project     = local.environment_vars.locals.project
   cidr_prefix = local.environment_vars.locals.cidr_prefix
   tribe       = local.account_vars.locals.tribe
-  name        = "atlantis"
+  name        = "atlantis-${local.env}-${local.tribe}-alb"
 }
 
 include {
