@@ -2,9 +2,6 @@
 
 SCHEMAS=(marlowe chain)
 
-[ -d /dump/marlowe ] && rm -rf /dump/marlowe
-[ -d /dump/chain ] && rm -rf /dump/chain
-
 fn_dump() {
   ACTION=$1
   DB_PASSWORD=$2
@@ -24,6 +21,7 @@ fn_dump() {
 }
 
 for SCHEMA in ${SCHEMAS[@]}; do
+  [ -d /dump/${SCHEMA} ] && rm -rf /dump/${SCHEMA}
   if [ $SCHEMA == "marlowe" ]; then
     fn_dump "export" $MARLOWE_DB_PASSWORD $MARLOWE_DB_HOST $MARLOWE_DB_USER $MARLOWE_DB_NAME $SCHEMA
   else
