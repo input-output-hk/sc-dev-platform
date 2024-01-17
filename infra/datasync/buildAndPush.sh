@@ -17,7 +17,3 @@ docker tag $DOCKER_IMAGE ${ecr_registry}/$DOCKER_IMAGE
 
 # Step 4: Push Docker Image
 docker push ${ecr_registry}/$DOCKER_IMAGE
-
-# Additional Tips:
-echo "Make sure Docker has experimental features enabled for multi-platform builds."
-echo "Ensure AWS CLI is configured with the necessary permissions for Amazon ECR actions."
