@@ -1,0 +1,106 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: datasync-pvc
+  namespace: marlowe-staging
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: ebs-sc
+  volumeMode: Filesystem
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: datasync
+  namespace: marlowe-staging
+spec:
+  schedule: "45 10 * * *"
+  concurrencyPolicy: "Forbid"
+  successfulJobsHistoryLimit: 5
+  failedJobsHistoryLimit: 2
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: datasync
+            image: 677160962006.dkr.ecr.us-east-1.amazonaws.com/data-sync:20230117
+            imagePullPolicy: IfNotPresent
+            command:
+            - /script/replicate.sh
+            env:
+            - name: MARLOWE_DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  key: endpoint
+                  name: conn-marlowe-runtime-qa-mainnet-marlowe 
+            - name: MARLOWE_DB_USER
+              valueFrom:
+                secretKeyRef:
+                  key: username
+                  name: conn-marlowe-runtime-qa-mainnet-marlowe
+            - name: MARLOWE_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: conn-marlowe-runtime-qa-mainnet-marlowe
+            - name: MARLOWE_DB_NAME
+              value: "scdedb"
+            - name: CHAIN_DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  key: endpoint
+                  name: conn-marlowe-runtime-qa-mainnet-chain
+            - name: CHAIN_DB_USER
+              valueFrom:
+                secretKeyRef:
+                  key: username
+                  name: conn-marlowe-runtime-qa-mainnet-chain
+            - name: CHAIN_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: conn-marlowe-runtime-qa-mainnet-chain
+            - name: CHAIN_DB_NAME
+              value: "scdedb"
+            - name: LOOKER_DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  key: endpoint
+                  name: conn-looker-db
+            - name: LOOKER_DB_USER
+              valueFrom:
+                secretKeyRef:
+                  key: username
+                  name: conn-looker-db
+            - name: LOOKER_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: conn-looker-db
+            - name: LOOKER_DB_NAME
+              value: "chainsync_qa_mainnet"
+            - name: CONCURRENCY_LEVEL
+              value: "4"
+            - name: COMPRESSION_LEVEL
+              value: "lz4:2"
+            resources:
+              requests:
+                cpu: "4"
+                memory: 2Gi
+              limits:
+                cpu: "4"
+                memory: 2Gi
+            volumeMounts:
+            - mountPath: /dump
+              name: postgres-data
+          volumes:
+          - name: postgres-data
+            persistentVolumeClaim:
+              claimName: datasync-pvc
+          restartPolicy: OnFailure
+
