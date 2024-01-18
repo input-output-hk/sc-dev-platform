@@ -13,10 +13,12 @@ fn_dump() {
   export PGPASSWORD=$DB_PASSWORD
   if [ $ACTION == "export" ]; then
     /usr/bin/pg_dump --host=$DB_HOST --username=$DB_USER --dbname=$DB_NAME --schema=$DB_SCHEMA \
-    --clean --format=d --file=/dump/$DB_SCHEMA --jobs=$CONCURRENCY_LEVEL --compress=$COMPRESS_LEVEL --verbose
+    --clean --format=d --file=/dump/$DB_SCHEMA --jobs=$CONCURRENCY_LEVEL --compress=$COMPRESSION_LEVEL --verbose
   else
+    echo "drop schema ${DB_SCHEMA} cascade;" | \
+    /usr/bin/psql --host=$DB_HOST --username=$DB_USER --dbname=$DB_NAME
     /usr/bin/pg_restore --host=$DB_HOST --username=$DB_USER --dbname=$DB_NAME \
-    --format=d --jobs=$CONCURRENCY_LEVEL --clean /dump/$DB_SCHEMA --verbose
+    --format=d --jobs=$CONCURRENCY_LEVEL /dump/$DB_SCHEMA --exit-on-error --verbose
   fi
 }
 
