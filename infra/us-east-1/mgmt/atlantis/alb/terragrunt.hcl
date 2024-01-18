@@ -9,6 +9,8 @@ locals {
   cidr_prefix = local.environment_vars.locals.cidr_prefix
   tribe       = local.account_vars.locals.tribe
   name        = "atlantis-${local.env}-${local.tribe}-alb"
+
+  atlantis_port = 4141
 }
 
 include {
@@ -21,6 +23,10 @@ terraform {
 
 dependency "vpc" {
   config_path = "../../vpc"
+}
+
+dependency "acm" {
+  config_path = "../acm"
 }
 
 dependency "security_group" {
@@ -60,6 +66,86 @@ inputs = {
           cidr_ipv4   = dependency.vpc.outputs.vpc_cidr_block
         }
   }
+
+  listeners = {
+    http-https-redirect = {
+      port    = 80
+      protocol = "HTTP"
+
+      redirect = {
+        port        = "443"
+        protocol    = "HTTPS"
+        status_code = "HTTP_301"
+      }
+    }
+    https = {
+      port            = 443
+      protocol        = "HTTPS"
+      ssl_policy      = "ELBSecurityPolicy-TLS13-1-2-Res-2021-06"
+      certificate_arn = dependency.acm.outputs.acm_certificate_arn
+    }
+  }
+
+  target_groups = {
+    atlantis = {
+      name             = "atlantis"
+      backend_protocol = "HTTP"
+      port             = local.atlantis_port
+      target_type      = "instance"
+      load_balancing_cross_zone_enabled = true
+      health_check = {
+        enabled             = true
+        interval            = 30
+        path                = "/healthz"
+        port                = local.atlantis_port
+        healthy_threshold   = 5
+        unhealthy_threshold = 2
+        timeout             = 5
+        protocol            = "HTTP"
+        matcher             = "200"
+      }
+    }
+  }
+
+  route53_records = {
+    A = {
+      name    = "atlantis"
+      type    = "A"
+      zone_id = "Z10147571DRRDCJXSER5Y"
+    }
+    AAA = {
+      name    = "atlantis"
+      type    = "AAAA"
+      zone_id = "Z10147571DRRDCJXSER5Y"
+    }
+  }
+
+  //   listeners = merge(
+  //   {
+  //     http-https-redirect = {
+  //       port     = 80
+  //       protocol = "HTTP"
+
+  //       redirect = {
+  //         port        = "443"
+  //         protocol    = "HTTPS"
+  //         status_code = "HTTP_301"
+  //       }
+  //     }
+
+  //     https = merge(
+  //       {
+  //         port            = 443
+  //         protocol        = "HTTPS"
+  //         ssl_policy      = try(var.alb.https_listener_ssl_policy, "ELBSecurityPolicy-TLS13-1-2-Res-2021-06")
+  //         certificate_arn = var.create_certificate ? module.acm.acm_certificate_arn : var.certificate_arn
+  //       },
+  //       var.alb_https_default_action,
+  //       lookup(var.alb, "https_listener", {})
+  //     )
+  //   },
+  //   lookup(var.alb, "listeners", {})
+  // )
 
 }
 
