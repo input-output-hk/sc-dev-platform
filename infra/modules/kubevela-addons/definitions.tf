@@ -188,6 +188,32 @@ resource "kubectl_manifest" "traitdefinition_cardano_node_connector" {
   })
 }
 
+resource "kubectl_manifest" "traitdefinition_nixbuildnet" {
+  yaml_body = yamlencode({
+    "apiVersion" = "core.oam.dev/v1beta1"
+    "kind"       = "TraitDefinition"
+    "metadata" = {
+      "annotations" = {
+        "definition.oam.dev/description" = "Allow an Application to connect to Nixbuild.net"
+      }
+      "name"      = "nixbuildnet"
+      "namespace" = var.namespace
+    }
+    "spec" = {
+      "appliesToWorkloads" = [
+        "deployments.apps", "statefulsets.apps", "daemonsets.apps", "jobs.batch"
+      ]
+      "conflictsWith" = []
+      "podDisruptive" = true
+      "schematic" = {
+        "cue" = {
+          "template" = file("${path.module}/definitions/nixbuildnet.cue")
+        }
+      }
+    }
+  })
+}
+
 resource "kubectl_manifest" "componentdefinition_helmrelease" {
   force_new          = true
   yaml_body          = file("${path.module}/definitions/helm.yaml")
