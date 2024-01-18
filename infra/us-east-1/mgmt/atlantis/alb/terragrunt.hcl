@@ -96,7 +96,7 @@ inputs = {
       backend_protocol = "HTTP"
       port             = local.atlantis_port
       target_type      = "instance"
-      target_id        = dependency.ec2.outputs.instance_id
+      target_id        = dependency.ec2.outputs.id
       load_balancing_cross_zone_enabled = true
       health_check = {
         enabled             = true
@@ -124,33 +124,6 @@ inputs = {
       zone_id = "Z10147571DRRDCJXSER5Y"
     }
   }
-
-  //   listeners = merge(
-  //   {
-  //     http-https-redirect = {
-  //       port     = 80
-  //       protocol = "HTTP"
-
-  //       redirect = {
-  //         port        = "443"
-  //         protocol    = "HTTPS"
-  //         status_code = "HTTP_301"
-  //       }
-  //     }
-
-  //     https = merge(
-  //       {
-  //         port            = 443
-  //         protocol        = "HTTPS"
-  //         ssl_policy      = try(var.alb.https_listener_ssl_policy, "ELBSecurityPolicy-TLS13-1-2-Res-2021-06")
-  //         certificate_arn = var.create_certificate ? module.acm.acm_certificate_arn : var.certificate_arn
-  //       },
-  //       var.alb_https_default_action,
-  //       lookup(var.alb, "https_listener", {})
-  //     )
-  //   },
-  //   lookup(var.alb, "listeners", {})
-  // )
 
 }
 
