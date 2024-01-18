@@ -37,64 +37,70 @@ parameter: {
   envs: [#cardanoNodeConfigs.envs][0]
 }
 
-patch: spec: template: spec: {
-	// +patchKey=name
-	volumes: #PatchConfig.volumes
-  // +patchKey=name
-  volumeMounts: #cardanoWalletConfigs.volumeMounts,
-	// +patchKey=name
-	containers: [
-		{
-			name: context.name
-			volumeMounts: [{
-				name:      #cardanoNodeConfigs.volumes[0].name
-				mountPath: "/\( #cardanoNodeConfigs.volumes[0].name )"
-			}]
-	    // +patchKey=name
-			env: #PatchConfig.envs
-		},
-		{
-			name:            "socat"
-			image:           "alpine/socat"
-			imagePullPolicy: "Always"
-			args: [
-				"UNIX-LISTEN:\( #cardanoNodeConfigs.envs[0].value ),fork",
-				"TCP-CONNECT:cardano-node-\( parameter.network ).vela-system:8090",
-			]
-			volumeMounts: [{
-				name:      #cardanoNodeConfigs.volumes[0].name
-				mountPath: "/\( #cardanoNodeConfigs.volumes[0].name )"
-			}]
-		},
-    {
-      name:            "cardano-wallet-\( parameter.network )"
-      image:           "inputoutput/cardano-wallet:dev-master"
-      imagePullPolicy: "Always"
-      args: [
-        "serve",
-        "--node-socket",
-        "/ipc/node.socket",
-        "--database",
-        "/wallet-db",
-        "--listen-address",
-        "0.0.0.0",
-        "--testnet",
-        "/config/\( parameter.network )/genesis-byron.json"
-      ]
-      volumes: [{
-        name:      #cardanoNodeConfigs.volumes[0].name
-        path: "/\( #cardanoNodeConfigs.volumes[0].name )"
-      }, {
-        name:      #cardanoWalletConfigs.volumes[0].name
-        path: "/\( #cardanoWalletConfigs.volumes[0].name )"
-      }]
-      volumeMounts: [{
-        name:      #cardanoNodeConfigs.volumes[0].name
-        mountPath: "/\( #cardanoNodeConfigs.volumes[0].name )"
-        emptyDir: {}
-      }]
-    },
-	]
+patch: spec: {
+  // +patchStrategy=retainKeys
+  strategy: {
+    type: "Recreate"
+  }
+  template: spec: {
+    // +patchKey=name
+    volumes: #PatchConfig.volumes
+    // +patchKey=name
+    volumeMounts: #cardanoWalletConfigs.volumeMounts,
+    // +patchKey=name
+    containers: [
+      {
+        name: context.name
+        volumeMounts: [{
+          name:      #cardanoNodeConfigs.volumes[0].name
+          mountPath: "/\( #cardanoNodeConfigs.volumes[0].name )"
+        }]
+        // +patchKey=name
+        env: #PatchConfig.envs
+      },
+      {
+        name:            "socat"
+        image:           "alpine/socat"
+        imagePullPolicy: "Always"
+        args: [
+          "UNIX-LISTEN:\( #cardanoNodeConfigs.envs[0].value ),fork",
+          "TCP-CONNECT:cardano-node-\( parameter.network ).vela-system:8090",
+        ]
+        volumeMounts: [{
+          name:      #cardanoNodeConfigs.volumes[0].name
+          mountPath: "/\( #cardanoNodeConfigs.volumes[0].name )"
+        }]
+      },
+      {
+        name:            "cardano-wallet-\( parameter.network )"
+        image:           "inputoutput/cardano-wallet:dev-master"
+        imagePullPolicy: "Always"
+        args: [
+          "serve",
+          "--node-socket",
+          "/ipc/node.socket",
+          "--database",
+          "/wallet-db",
+          "--listen-address",
+          "0.0.0.0",
+          "--testnet",
+          "/config/\( parameter.network )/genesis-byron.json"
+        ]
+        volumes: [{
+          name:      #cardanoNodeConfigs.volumes[0].name
+          path: "/\( #cardanoNodeConfigs.volumes[0].name )"
+        }, {
+          name:      #cardanoWalletConfigs.volumes[0].name
+          path: "/\( #cardanoWalletConfigs.volumes[0].name )"
+        }]
+        volumeMounts: [{
+          name:      #cardanoNodeConfigs.volumes[0].name
+          mountPath: "/\( #cardanoNodeConfigs.volumes[0].name )"
+          emptyDir: {}
+        }]
+      },
+    ]
+  }
 }
 
 outputs: {
