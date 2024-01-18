@@ -71,6 +71,8 @@ inputs = {
         }
   }
 
+  default_port     = 80
+  default_protocol = "HTTP"
   listeners = {
     http-https-redirect = {
       port    = 80
