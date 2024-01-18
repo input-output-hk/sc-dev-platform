@@ -177,7 +177,7 @@ resource "kubectl_manifest" "traitdefinition_cardano_node_connector" {
       "appliesToWorkloads" = [
         "deployments.apps", "statefulsets.apps", "daemonsets.apps", "jobs.batch"
       ]
-      "conflictsWith" = []
+      "conflictsWith" = ["cardano-wallet-connector"]
       "podDisruptive" = true
       "schematic" = {
         "cue" = {
@@ -203,7 +203,7 @@ resource "kubectl_manifest" "traitdefinition_cardano_wallet_connector" {
       "appliesToWorkloads" = [
         "deployments.apps", "statefulsets.apps", "daemonsets.apps", "jobs.batch"
       ]
-      "conflictsWith" = []
+      "conflictsWith" = ["cardano-node-connector"]
       "podDisruptive" = true
       "schematic" = {
         "cue" = {
