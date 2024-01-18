@@ -36,4 +36,4 @@ spec:
             network: preview
 ```
 
-
+> Disclaimer: The current state of this trait doesn't blocks you from using it inlined with `cardano-node-connector` but since they have some similarity we recommend you to avoid it.
