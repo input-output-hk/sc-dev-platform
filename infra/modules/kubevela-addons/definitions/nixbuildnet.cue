@@ -64,7 +64,7 @@ patch: spec: template: spec: {
 	// +patchKey=name
 	volumes: #PatchConfig.volumes
 	// +patchKey=name
-    containers: [
+    containers: [{
 		name: context.name
         volumeMounts: [{
             name: #PatchConfig.volumes[0].name
@@ -72,6 +72,6 @@ patch: spec: template: spec: {
         },{
             name: #PatchConfig.volumes[1].name
             mountPath: "/etc/ssh"
-        }]
-    ]
+        }]  
+    }]
 }
