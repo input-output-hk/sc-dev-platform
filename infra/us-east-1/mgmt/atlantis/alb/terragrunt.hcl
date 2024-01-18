@@ -89,6 +89,10 @@ inputs = {
       protocol        = "HTTPS"
       ssl_policy      = "ELBSecurityPolicy-TLS13-1-2-Res-2021-06"
       certificate_arn = dependency.acm.outputs.acm_certificate_arn
+
+      forward = {
+        target_group_key = "atlantis"
+      }
     }
   }
 
