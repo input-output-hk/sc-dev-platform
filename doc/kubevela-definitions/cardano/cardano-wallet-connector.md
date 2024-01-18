@@ -7,6 +7,8 @@ The Cardano Wallet Connector trait acts as an intermediary tool allowing seamles
 The ***required*** parameter for implementing this trait is:
  - `network`: Defines the network choice for the Cardano Wallet. The available options are "preview", "preprod" and "mainnet".
 
+The *Recreate* deployment strategy has been defined as the default strategy for this trait.
+
 ## Usage
 
 An instance of how you can utilize this trait within a Kubvela application follows:
