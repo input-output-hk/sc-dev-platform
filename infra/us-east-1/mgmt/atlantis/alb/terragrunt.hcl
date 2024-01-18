@@ -25,6 +25,10 @@ dependency "vpc" {
   config_path = "../../vpc"
 }
 
+dependency "ec2" {
+  config_path = "../ec2"
+}
+
 dependency "acm" {
   config_path = "../acm"
 }
@@ -92,6 +96,7 @@ inputs = {
       backend_protocol = "HTTP"
       port             = local.atlantis_port
       target_type      = "instance"
+      target_id        = dependency.ec2.outputs.instance_id
       load_balancing_cross_zone_enabled = true
       health_check = {
         enabled             = true
