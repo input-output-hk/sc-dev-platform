@@ -91,14 +91,14 @@ inputs = {
       certificate_arn = dependency.acm.outputs.acm_certificate_arn
 
       forward = {
-        target_group_key = "atlantis"
+        target_group_key = "atlantis-ec2"
       }
     }
   }
 
   target_groups = {
-    atlantis = {
-      name             = "atlantis"
+    atlantis-ec2 = {
+      name             = "atlantis-ec2"
       backend_protocol = "HTTP"
       port             = local.atlantis_port
       target_type      = "instance"
@@ -120,12 +120,12 @@ inputs = {
 
   route53_records = {
     A = {
-      name    = "atlantis"
+      name    = "atlantis-ec2"
       type    = "A"
       zone_id = "Z10147571DRRDCJXSER5Y"
     }
     AAA = {
-      name    = "atlantis"
+      name    = "atlantis-ec2"
       type    = "AAAA"
       zone_id = "Z10147571DRRDCJXSER5Y"
     }
