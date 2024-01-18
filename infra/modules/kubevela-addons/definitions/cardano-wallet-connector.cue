@@ -8,24 +8,10 @@ parameter: {
     persistentVolumeClaim: {
       claimName: "wallet-db"
     }
-  }, {
-    name: "db"
-    persistentVolumeClaim: {
-      claimName: "db"
-    }
   }]
   volumeMounts: [{
     name:      "wallet-db"
     mountPath: "/wallet-db"
-    storageClassName: "ebs-sc"
-    resources: {
-      requests: {
-        storage: "100Ki"
-      }
-    }
-  }, {
-    name:      "db"
-    mountPath: "/db"
     storageClassName: "ebs-sc"
     resources: {
       requests: {
@@ -108,22 +94,6 @@ patch: spec: template: spec: {
         emptyDir: {}
       }]
     },
-    {
-      name:            "create-wallet"
-      image:           "curlimages/curl:latest"
-      imagePullPolicy: "Always"
-      args: [
-        "-X",
-        "POST",
-        "-H",
-        "Accept: application/json",
-        "-H",
-        "Content-Type: application/json",
-        "-d",
-        "{\"name\":\"test_cf_1\",\"mnemonic_sentence\": [\"stock\",\"horn\",\"under\",\"crime\",\"acid\",\"tell\",\"repair\",\"brain\",\"shallow\",\"dinosaur\",\"candy\",\"sight\",\"memory\",\"antenna\",\"baby\",\"truck\",\"force\",\"chuckle\",\"elephant\",\"unhappy\",\"sentence\",\"control\",\"hold\",\"camera\"],\"passphrase\":\"test123456\"}",
-        "http://localhost:8090/v2/wallets"
-      ]
-    },
 	]
 }
 
@@ -145,26 +115,6 @@ outputs: {
         }
       },
       storageClassName: #cardanoWalletConfigs.volumeMounts[0].storageClassName,
-      volumeMode: "Filesystem"
-    }
-  },
-  "pvc-\( #cardanoWalletConfigs.volumes[1].persistentVolumeClaim.claimName )": {
-    apiVersion: "v1",
-    kind: "PersistentVolumeClaim",
-    metadata: {
-      name: #cardanoWalletConfigs.volumes[1].persistentVolumeClaim.claimName,
-      namespace: context.namespace
-    },
-    spec: {
-      accessModes: [
-        "ReadWriteOnce"
-      ],
-      resources: {
-        requests: {
-          storage: #cardanoWalletConfigs.volumeMounts[1].resources.requests.storage
-        }
-      },
-      storageClassName: #cardanoWalletConfigs.volumeMounts[1].storageClassName,
       volumeMode: "Filesystem"
     }
   }
