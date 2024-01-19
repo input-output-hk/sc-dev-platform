@@ -25,10 +25,6 @@ parameter: {
     }
 }
 
-_volumes: [
-    #PatchConfig.nix.volumes + #PatchConfig.ssh.volumes
-]
-
 outputs: {
     configmapNix: {
         apiVersion: "v1"
@@ -73,7 +69,10 @@ outputs: {
 
 patch: spec: template: spec: {
 	// +patchKey=name
-	volumes: _volumes
+	volumes: [
+        #PatchConfig.nix.volumes[0],
+        #PatchConfig.ssh.volumes[0]
+    ]
 	// +patchKey=name
     containers: [{
 		name: context.name
