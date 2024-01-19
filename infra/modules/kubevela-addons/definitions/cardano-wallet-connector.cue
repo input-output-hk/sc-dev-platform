@@ -1,5 +1,6 @@
 parameter: {
 	network:       *"preview" | "preprod" | "mainnet"
+  port:          *8090 | number
 }
 
 #cardanoWalletConfigs: {
@@ -83,6 +84,8 @@ patch: spec: {
           "/wallet-db",
           "--listen-address",
           "0.0.0.0",
+          "--port",
+          "\( parameter.port )",
           "--testnet",
           "/config/\( parameter.network )/genesis-byron.json"
         ]
