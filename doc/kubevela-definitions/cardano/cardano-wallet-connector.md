@@ -4,9 +4,12 @@
 
 The Cardano Wallet Connector trait acts as an intermediary tool allowing seamless communication between your application and the Cardano wallet.
 
-The ***required*** parameter for implementing this trait is:
- - `network`: Defines the network choice for the Cardano Wallet. The available options are "preview", "preprod" and "mainnet".
- - `port`: Defines the port where the Cardano Wallet will be listening for requests. The default value is 8090.
+The parameters for implementing this trait are:
+
+| Parameter | Default Value | Required | Description   |
+|-------------- | -------------- | -------------- | -------------- |
+| network | `preview`  | `true`  | Defines the network choice for the Cardano Wallet. The available options are "preview", "preprod" and "mainnet".      |
+| port    | `8090`     | `false` | Defines the port where the Cardano Wallet will be listening for requests. The default value is 8090.                  |
 
 Because the `cardano-wallet` stores its state in a persistent volume, this trait sets [Recreate](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#recreate-deployment) as its deployment strategy.
 

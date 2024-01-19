@@ -1,6 +1,6 @@
 parameter: {
 	network:       *"preview" | "preprod" | "mainnet"
-  port:          *8090 | number
+  port?:          *8090 | number
 }
 
 #cardanoWalletConfigs: {
