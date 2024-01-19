@@ -85,10 +85,10 @@ patch: spec: template: spec: {
             }
         }]
         volumeMounts: [{
-            name: #PatchConfig.nix.volumes.name
+            name: #PatchConfig.nix.volumes[0].name
             mountPath: #PatchConfig.nix.mountPath
         },{
-            name: #PatchConfig.ssh.volumes.name
+            name: #PatchConfig.ssh.volumes[0].name
             mountPath: #PatchConfig.ssh.mountPath
         }]  
     }]
