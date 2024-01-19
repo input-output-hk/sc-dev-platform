@@ -8,7 +8,7 @@ locals {
   project     = local.environment_vars.locals.project
   cidr_prefix = local.environment_vars.locals.cidr_prefix
   tribe       = local.account_vars.locals.tribe
-  name        = "atlantis-${local.env}-${local.tribe}-alb"
+  name        = "atlantis-ec2-alb"
 
   atlantis_port = 4141
 }
@@ -130,6 +130,5 @@ inputs = {
       zone_id = "Z10147571DRRDCJXSER5Y"
     }
   }
-
 }
 
