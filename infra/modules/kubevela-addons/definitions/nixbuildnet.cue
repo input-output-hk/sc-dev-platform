@@ -7,13 +7,13 @@ parameter: {
     name: "configmap-nix"
     configMap: {
         defaultMode: 420
-        name: "cm-\( context.name )-nix"
+        name: "configmap-nix"
     }
   },{
     name: "configmap-ssh"
     configMap: {
         defaultMode: 420
-        name: "cm-\( context.name )-ssh"
+        name: "configmap-ssh"
     }
   }]
 }
@@ -66,6 +66,13 @@ patch: spec: template: spec: {
 	// +patchKey=name
     containers: [{
 		name: context.name
+        env: [{
+            name: token
+            valueFrom: secretKeyRef: {
+                key: token
+                name: parameter.secretName
+            }
+        }]
         volumeMounts: [{
             name: #PatchConfig.volumes[0].name
             mountPath: "/etc/nix"
