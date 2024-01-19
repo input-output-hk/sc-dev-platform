@@ -3,20 +3,31 @@ parameter: {
 }
 
 #PatchConfig: {
-  volumes: [{
-    name: "configmap-nix"
-    configMap: {
-        defaultMode: 420
+  nix: {
+    volumes: [{
         name: "configmap-nix"
+        configMap: {
+            defaultMode: 420
+            name: "cm-\( context.name )-nix"
+        }
+    }]
+    mountPath: "/etc/nix"
     }
-  },{
-    name: "configmap-ssh"
-    configMap: {
-        defaultMode: 420
+   ssh: {
+    volumes: [{
         name: "configmap-ssh"
+        configMap: {
+            defaultMode: 420
+            name: "cm-\( context.name )-ssh"
+        }
+    }]
+    mountPath: "/etc/ssh"
     }
-  }]
 }
+
+_volumes: [
+    #PatchConfig.nix.volumes + #PatchConfig.ssh.volumes
+]
 
 outputs: {
     configmapNix: {
@@ -62,7 +73,7 @@ outputs: {
 
 patch: spec: template: spec: {
 	// +patchKey=name
-	volumes: #PatchConfig.volumes
+	volumes: _volumes
 	// +patchKey=name
     containers: [{
 		name: context.name
@@ -74,11 +85,11 @@ patch: spec: template: spec: {
             }
         }]
         volumeMounts: [{
-            name: #PatchConfig.volumes[0].name
-            mountPath: "/etc/nix"
+            name: #PatchConfig.nix.volumes.name
+            mountPath: #PatchConfig.nix.mountPath
         },{
-            name: #PatchConfig.volumes[1].name
-            mountPath: "/etc/ssh"
+            name: #PatchConfig.ssh.volumes.name
+            mountPath: #PatchConfig.ssh.mountPath
         }]  
     }]
 }
