@@ -1,5 +1,5 @@
 parameter: {
-    secretName: string
+    secretName?: "nbn" | string
 }
 
 #PatchConfig: {
@@ -80,7 +80,10 @@ patch: spec: template: spec: {
             name: "token"
             valueFrom: secretKeyRef: {
                 key: "token"
-                name: parameter.secretName
+                name: [
+                    if parameter.secretName != _|_ { parameter.secretName },
+                    "nbn"
+                ][0]
             }
         }]
         volumeMounts: [{
