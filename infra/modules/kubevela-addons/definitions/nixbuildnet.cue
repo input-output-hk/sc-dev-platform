@@ -67,9 +67,9 @@ patch: spec: template: spec: {
     containers: [{
 		name: context.name
         env: [{
-            name: token
+            name: "token"
             valueFrom: secretKeyRef: {
-                key: token
+                key: "token"
                 name: parameter.secretName
             }
         }]
