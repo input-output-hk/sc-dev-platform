@@ -103,4 +103,5 @@ spec:
             persistentVolumeClaim:
               claimName: datasync-pvc
           restartPolicy: OnFailure
-
+          nodeSelector:
+            topology.kubernetes.io/zone: "us-east-1b"
