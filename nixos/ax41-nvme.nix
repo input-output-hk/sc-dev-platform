@@ -49,6 +49,8 @@ in assert (inputs ? disko); {
 
       kernelModules = [ "kvm-amd" ];
 
+      kernelParams = [ "amd_pstate.shared_mem=1 amd_pstate=passive" ];
+
       loader.grub = {
         copyKernels = true;
         devices = [ "/dev/disk/by-path/pci-0000:2c:00.0-nvme-1" ];
