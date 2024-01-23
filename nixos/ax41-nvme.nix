@@ -49,7 +49,7 @@ in assert (inputs ? disko); {
 
       kernelModules = [ "kvm-amd" ];
 
-      kernelParams = [ "amd_pstate.shared_mem=1 amd_pstate=passive" ];
+      kernelParams = [ "amd_pstate.shared_mem=1" "amd_pstate=passive" ];
 
       loader.grub = {
         copyKernels = true;
