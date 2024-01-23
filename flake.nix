@@ -36,6 +36,13 @@
                   "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDbXkgUEf6TLnEWXwc5wjxhr45wKHJFEVIWIkz9E9ZrnZ4BfH6rI4+tiWn6QihpXnS7zwPqWgCaeLkWzHXwqFmHPzFv1PNVYT1BcuddRFceWcTNXxwJ2JTDXtadH5F/ZyDI2SRsbPfGa1iLca/ANUOQVb4yI3PSALD4BPd5G19mf/8HTZGL0wnYbq9JG7FHKG/8UheuoLf4En6Dk65JLTKvhdnASV5uMJOqmNaI3Q5v6YjVNokPLOqal/PN9/ERJ+jQIB65fFdSV4U55/jHFne1CdtEae77Qymi9JoLg1L4gbS9Dgmu09Asv4FB+jH4HQRUIkCKQig6Blp/HVrAPWVud2IgULgEqw/l07BBVThWbdmxd32YtAkhveNX6FHQO3Fhjk1J2wAXpOgZFVBiRbaCP9PyZe5yKK7crajnIAIzzOUv+SrHLvUN06wrAqUxCNJ8tnb/VZI0m2DXblKXfMxAQ/yoyjD8OlvlWz89MyPCiq4Ep9RbFWQw2YyW17JQp+U= renebarbosa@Renes-MacBook-Air.local"
                 ];
               networking.nameservers = [ "185.12.64.1" "185.12.64.2" "2a01:4ff:ff00::add:1" "2a01:4ff:ff00::add:2" ];
+              powerManagement = {
+                cpufreq = {
+                  cpuFreqGovernor = "userspace";
+                  min = 3600000; # 3.6 GHz
+                  max = 4210000; # 4.2 GHz
+                };
+              };
             }
             ({ pkgs, lib, ... }: {
               environment.systemPackages = [ pkgs.git ];
