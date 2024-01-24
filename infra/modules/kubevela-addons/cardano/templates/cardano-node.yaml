@@ -35,6 +35,18 @@ spec:
         - name: ipc
           mountPath: /ipc
     traits:
+    {{ if eq $network "preview" }}
+    - type: expose
+      properties:
+        annotations:
+          "external-dns.alpha.kubernetes.io/hostname": "cardano-node-{{ $network }}.scdev.aws.iohkdev.io"
+          "service.beta.kubernetes.io/aws-load-balancer-nlb-target-type": "instance"
+          "service.beta.kubernetes.io/aws-load-balancer-scheme": "internet-facing"
+          "service.beta.kubernetes.io/aws-load-balancer-type": "external"
+        type: LoadBalancer
+        ports:
+        - port: 8090
+    {{- end }}
     - type: sidecar
       properties:
         name: socat
