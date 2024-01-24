@@ -1,5 +1,5 @@
 apiVersion: v2
 name: cardano-node
-version: v0.0.7
+version: v0.0.8
 description: Cardano node
 home: https://github.com/input-output-hk/cardano-node

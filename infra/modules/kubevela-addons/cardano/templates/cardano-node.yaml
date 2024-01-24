@@ -26,10 +26,12 @@ spec:
       exposeType: ClusterIP
       image: inputoutput/cardano-node
       imagePullPolicy: Always
+     {{ if not (eq $network "preview") }}
       ports:
       - expose: true
         port: 8090
         protocol: TCP
+      {{- end }}
       volumeMounts:
         emptyDir:
         - name: ipc
