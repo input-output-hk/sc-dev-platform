@@ -177,11 +177,37 @@ resource "kubectl_manifest" "traitdefinition_cardano_node_connector" {
       "appliesToWorkloads" = [
         "deployments.apps", "statefulsets.apps", "daemonsets.apps", "jobs.batch"
       ]
-      "conflictsWith" = []
+      "conflictsWith" = ["cardano-wallet-connector"]
       "podDisruptive" = true
       "schematic" = {
         "cue" = {
           "template" = file("${path.module}/definitions/cardano-node-connector.cue")
+        }
+      }
+    }
+  })
+}
+
+resource "kubectl_manifest" "traitdefinition_cardano_wallet_connector" {
+  yaml_body = yamlencode({
+    "apiVersion" = "core.oam.dev/v1beta1"
+    "kind"       = "TraitDefinition"
+    "metadata" = {
+      "annotations" = {
+        "definition.oam.dev/description" = "Allow an Application to connect and create a Cardano Wallet"
+      }
+      "name"      = "cardano-wallet-connector"
+      "namespace" = var.namespace
+    }
+    "spec" = {
+      "appliesToWorkloads" = [
+        "deployments.apps", "statefulsets.apps", "daemonsets.apps", "jobs.batch"
+      ]
+      "conflictsWith" = ["cardano-node-connector"]
+      "podDisruptive" = true
+      "schematic" = {
+        "cue" = {
+          "template" = file("${path.module}/definitions/cardano-wallet-connector.cue")
         }
       }
     }

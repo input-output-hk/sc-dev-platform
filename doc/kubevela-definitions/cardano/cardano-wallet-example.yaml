@@ -1,0 +1,20 @@
+apiVersion: core.oam.dev/v1beta1
+kind: Application
+metadata:
+  name: dapps-certification
+  namespace: dapps-certification-staging
+spec:
+  components:
+    - name: dapps-certification
+      type: webservice
+      properties:
+        image: ghcr.io/input-output-hk/plutus-certification:PLT-7784-k8s-sched
+        imagePullPolicy: Always
+        ports:
+          - expose: true
+            port: 80
+            protocol: TCP
+      traits:
+        - type: cardano-wallet-connector
+          properties:
+            network: preview
