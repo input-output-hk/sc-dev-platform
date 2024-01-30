@@ -2,3 +2,10 @@ networks:
   - mainnet
   - preprod
   - preview
+  
+instances:
+  cardano-node:
+    image: inputoutput/cardano-node
+  cardano-node-873:
+    image: ghcr.io/input-output-hk/cardano-node:8.7.3
+    updateStrategy: Recreate
