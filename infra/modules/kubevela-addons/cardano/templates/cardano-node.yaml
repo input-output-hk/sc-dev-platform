@@ -1,13 +1,14 @@
-{{- range $index, $network := .Values.networks }}
+{{- range $instanceName, $instance := .Values.instances }}
+{{- range $index, $network := $.Values.networks }}
 ---
 apiVersion: core.oam.dev/v1beta1
 kind: Application
 metadata:
-  name: cardano-node-{{ $network }}
+  name: {{ $instanceName }}-{{ $network }}
   namespace: vela-system
 spec:
   components:
-  - name: cardano-node-{{ $network }}
+  - name: {{ $instanceName }}-{{ $network }}
     type: webservice
     properties:
       {{ if eq $network "mainnet" }}
@@ -24,9 +25,9 @@ spec:
       - name: NETWORK
         value: {{ $network }}
       exposeType: ClusterIP
-      image: inputoutput/cardano-node
+      image: {{ $instance.image }}
       imagePullPolicy: Always
-     {{ if not (eq $network "preview") }}
+      {{ if not (eq $network "preview") }}
       ports:
       - expose: true
         port: 8090
@@ -37,11 +38,17 @@ spec:
         - name: ipc
           mountPath: /ipc
     traits:
+    {{- with $instance.updateStrategy }}
+    - type: k8s-update-strategy
+      properties:
+        strategy:
+          type: {{ . }}
+    {{- end }}
     {{ if eq $network "preview" }}
     - type: expose
       properties:
         annotations:
-          "external-dns.alpha.kubernetes.io/hostname": "cardano-node-{{ $network }}.scdev.aws.iohkdev.io"
+          "external-dns.alpha.kubernetes.io/hostname": "{{ $instanceName }}-{{ $network }}.scdev.aws.iohkdev.io"
           "service.beta.kubernetes.io/aws-load-balancer-nlb-target-type": "instance"
           "service.beta.kubernetes.io/aws-load-balancer-scheme": "internet-facing"
           "service.beta.kubernetes.io/aws-load-balancer-type": "external"
@@ -62,7 +69,11 @@ spec:
     - type: storage
       properties:
         pvc:
+        {{ if (eq $instanceName "cardano-node") }}
         - name: node-data-{{ $network }}
+        {{ else }}
+        - name: {{ $instanceName }}-data-{{ $network }}
+        {{- end }}
           mountPath: /data
           storageClassName: ebs-sc
           resources:
@@ -86,4 +97,5 @@ spec:
         policies:
         - local-vela-system
       type: deploy
+{{- end }}
 {{- end }}
