@@ -24,12 +24,13 @@ spec:
   failedJobsHistoryLimit: 2
   jobTemplate:
     spec:
+      backoffLimit: 3
       template:
         spec:
           containers:
           - name: datasync
-            image: 677160962006.dkr.ecr.us-east-1.amazonaws.com/datasync:20240118
-            imagePullPolicy: IfNotPresent
+            image: 677160962006.dkr.ecr.us-east-1.amazonaws.com/datasync:20240201
+            imagePullPolicy: Always
             command:
             - /script/replicate.sh
             env:
