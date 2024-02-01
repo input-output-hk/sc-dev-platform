@@ -2,7 +2,7 @@
 
 SCHEMAS=(marlowe chain)
 
-fn_test() { [ $? -ne 0 ] && exit 1 ;}
+fn_test() { [ $1 -ne 0 ] && exit 1 ;}
 
 fn_dump() {
   ACTION=${1}
