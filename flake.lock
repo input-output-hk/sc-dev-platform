@@ -1032,11 +1032,11 @@
     },
     "nixpkgs_18": {
       "locked": {
-        "lastModified": 1701964518,
-        "narHash": "sha256-eajacdD62Z2mC408zWGjJ0OqRjVbryNn2GTumXkvipE=",
+        "lastModified": 1706722661,
+        "narHash": "sha256-kR94vPKOQ2LMLDv4y6HpsnzYtCz2yy4+wYWGHYQqxRA=",
         "owner": "input-output-hk",
         "repo": "nixpkgs",
-        "rev": "4c3a5d6199fa310b6b8741a909a055b3f222a526",
+        "rev": "987a35d2e7939e9a3d13cbb3595e9da17eea9779",
         "type": "github"
       },
       "original": {

@@ -37,8 +37,8 @@
                 ];
               networking.nameservers = [ "185.12.64.1" "185.12.64.2" "2a01:4ff:ff00::add:1" "2a01:4ff:ff00::add:2" ];
               powerManagement = {
+                cpuFreqGovernor = "userspace";
                 cpufreq = {
-                  cpuFreqGovernor = "userspace";
                   min = 3600000; # 3.6 GHz
                   max = 4210000; # 4.2 GHz
                 };
