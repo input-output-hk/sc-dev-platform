@@ -62,7 +62,7 @@ inputs = {
   eks_managed_node_group_defaults = {
     # aws ssm get-parameters-by-path --path /aws/service/bottlerocket/aws-k8s-1.26/x86_64/latest/ --region us-east-1 \
     # --recursive | jq -r '.Parameters[1].Value'
-    ami_release_version = "1.16.0-d2d9cf87"
+    ami_release_version = "1.19.0-2b1a7872"
   }
 
   eks_managed_node_groups = {

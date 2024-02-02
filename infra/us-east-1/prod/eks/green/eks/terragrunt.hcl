@@ -60,7 +60,7 @@ inputs = {
   control_plane_subnet_ids = dependency.vpc.outputs.intra_subnets
 
   eks_managed_node_group_defaults = {
-    ami_release_version = "1.15.1-264e294c"
+    ami_release_version = "1.19.0-2b1a7872"
   }
 
   eks_managed_node_groups = {
@@ -73,7 +73,7 @@ inputs = {
     }
     "worker-memory" = {
       min_size       = 3
-      max_size       = 9
+      max_size       = 15
       instance_types = ["t3a.2xlarge"]
       subnet_ids     = dependency.vpc.outputs.private_subnets
       labels = {
