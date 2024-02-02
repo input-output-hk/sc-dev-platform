@@ -28,8 +28,8 @@ include {
 inputs = {
   name                = local.security_group_name
   vpc_id              = dependency.vpc.outputs.vpc_id
-  ingress_cidr_blocks = [
+  ingress_cidr_blocks = concat(
     dependency.vpc.outputs.private_subnets_cidr_blocks,
     dependency.vpn.outputs.public_subnets_cidr_blocks
-  ]
+  )
 }
