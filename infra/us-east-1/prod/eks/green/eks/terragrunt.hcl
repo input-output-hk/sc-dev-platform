@@ -60,7 +60,7 @@ inputs = {
   control_plane_subnet_ids = dependency.vpc.outputs.intra_subnets
 
   eks_managed_node_group_defaults = {
-    ami_release_version = "1.15.1-264e294c"
+    ami_release_version = ""1.19.0-2b1a7872"
   }
 
   eks_managed_node_groups = {
