@@ -2,6 +2,8 @@
 
 SCHEMAS=(marlowe chain)
 
+fn_test() { [ $1 -ne 0 ] && exit 1 ;}
+
 fn_dump() {
   ACTION=${1}
   DB_PASSWORD=${2}
@@ -15,11 +17,14 @@ fn_dump() {
     /usr/bin/pg_dump --host=${DB_HOST} --username=${DB_USER} --dbname=${DB_NAME} --schema=${DB_SCHEMA} \
     --clean --format=d --file=/dump/${DB_SCHEMA} --jobs=${CONCURRENCY_LEVEL} \
     --compress=${COMPRESSION_LEVEL} --verbose
+    fn_test $?
   else
     echo "drop schema ${DB_SCHEMA} cascade;" | \
     /usr/bin/psql --host=${DB_HOST} --username=${DB_USER} --dbname=${DB_NAME}
+    fn_test $?
     /usr/bin/pg_restore --host=${DB_HOST} --username=${DB_USER} --dbname=${DB_NAME} \
     --format=d --jobs=${CONCURRENCY_LEVEL} /dump/${DB_SCHEMA} --exit-on-error --verbose
+    fn_test $?
   fi
 }
 
@@ -32,5 +37,3 @@ for SCHEMA in ${SCHEMAS[@]}; do
   fi
   fn_dump "import" ${LOOKER_DB_PASSWORD} ${LOOKER_DB_HOST} ${LOOKER_DB_USER} ${LOOKER_DB_NAME} ${SCHEMA}
 done
-
-exit 0
