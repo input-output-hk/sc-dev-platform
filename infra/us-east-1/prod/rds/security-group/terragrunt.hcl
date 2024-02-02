@@ -12,6 +12,10 @@ dependency "vpc" {
   config_path = "../../vpc"
 }
 
+dependency "vpn"{
+  config_path = "${get_repo_root()}/infra/us-east-1/mgmt/vpc"
+}
+
 terraform {
   source = "github.com/terraform-aws-modules/terraform-aws-security-group//modules/postgresql?ref=v5.1.0"
 }
@@ -24,5 +28,8 @@ include {
 inputs = {
   name                = local.security_group_name
   vpc_id              = dependency.vpc.outputs.vpc_id
-  ingress_cidr_blocks = dependency.vpc.outputs.private_subnets_cidr_blocks
+  ingress_cidr_blocks = concat(
+    dependency.vpc.outputs.private_subnets_cidr_blocks,
+    dependency.vpn.outputs.public_subnets_cidr_blocks
+  )
 }
