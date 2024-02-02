@@ -41,7 +41,7 @@ inputs = {
   oidc_provider_arn                  = dependency.eks.outputs.oidc_provider_arn
   rds_security_groups                = [dependency.security_group.outputs.security_group_id]
   enable_addons                      = true 
-  enable_cardano_nodes               = true 
+  enable_cardano_nodes               = false 
   enable_dex                         = false
   enable_cluster_secrets             = false
 }
