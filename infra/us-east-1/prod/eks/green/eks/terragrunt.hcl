@@ -73,7 +73,7 @@ inputs = {
     }
     "worker-memory" = {
       min_size       = 3
-      max_size       = 9
+      max_size       = 12
       instance_types = ["t3a.2xlarge"]
       subnet_ids     = dependency.vpc.outputs.private_subnets
       labels = {
