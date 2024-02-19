@@ -20,12 +20,6 @@ spec:
           value: "3001"
         - name: CARDANO_RTS_OPTS
           value: ""
-        - name: BFID
-          value: ""
-        - name: POOLID
-          value: ""
-        - name: POOLTICKER
-          value: ""
         - name: SB_VRF_SKEY_PATH
           value: ""
         - name: CARDANO_NODE_SOCKET_PATH
