@@ -18,10 +18,6 @@ spec:
           value: "relay"
         - name: PORT
           value: "3001"
-        - name: CARDANO_RTS_OPTS
-          value: ""
-        - name: SB_VRF_SKEY_PATH
-          value: ""
         - name: CARDANO_NODE_SOCKET_PATH
           value: "/tmp/db/node.socket"
 ```;
